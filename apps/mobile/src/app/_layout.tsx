@@ -1,6 +1,6 @@
 import React from "react";
 
-import { ClerkProvider, useAuth } from "@clerk/expo";
+import { ClerkProvider, useAuth, useUser } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 import * as Notifications from "expo-notifications";
 import { Slot, usePathname, useRouter } from "expo-router";
@@ -35,7 +35,11 @@ if (!CLERK_PUBLISHABLE_KEY) {
 function InitialLayout() {
   const [isAppReady, setIsAppReady] = React.useState(false);
 
-  const { isLoaded: isAuthLoaded, isSignedIn } = useAuth();
+  const { isLoaded: isAuthLoaded, isSignedIn } = useAuth({
+    treatPendingAsSignedOut: false,
+  });
+  const { isLoaded: isUserLoaded, user } = useUser();
+  const isAuthenticated = isSignedIn === true && user != null;
   const {
     hasHydrated: hasOnboardingHydrated,
     isCompleted: isOnboardingCompleted,
@@ -49,11 +53,11 @@ function InitialLayout() {
   useNotificationObserver();
 
   React.useEffect(() => {
-    if (!isAuthLoaded || !hasOnboardingHydrated) return;
+    if (!isAuthLoaded || !isUserLoaded || !hasOnboardingHydrated) return;
 
     if (!isOnboardingCompleted) {
       if (!inOnboarding) router.replace("/onboarding");
-    } else if (!isSignedIn) {
+    } else if (!isAuthenticated) {
       if (!inAuthGroup) router.replace("/auth");
     } else if (inOnboarding || inAuthGroup) {
       router.replace("/");
@@ -64,15 +68,16 @@ function InitialLayout() {
     hasOnboardingHydrated,
     isAuthLoaded,
     isOnboardingCompleted,
-    isSignedIn,
+    isAuthenticated,
+    isUserLoaded,
     pathname,
     router,
   ]);
 
   const isRedirecting =
-    (isOnboardingCompleted && !isSignedIn && !inAuthGroup) ||
+    (isOnboardingCompleted && !isAuthenticated && !inAuthGroup) ||
     (!isOnboardingCompleted && !inOnboarding) ||
-    (isOnboardingCompleted && isSignedIn && (inOnboarding || inAuthGroup));
+    (isOnboardingCompleted && isAuthenticated && (inOnboarding || inAuthGroup));
 
   React.useEffect(() => {
     if (isAppReady) {
@@ -80,7 +85,13 @@ function InitialLayout() {
     }
   }, [isAppReady]);
 
-  if (!isAppReady || !isAuthLoaded || !hasOnboardingHydrated || isRedirecting) {
+  if (
+    !isAppReady ||
+    !isAuthLoaded ||
+    !isUserLoaded ||
+    !hasOnboardingHydrated ||
+    isRedirecting
+  ) {
     return null;
   }
 

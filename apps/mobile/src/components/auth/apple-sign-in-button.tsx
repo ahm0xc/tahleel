@@ -4,45 +4,44 @@ import { Alert, Platform } from "react-native";
 
 import { useSignInWithApple } from "@clerk/expo/apple";
 import { Ionicons } from "@expo/vector-icons";
-import { Button, PressableFeedback } from "heroui-native";
+import { PressableFeedback } from "heroui-native";
 
 import { Text } from "../ui";
 
-type AppleSignInButtonProps = React.ComponentPropsWithoutRef<typeof Button> & {
-  onSignInComplete?: (method: "apple") => void;
+type AppleSignInButtonProps = {
+  onSignInComplete?: () => void;
 };
 
 export default function AppleSignInButton({
   onSignInComplete,
 }: AppleSignInButtonProps) {
   const [isAttempting, setIsAttempting] = React.useState(false);
-
   const { startAppleAuthenticationFlow } = useSignInWithApple();
 
   async function handleAppleSignIn() {
     try {
       setIsAttempting(true);
-      const { createdSessionId, setActive } =
-        await startAppleAuthenticationFlow();
+      const result = await startAppleAuthenticationFlow();
+      const { createdSessionId, setActive } = result;
 
       if (createdSessionId && setActive) {
-        // Set the created session as the active session
         await setActive({ session: createdSessionId });
+        console.log("[auth] Apple session activated");
 
-        // Once the session is set as active,
-        // if a callback function is provided, call it.
-        // Otherwise, redirect to the home page.
-        onSignInComplete?.("apple");
+        onSignInComplete?.();
+      } else {
+        console.warn("[auth] Apple flow returned without a session");
       }
-    } catch (err: any) {
-      // User canceled the sign-in flow
-      if (err.code === "ERR_REQUEST_CANCELED") return;
+    } catch (error) {
+      if (isAppleSignInCancellation(error)) return;
 
+      console.error("[auth] Apple sign-in failed", getErrorDetails(error));
       Alert.alert(
         "Error",
-        err.message || "An error occurred during Apple Sign-In"
+        error instanceof Error
+          ? error.message
+          : "An error occurred during Apple Sign-In"
       );
-      console.error("Apple Sign-In error:", JSON.stringify(err, null, 2));
     } finally {
       setIsAttempting(false);
     }
@@ -59,5 +58,26 @@ export default function AppleSignInButton({
       <Ionicons name="logo-apple" size={24} color="white" />
       <Text className="font-medium text-white">Sign in with Apple</Text>
     </PressableFeedback>
+  );
+}
+
+function getErrorDetails(error: unknown) {
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: error.message,
+      code: "code" in error ? error.code : undefined,
+    };
+  }
+
+  return { message: String(error) };
+}
+
+function isAppleSignInCancellation(error: unknown) {
+  return (
+    error !== null &&
+    typeof error === "object" &&
+    "code" in error &&
+    error.code === "ERR_REQUEST_CANCELED"
   );
 }

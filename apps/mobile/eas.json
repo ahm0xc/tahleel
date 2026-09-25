@@ -10,7 +10,8 @@
       "distribution": "internal",
       "channel": "development",
       "env": {
-        "APP_VARIANT": "development"
+        "APP_VARIANT": "development",
+        "EXPO_PUBLIC_CLERK_GOOGLE_IOS_URL_SCHEME": "com.googleusercontent.apps.269418271301-colc9jie9gqivkk1csdldkm9enaohk9t"
       }
     },
     "simulator": {

@@ -1,9 +1,8 @@
 import AppleSignInButton from "~/components/auth/apple-sign-in-button";
+import GoogleSignInButton from "~/components/auth/google-sign-in-button";
 import { Image, Text, View } from "~/components/ui";
 
 export default function AuthScreen() {
-  async function handleSignInComplete(method: "apple" | "google") {}
-
   return (
     <View className="pb-safe-offset-4 flex-1">
       <View className="flex-1 overflow-hidden">
@@ -25,7 +24,8 @@ export default function AuthScreen() {
           </Text>
         </View>
         <View className="mt-10 gap-2">
-          <AppleSignInButton onSignInComplete={handleSignInComplete} />
+          <AppleSignInButton />
+          <GoogleSignInButton />
         </View>
       </View>
     </View>

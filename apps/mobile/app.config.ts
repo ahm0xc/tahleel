@@ -4,8 +4,6 @@ const IS_DEV = process.env.APP_VARIANT === "development";
 const IS_PREVIEW = process.env.APP_VARIANT === "preview";
 
 const getUniqueIdentifier = () => {
-  if (IS_DEV) return "io.somossa.tahleel.dev";
-  if (IS_PREVIEW) return "io.somossa.tahleel.prev";
   return "io.somossa.tahleel";
 };
 
@@ -60,6 +58,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       ],
       "expo-secure-store",
       "@clerk/expo",
+      "@clerk/expo-google-signin",
       "expo-localization",
       "expo-apple-authentication",
       "expo-video",
@@ -81,6 +80,14 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       eas: {
         projectId: "700ffcd1-f18b-4b82-8c19-545c19f73966",
       },
+      EXPO_PUBLIC_CLERK_GOOGLE_WEB_CLIENT_ID:
+        process.env.EXPO_PUBLIC_CLERK_GOOGLE_WEB_CLIENT_ID,
+      EXPO_PUBLIC_CLERK_GOOGLE_IOS_CLIENT_ID:
+        process.env.EXPO_PUBLIC_CLERK_GOOGLE_IOS_CLIENT_ID,
+      EXPO_PUBLIC_CLERK_GOOGLE_ANDROID_CLIENT_ID:
+        process.env.EXPO_PUBLIC_CLERK_GOOGLE_ANDROID_CLIENT_ID,
+      EXPO_PUBLIC_CLERK_GOOGLE_IOS_URL_SCHEME:
+        process.env.EXPO_PUBLIC_CLERK_GOOGLE_IOS_URL_SCHEME,
     },
     updates: {},
     owner: "somossaxio-org",
