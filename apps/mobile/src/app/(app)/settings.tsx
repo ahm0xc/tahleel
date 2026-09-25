@@ -1,22 +1,13 @@
 import { Alert, Linking, ScrollView } from "react-native";
 
 import { useAuth, useUser } from "@clerk/expo";
-import { Host, Button as NativeButton } from "@expo/ui/swift-ui";
-import {
-  buttonBorderShape,
-  buttonStyle,
-  controlSize,
-  labelStyle,
-} from "@expo/ui/swift-ui/modifiers";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
-import { useRouter } from "expo-router";
 
 import { SettingsList, SettingsListItem } from "~/components/settings-list";
 import { Image, Text, View } from "~/components/ui";
 import { openAccountDeletionRequest } from "~/lib/account-deletion";
 import { openFeedback } from "~/lib/feedback";
-import { triggerHaptic } from "~/lib/haptics";
 import { isDev } from "~/lib/utils";
 import { useOnboarding } from "~/store/onboarding-store";
 
@@ -29,7 +20,7 @@ export default function SettingsScreen() {
   const { setCompleted: setOnboardingCompleted } = useOnboarding();
 
   return (
-    <ScrollView className="pb-safe-offset-4 flex-1">
+    <ScrollView className="pb-safe-offset-4 pt-safe-offset-2 flex-1">
       <Header />
 
       <ProfileCard />
@@ -131,39 +122,12 @@ export default function SettingsScreen() {
 }
 
 function Header() {
-  const router = useRouter();
-
   return (
-    <View className="px-safe-offset-4 pt-4">
-      <View className="flex-row items-center justify-between">
-        <View className="flex-1 flex-row justify-start"></View>
-
-        <View className="flex-1 flex-row justify-center">
-          <Image
-            source={require("~/../assets/images/app-logo-long.png")}
-            style={{ height: 30, width: (434 / 100) * 30 }}
-          />
-        </View>
-
-        <View className="flex-1 flex-row justify-end">
-          <Host matchContents>
-            <NativeButton
-              label="Back"
-              systemImage="xmark"
-              onPress={() => {
-                triggerHaptic();
-                router.back();
-              }}
-              modifiers={[
-                buttonStyle("glass"),
-                controlSize("large"),
-                labelStyle("iconOnly"),
-                buttonBorderShape("circle"),
-              ]}
-            />
-          </Host>
-        </View>
-      </View>
+    <View className="px-safe-offset-4 items-center pt-4">
+      <Image
+        source={require("~/../assets/images/app-logo-long.png")}
+        style={{ height: 30, width: (434 / 100) * 30 }}
+      />
     </View>
   );
 }

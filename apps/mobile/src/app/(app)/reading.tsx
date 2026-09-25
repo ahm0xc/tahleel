@@ -1,9 +1,9 @@
 import { Text, View } from "~/components/ui";
 
-export default function HomeScreen() {
+export default function ReadingScreen() {
   return (
     <View className="bg-background flex-1">
-      <Text>HomeScreen</Text>
+      <Text>ReadingScreen</Text>
     </View>
   );
 }
