@@ -1,0 +1,6 @@
+[install]
+# Use hoisted installs (npm-style flat node_modules) so Expo / React Native
+# native modules resolve to a single copy. Bun's default "isolated" linker
+# keeps separate copies per peer-set, which makes `expo-doctor` fail with
+# "duplicate native module dependencies".
+linker = "hoisted"
