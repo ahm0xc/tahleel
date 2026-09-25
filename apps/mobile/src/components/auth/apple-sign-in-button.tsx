@@ -2,7 +2,7 @@ import React from "react";
 
 import { Alert, Platform } from "react-native";
 
-import { useSignInWithApple } from "@clerk/clerk-expo";
+import { useSignInWithApple } from "@clerk/expo/apple";
 import { Ionicons } from "@expo/vector-icons";
 import { Button, PressableFeedback } from "heroui-native";
 

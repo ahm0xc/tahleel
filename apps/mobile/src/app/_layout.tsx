@@ -1,9 +1,9 @@
 import React from "react";
 
-import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
+import { ClerkProvider, useAuth } from "@clerk/expo";
+import { tokenCache } from "@clerk/expo/token-cache";
 import * as Notifications from "expo-notifications";
 import { Slot, usePathname, useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import * as SplashScreen from "expo-splash-screen";
 import { HeroUINativeProvider } from "heroui-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -26,29 +26,10 @@ Notifications.setNotificationHandler({
   }),
 });
 
-const tokenCache = {
-  async getToken(key: string) {
-    try {
-      return SecureStore.getItemAsync(key);
-    } catch (err) {
-      console.error("[TokenCache] Failed to get token:", err);
-      return null;
-    }
-  },
-  async saveToken(key: string, value: string) {
-    try {
-      return SecureStore.setItemAsync(key, value);
-    } catch (err) {
-      console.error("[TokenCache] Failed to save token:", err);
-      return;
-    }
-  },
-};
-
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 if (!CLERK_PUBLISHABLE_KEY) {
-  console.error("Missing CLERK_PUBLISHABLE_KEY");
+  throw new Error("Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY");
 }
 
 function InitialLayout() {

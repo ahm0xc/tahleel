@@ -59,6 +59,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         },
       ],
       "expo-secure-store",
+      "@clerk/expo",
       "expo-localization",
       "expo-apple-authentication",
       "expo-video",
@@ -78,6 +79,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ],
     extra: {
       eas: {
+        projectId: "700ffcd1-f18b-4b82-8c19-545c19f73966",
       },
     },
     updates: {},

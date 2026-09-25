@@ -1,6 +1,6 @@
 import { Alert, Linking, ScrollView } from "react-native";
 
-import { useAuth, useUser } from "@clerk/clerk-expo";
+import { useAuth, useUser } from "@clerk/expo";
 import { Host, Button as NativeButton } from "@expo/ui/swift-ui";
 import {
   buttonBorderShape,

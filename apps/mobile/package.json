@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@ahm0xc/utils": "^0.5.5",
-    "@clerk/clerk-expo": "^2.19.31",
+    "@clerk/expo": "^4.7.1",
     "@expo/ui": "~57.0.19",
     "@expo/vector-icons": "^15.0.2",
     "@gorhom/bottom-sheet": "^5.2.13",

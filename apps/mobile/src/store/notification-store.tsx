@@ -3,7 +3,7 @@ import * as React from "react";
 import { Linking } from "react-native";
 
 import { tryCatch } from "@ahm0xc/utils";
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuth } from "@clerk/expo";
 import { useAppState } from "@react-native-community/hooks";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
