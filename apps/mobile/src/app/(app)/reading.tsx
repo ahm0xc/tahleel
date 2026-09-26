@@ -1,21 +1,58 @@
 import React from "react";
 
-import { FlatList } from "react-native";
+import { FlatList, type ViewToken } from "react-native";
 
 import Feather from "@expo/vector-icons/Feather";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { PressableFeedback } from "heroui-native";
 import { useCSSVariable } from "uniwind";
 
-import { SurahSelect } from "~/components/quran";
+import { ChapterSelect } from "~/components/quran";
 import { Text, View } from "~/components/ui";
+import {
+  type EnglishVerse,
+  getEnglishChapter,
+} from "~/lib/quran/english-edition";
 import { cn } from "~/lib/utils";
+import { type ReadingView, useReadingState } from "~/store/reading-state-store";
 
-type ReadingView = "default" | "favorites";
+const viewabilityConfig = { itemVisiblePercentThreshold: 50 };
 
 export default function ReadingScreen() {
-  const [view, setView] = React.useState<ReadingView>("default");
+  const chapterNumber = useReadingState((state) => state.chapterNumber);
+  const verseNumber = useReadingState((state) => state.verseNumber);
+  const view = useReadingState((state) => state.view);
+  const setVerseNumber = useReadingState((state) => state.setVerseNumber);
+  const setView = useReadingState((state) => state.setView);
   const [containerHeight, setContainerHeight] = React.useState(0);
+  const hasRestoredRef = React.useRef(false);
+
+  const verses = React.useMemo(
+    () => getEnglishChapter(chapterNumber),
+    [chapterNumber]
+  );
+
+  const initialScrollIndex = React.useMemo(
+    () =>
+      Math.min(Math.max(verseNumber - 1, 0), Math.max(verses.length - 1, 0)),
+    [verseNumber, verses.length]
+  );
+
+  const onViewableItemsChanged = React.useCallback(
+    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+      if (!hasRestoredRef.current) {
+        hasRestoredRef.current = true;
+        return;
+      }
+
+      const [first] = viewableItems;
+
+      if (first?.index != null) {
+        setVerseNumber(first.index + 1);
+      }
+    },
+    [setVerseNumber]
+  );
 
   function toggleView() {
     setView(view === "default" ? "favorites" : "default");
@@ -32,27 +69,34 @@ export default function ReadingScreen() {
           setContainerHeight(height);
         }}
       >
-        <FlatList
-          data={[{ id: "hello" }, { id: "hi" }, { id: "bye" }]}
-          renderItem={({ item }) => (
-            <View
-              style={{
-                height: containerHeight,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Text>{item.id}</Text>
-            </View>
-          )}
-          keyExtractor={(item) => item.id}
-          pagingEnabled={true}
-          snapToInterval={containerHeight}
-          snapToAlignment="start"
-          decelerationRate="fast"
-          showsVerticalScrollIndicator={false}
-          disableIntervalMomentum={true} // <- key for TikTok-feel, stops it skipping 2+ pages on fast flicks
-        />
+        {containerHeight > 0 && (
+          <FlatList
+            key={`${chapterNumber}:${verseNumber}`}
+            data={verses}
+            initialScrollIndex={initialScrollIndex}
+            keyExtractor={(item) => String(item.verse)}
+            renderItem={({ item }) => (
+              <VersePage
+                chapterNumber={chapterNumber}
+                verse={item}
+                height={containerHeight}
+              />
+            )}
+            getItemLayout={(_, index) => ({
+              length: containerHeight,
+              offset: containerHeight * index,
+              index,
+            })}
+            onViewableItemsChanged={onViewableItemsChanged}
+            viewabilityConfig={viewabilityConfig}
+            pagingEnabled={true}
+            snapToInterval={containerHeight}
+            snapToAlignment="start"
+            decelerationRate="fast"
+            showsVerticalScrollIndicator={false}
+            disableIntervalMomentum={true}
+          />
+        )}
       </View>
     </View>
   );
@@ -104,9 +148,31 @@ function Header({
         </View>
 
         <View>
-          <SurahSelect />
+          <ChapterSelect />
         </View>
       </View>
+    </View>
+  );
+}
+
+function VersePage({
+  chapterNumber,
+  verse,
+  height,
+}: {
+  chapterNumber: number;
+  verse: EnglishVerse;
+  height: number;
+}) {
+  return (
+    <View
+      className="px-safe-offset-6 pt-safe-offset-12 pb-safe-offset-4 justify-center"
+      style={{ height }}
+    >
+      <Text className="text-muted mb-4 text-center text-sm">
+        {`${chapterNumber}:${verse.verse}`}
+      </Text>
+      <Text className="text-center text-xl leading-relaxed">{verse.text}</Text>
     </View>
   );
 }

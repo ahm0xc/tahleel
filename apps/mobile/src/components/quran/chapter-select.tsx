@@ -13,21 +13,23 @@ import {
 import { useCSSVariable } from "uniwind";
 
 import { Text, View } from "~/components/ui";
-import { SURAHS, type Surah } from "~/constants/surahs";
+import { CHAPTERS, type Chapter, getChapter } from "~/constants/chapters";
 import { useDebounce } from "~/hooks/use-debounce";
 import { triggerHaptic } from "~/lib/haptics";
 import { cn } from "~/lib/utils";
+import { useReadingState } from "~/store/reading-state-store";
 
-interface SurahSelectProps {
+interface ChapterSelectProps {
   className?: string;
-  onValueChange?: (surah: Surah) => void;
 }
 
-export function SurahSelect({ className, onValueChange }: SurahSelectProps) {
+export function ChapterSelect({ className }: ChapterSelectProps) {
+  const chapterNumber = useReadingState((state) => state.chapterNumber);
+  const setChapterNumber = useReadingState((state) => state.setChapterNumber);
   const [isOpen, setIsOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
-  const [selected, setSelected] = React.useState<Surah>(SURAHS[0]);
 
+  const selected = getChapter(chapterNumber) ?? CHAPTERS[0];
   const mutedColor = useCSSVariable("--muted") as string;
 
   return (
@@ -40,7 +42,7 @@ export function SurahSelect({ className, onValueChange }: SurahSelectProps) {
           )}
           accessibilityRole="button"
           accessibilityState={{ expanded: isOpen }}
-          accessibilityLabel="Choose a surah"
+          accessibilityLabel="Choose a chapter"
         >
           <Text className="text-sm">{selected.name}</Text>
           <View className={cn(isOpen && "rotate-180")}>
@@ -59,10 +61,10 @@ export function SurahSelect({ className, onValueChange }: SurahSelectProps) {
           keyboardBehavior="extend"
         >
           <View className="pb-3">
-            <SurahSearchField value={query} onChange={setQuery} />
+            <ChapterSearchField value={query} onChange={setQuery} />
           </View>
 
-          <SurahList
+          <ChapterList
             query={query}
             selected={selected}
             onSelect={handleSelect}
@@ -80,16 +82,15 @@ export function SurahSelect({ className, onValueChange }: SurahSelectProps) {
     }
   }
 
-  function handleSelect(surah: Surah) {
-    setSelected(surah);
+  function handleSelect(chapter: Chapter) {
+    setChapterNumber(chapter.chapterNumber);
     setIsOpen(false);
     setQuery("");
     triggerHaptic("Light");
-    onValueChange?.(surah);
   }
 }
 
-function SurahSearchField({
+function ChapterSearchField({
   value,
   onChange,
 }: {
@@ -103,7 +104,7 @@ function SurahSearchField({
       <SearchField.Group>
         <SearchField.SearchIcon />
         <SearchField.Input
-          placeholder="Search surahs"
+          placeholder="Search chapters"
           returnKeyType="search"
           className="rounded-full"
           onFocus={onFocus}
@@ -115,19 +116,19 @@ function SurahSearchField({
   );
 }
 
-function SurahList({
+function ChapterList({
   query,
   selected,
   onSelect,
 }: {
   query: string;
-  selected: Surah;
-  onSelect: (surah: Surah) => void;
+  selected: Chapter;
+  onSelect: (chapter: Chapter) => void;
 }) {
   const debouncedQuery = useDebounce(query, 150);
 
   const matches = React.useMemo(
-    () => filterSurahs(debouncedQuery),
+    () => filterChapters(debouncedQuery),
     [debouncedQuery]
   );
 
@@ -140,8 +141,8 @@ function SurahList({
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="on-drag"
       renderItem={({ item }) => (
-        <SurahRow
-          surah={item}
+        <ChapterRow
+          chapter={item}
           isSelected={item.chapterNumber === selected.chapterNumber}
           onPress={() => onSelect(item)}
         />
@@ -151,12 +152,12 @@ function SurahList({
   );
 }
 
-function SurahRow({
-  surah,
+function ChapterRow({
+  chapter,
   isSelected,
   onPress,
 }: {
-  surah: Surah;
+  chapter: Chapter;
   isSelected: boolean;
   onPress: () => void;
 }) {
@@ -173,8 +174,10 @@ function SurahRow({
           isSelected && "bg-default"
         )}
       >
-        <Text className="font-medium">{`${surah.chapterNumber}. ${surah.name}`}</Text>
-        <Text className="text-muted text-sm">{surah.englishName}</Text>
+        <Text className="font-medium">
+          {`${chapter.chapterNumber}. ${chapter.name}`}
+        </Text>
+        <Text className="text-muted text-sm">{chapter.englishName}</Text>
       </View>
     </PressableFeedback>
   );
@@ -183,27 +186,27 @@ function SurahRow({
 function EmptyState({ query }: { query: string }) {
   return (
     <Text className="text-muted py-8 text-center">
-      No surah matches “{query.trim()}”
+      No chapter matches “{query.trim()}”
     </Text>
   );
 }
 
-function filterSurahs(query: string) {
+function filterChapters(query: string) {
   const search = query.trim().toLowerCase();
 
   if (!search) {
-    return SURAHS;
+    return CHAPTERS;
   }
 
-  return SURAHS.filter(
-    (surah) =>
-      surah.name.toLowerCase().includes(search) ||
-      surah.englishName.toLowerCase().includes(search) ||
-      String(surah.chapterNumber) === search
+  return CHAPTERS.filter(
+    (chapter) =>
+      chapter.name.toLowerCase().includes(search) ||
+      chapter.englishName.toLowerCase().includes(search) ||
+      String(chapter.chapterNumber) === search
   );
 }
 
-const keyExtractor = (surah: Surah) => String(surah.chapterNumber);
+const keyExtractor = (chapter: Chapter) => String(chapter.chapterNumber);
 
 const styles = StyleSheet.create({
   list: { flex: 1 },

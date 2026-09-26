@@ -1,1 +1,2 @@
 - add credits for font authors
+- enable react compiler

@@ -1,11 +1,11 @@
-export interface Surah {
+export interface Chapter {
   chapterNumber: number;
   name: string;
   englishName: string;
   arabicName: string;
 }
 
-export const SURAHS: Surah[] = [
+export const CHAPTERS: Chapter[] = [
   {
     chapterNumber: 1,
     name: "Al-Faatiha",
@@ -692,6 +692,6 @@ export const SURAHS: Surah[] = [
   },
 ];
 
-export function getSurah(chapterNumber: number): Surah | undefined {
-  return SURAHS.find((surah) => surah.chapterNumber === chapterNumber);
+export function getChapter(chapterNumber: number): Chapter | undefined {
+  return CHAPTERS.find((chapter) => chapter.chapterNumber === chapterNumber);
 }

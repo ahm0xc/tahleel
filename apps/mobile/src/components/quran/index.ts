@@ -1,1 +1,1 @@
-export * from "./surah-select";
+export * from "./chapter-select";
