@@ -11,7 +11,6 @@ export default function Layout() {
         <Stack.Screen name="reading" />
         <Stack.Screen name="explore" />
         <Stack.Screen name="friends" />
-        <Stack.Screen name="onboarding" />
         <Stack.Screen name="settings" />
       </Stack>
 
