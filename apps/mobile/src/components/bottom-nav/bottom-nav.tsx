@@ -58,7 +58,7 @@ function NavItem({ color, href, iconName, isActive, label }: NavItemProps) {
       )}
       onPress={() => {
         triggerHaptic();
-        router.navigate(href);
+        router.replace(href);
       }}
     >
       <Feather color={color} name={iconName} size={22} />
