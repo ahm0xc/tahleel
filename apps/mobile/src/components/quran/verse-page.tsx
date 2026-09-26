@@ -1,6 +1,7 @@
-import React, { type ComponentProps } from "react";
+import React from "react";
 
 import {
+  type AccessibilityState,
   FlatList,
   type NativeSyntheticEvent,
   Pressable,
@@ -8,6 +9,7 @@ import {
 } from "react-native";
 
 import Feather from "@expo/vector-icons/Feather";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useCSSVariable } from "uniwind";
 
 import { Text, View } from "~/components/ui";
@@ -20,19 +22,11 @@ import {
   chunkVerseText,
 } from "~/lib/quran/verse-chunks";
 import { cn } from "~/lib/utils";
+import { useFavorite } from "~/store/favorite-store";
 
 const VERSE_TEXT_CLASS_NAME = "text-center text-xl leading-relaxed";
 
 const CHEVRON_SIZE = 22;
-
-type IconName = ComponentProps<typeof Feather>["name"];
-
-const VERSE_ACTIONS: { iconName: IconName; label: string }[] = [
-  { iconName: "heart", label: "Favorites" },
-  { iconName: "share-2", label: "Share verse" },
-  { iconName: "camera", label: "Capture photo" },
-  { iconName: "info", label: "Verse info" },
-];
 
 const chunkCache = new Map<string, string[]>();
 
@@ -183,7 +177,7 @@ export function VersePage({
       className="px-safe-offset-6 pt-safe-offset-12 pb-safe-offset-4 justify-center"
       style={{ height }}
     >
-      <VerseActions />
+      <VerseActions chapterNumber={chapterNumber} verseNumber={verse.verse} />
 
       <View
         className="w-full"
@@ -324,8 +318,19 @@ function ChunkNav({
   );
 }
 
-function VerseActions() {
+function VerseActions({
+  chapterNumber,
+  verseNumber,
+}: {
+  chapterNumber: number;
+  verseNumber: number;
+}) {
   const foregroundColor = useCSSVariable("--foreground") as string;
+  const dangerColor = useCSSVariable("--danger") as string;
+  const { isFavorite, toggleFavorite } = useFavorite({
+    chapterNumber,
+    verseNumber,
+  });
 
   return (
     <View className="absolute right-0 bottom-0 z-10" pointerEvents="box-none">
@@ -333,20 +338,57 @@ function VerseActions() {
         className="pr-safe-offset-4 pb-safe-offset-4 items-end gap-2"
         pointerEvents="box-none"
       >
-        {VERSE_ACTIONS.map((action) => (
-          <Pressable
-            key={action.label}
-            accessibilityRole="button"
-            accessibilityLabel={action.label}
-            className="bg-default size-10 items-center justify-center rounded-full active:opacity-60"
-            onPress={() => {
-              triggerHaptic();
-            }}
-          >
-            <Feather color={foregroundColor} name={action.iconName} size={20} />
-          </Pressable>
-        ))}
+        <VerseAction
+          accessibilityState={{ selected: isFavorite }}
+          label="Favorites"
+          onPress={toggleFavorite}
+        >
+          <MaterialIcons
+            color={isFavorite ? dangerColor : foregroundColor}
+            name={isFavorite ? "favorite" : "favorite-outline"}
+            size={20}
+          />
+        </VerseAction>
+
+        <VerseAction label="Share verse">
+          <Feather color={foregroundColor} name="share" size={20} />
+        </VerseAction>
+
+        <VerseAction label="Capture photo">
+          <Feather color={foregroundColor} name="camera" size={20} />
+        </VerseAction>
+
+        <VerseAction label="Verse info">
+          <Feather color={foregroundColor} name="info" size={20} />
+        </VerseAction>
       </View>
     </View>
+  );
+}
+
+function VerseAction({
+  accessibilityState,
+  children,
+  label,
+  onPress,
+}: {
+  accessibilityState?: AccessibilityState;
+  children: React.ReactNode;
+  label: string;
+  onPress?: () => void;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={accessibilityState}
+      className="bg-default size-10 items-center justify-center rounded-full active:opacity-60"
+      onPress={() => {
+        triggerHaptic();
+        onPress?.();
+      }}
+    >
+      {children}
+    </Pressable>
   );
 }
