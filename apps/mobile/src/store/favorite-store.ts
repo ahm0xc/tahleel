@@ -11,6 +11,10 @@ export interface FavoriteVerseRef {
   verseNumber: number;
 }
 
+export interface FavoriteEntry extends FavoriteVerseRef {
+  addedAt: number;
+}
+
 export function favoriteKey({ chapterNumber, verseNumber }: FavoriteVerseRef) {
   return `${chapterNumber}:${verseNumber}`;
 }
@@ -25,7 +29,7 @@ export function isFavoriteRef(
 }
 
 interface FavoriteStore {
-  favorites: FavoriteVerseRef[];
+  favorites: FavoriteEntry[];
   addFavorite: (favorite: FavoriteVerseRef) => void;
   removeFavorite: (favorite: FavoriteVerseRef) => void;
   toggleFavorite: (favorite: FavoriteVerseRef) => void;
@@ -40,7 +44,12 @@ export const useFavorites = create<FavoriteStore>()(
         set((state) =>
           isFavoriteRef(state.favorites, favorite)
             ? state
-            : { favorites: [...state.favorites, favorite] }
+            : {
+                favorites: [
+                  ...state.favorites,
+                  { ...favorite, addedAt: Date.now() },
+                ],
+              }
         );
       },
       removeFavorite(favorite) {
@@ -62,7 +71,12 @@ export const useFavorites = create<FavoriteStore>()(
                   (entry) => favoriteKey(entry) !== favoriteKey(favorite)
                 ),
               }
-            : { favorites: [...state.favorites, favorite] }
+            : {
+                favorites: [
+                  ...state.favorites,
+                  { ...favorite, addedAt: Date.now() },
+                ],
+              }
         );
       },
       clearFavorites() {
@@ -99,14 +113,14 @@ export function useFavoriteVerses() {
 
   return useMemo(
     () =>
-      favorites
+      [...favorites]
+        .sort((a, b) => b.addedAt - a.addedAt)
         .map(({ chapterNumber, verseNumber }) => {
           const verse = getEnglishVerse(chapterNumber, verseNumber);
 
-          return verse ? { chapterNumber, ...verse } : null;
+          return verse ? { chapterNumber, verseNumber, ...verse } : null;
         })
-        .filter((verse): verse is FavoriteVerse => verse !== null)
-        .sort((a, b) => a.chapterNumber - b.chapterNumber || a.verse - b.verse),
+        .filter((verse): verse is FavoriteVerse => verse !== null),
     [favorites]
   );
 }
