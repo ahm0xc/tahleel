@@ -19,6 +19,7 @@ import {
   MAX_LINES_PER_CHUNK,
   chunkVerseText,
 } from "~/lib/quran/verse-chunks";
+import { cn } from "~/lib/utils";
 
 const VERSE_TEXT_CLASS_NAME = "text-center text-xl leading-relaxed";
 
@@ -59,12 +60,13 @@ export function VersePage({
     return cached && cached.length > 1 ? cached : null;
   });
   const chapter = getChapter(chapterNumber) ?? CHAPTERS[0];
-  const foregroundColor = useCSSVariable("--foreground") as string;
   const [contentWidth, setContentWidth] = React.useState(0);
   const [activeChunk, setActiveChunk] = React.useState(0);
   const activeChunkRef = React.useRef(0);
   const isDraggingRef = React.useRef(false);
   const hasTickedRef = React.useRef(false);
+  const isProgrammaticRef = React.useRef(false);
+  const chunkListRef = React.useRef<FlatList<string>>(null);
 
   function commit(index: number) {
     if (index === activeChunkRef.current) {
@@ -77,11 +79,40 @@ export function VersePage({
   }
 
   function indexAtOffset(offsetX: number) {
-    return contentWidth === 0 ? 0 : Math.round(offsetX / contentWidth);
+    if (contentWidth === 0 || chunks === null) {
+      return 0;
+    }
+
+    return Math.min(
+      Math.max(Math.round(offsetX / contentWidth), 0),
+      chunks.length - 1
+    );
+  }
+
+  function goToChunk(offset: number) {
+    if (chunks === null) {
+      return;
+    }
+
+    const next = Math.min(
+      Math.max(activeChunkRef.current + offset, 0),
+      chunks.length - 1
+    );
+
+    if (next === activeChunkRef.current) {
+      return;
+    }
+
+    // Commit before scrolling: the scroll events a chevron press produces would
+    // otherwise tick back to the chunk being left, fighting the animation.
+    isProgrammaticRef.current = true;
+    commit(next);
+    chunkListRef.current?.scrollToIndex({ index: next, animated: true });
   }
 
   function handleScrollBeginDrag() {
     isDraggingRef.current = true;
+    isProgrammaticRef.current = false;
     hasTickedRef.current = false;
   }
 
@@ -90,11 +121,21 @@ export function VersePage({
   }
 
   function handleScroll(offsetX: number) {
-    if (isDraggingRef.current || hasTickedRef.current) {
+    const next = indexAtOffset(offsetX);
+
+    if (isProgrammaticRef.current) {
+      // A chevron press already committed the chunk it is heading for, so only
+      // the event that lands on it may lift the guard.
+      if (next === activeChunkRef.current) {
+        isProgrammaticRef.current = false;
+      }
+
       return;
     }
 
-    const next = indexAtOffset(offsetX);
+    if (isDraggingRef.current || hasTickedRef.current) {
+      return;
+    }
 
     if (next === activeChunkRef.current) {
       return;
@@ -108,6 +149,7 @@ export function VersePage({
 
   function handleMomentumScrollEnd(offsetX: number) {
     hasTickedRef.current = false;
+    isProgrammaticRef.current = false;
 
     // Silently correct a snap that overshot past the halfway mark and then
     // settled back, rather than paying for a second tick.
@@ -170,6 +212,7 @@ export function VersePage({
           </>
         ) : (
           <FlatList
+            ref={chunkListRef}
             data={chunks}
             horizontal={true}
             keyExtractor={(_, index) => `${verse.verse}:${index}`}
@@ -215,10 +258,12 @@ export function VersePage({
 
       {chunks !== null && (
         <View className="mt-5 flex-row items-center justify-center">
-          <Feather
-            name="chevron-left"
-            size={CHEVRON_SIZE}
-            color={foregroundColor}
+          <ChunkNav
+            direction="left"
+            disabled={activeChunk === 0}
+            onPress={() => {
+              goToChunk(-1);
+            }}
           />
 
           {chunks.map((_, index) => (
@@ -232,14 +277,50 @@ export function VersePage({
             />
           ))}
 
-          <Feather
-            name="chevron-right"
-            size={CHEVRON_SIZE}
-            color={foregroundColor}
+          <ChunkNav
+            direction="right"
+            disabled={activeChunk === chunks.length - 1}
+            onPress={() => {
+              goToChunk(1);
+            }}
           />
         </View>
       )}
     </View>
+  );
+}
+
+function ChunkNav({
+  direction,
+  disabled,
+  onPress,
+}: {
+  direction: "left" | "right";
+  disabled: boolean;
+  onPress: () => void;
+}) {
+  const foregroundColor = useCSSVariable("--foreground") as string;
+  const isPrevious = direction === "left";
+
+  return (
+    <Pressable
+      accessibilityLabel={isPrevious ? "Previous chunk" : "Next chunk"}
+      accessibilityRole="button"
+      accessibilityState={{ disabled }}
+      className={cn(
+        "size-8 items-center justify-center rounded-full active:opacity-60",
+        disabled && "opacity-40"
+      )}
+      disabled={disabled}
+      hitSlop={8}
+      onPress={onPress}
+    >
+      <Feather
+        color={foregroundColor}
+        name={isPrevious ? "chevron-left" : "chevron-right"}
+        size={CHEVRON_SIZE}
+      />
+    </Pressable>
   );
 }
 
