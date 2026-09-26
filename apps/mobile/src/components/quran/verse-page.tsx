@@ -6,12 +6,18 @@ import {
   type TextLayoutEventData,
 } from "react-native";
 
+import Feather from "@expo/vector-icons/Feather";
+import { useCSSVariable } from "uniwind";
+
 import { Text, View } from "~/components/ui";
+import { CHAPTERS, getChapter } from "~/constants/chapters";
 import { triggerHaptic } from "~/lib/haptics";
 import { type EnglishVerse } from "~/lib/quran/english-edition";
 import { MAX_LINES_PER_CHUNK, chunkVerseText } from "~/lib/quran/verse-chunks";
 
 const VERSE_TEXT_CLASS_NAME = "text-center text-xl leading-relaxed";
+
+const CHEVRON_SIZE = 22;
 
 const chunkCache = new Map<string, string[]>();
 
@@ -38,6 +44,8 @@ export function VersePage({
 
     return cached && cached.length > 1 ? cached : null;
   });
+  const chapter = getChapter(chapterNumber) ?? CHAPTERS[0];
+  const foregroundColor = useCSSVariable("--foreground") as string;
   const [contentWidth, setContentWidth] = React.useState(0);
   const [activeChunk, setActiveChunk] = React.useState(0);
   const activeChunkRef = React.useRef(0);
@@ -119,10 +127,6 @@ export function VersePage({
       className="px-safe-offset-6 pt-safe-offset-12 pb-safe-offset-4 justify-center"
       style={{ height }}
     >
-      <Text className="text-muted mb-4 text-center text-sm">
-        {`${chapterNumber}:${verse.verse}`}
-      </Text>
-
       <View
         className="w-full"
         onLayout={(event) => setContentWidth(event.nativeEvent.layout.width)}
@@ -189,18 +193,34 @@ export function VersePage({
         )}
       </View>
 
+      <Text className="text-muted mt-5 text-center text-sm">
+        {`Verse ${verse.verse} of ${chapter.name}`}
+      </Text>
+
       {chunks !== null && (
         <View className="mt-5 flex-row items-center justify-center">
+          <Feather
+            name="chevron-left"
+            size={CHEVRON_SIZE}
+            color={foregroundColor}
+          />
+
           {chunks.map((_, index) => (
             <View
               key={index}
               className={
                 index === activeChunk
-                  ? "bg-foreground/60 mx-0.5 h-1 w-4 rounded-full"
-                  : "bg-foreground/20 mx-0.5 h-1 w-1.5 rounded-full"
+                  ? "bg-foreground/60 mx-0.5 h-1.5 w-5 rounded-full"
+                  : "bg-foreground/20 mx-0.5 h-1.5 w-2 rounded-full"
               }
             />
           ))}
+
+          <Feather
+            name="chevron-right"
+            size={CHEVRON_SIZE}
+            color={foregroundColor}
+          />
         </View>
       )}
     </View>
