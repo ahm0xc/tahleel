@@ -1,8 +1,9 @@
-import React from "react";
+import React, { type ComponentProps } from "react";
 
 import {
   FlatList,
   type NativeSyntheticEvent,
+  Pressable,
   type TextLayoutEventData,
 } from "react-native";
 
@@ -22,6 +23,15 @@ import {
 const VERSE_TEXT_CLASS_NAME = "text-center text-xl leading-relaxed";
 
 const CHEVRON_SIZE = 22;
+
+type IconName = ComponentProps<typeof Feather>["name"];
+
+const VERSE_ACTIONS: { iconName: IconName; label: string }[] = [
+  { iconName: "heart", label: "Favorites" },
+  { iconName: "share-2", label: "Share verse" },
+  { iconName: "camera", label: "Capture photo" },
+  { iconName: "info", label: "Verse info" },
+];
 
 const chunkCache = new Map<string, string[]>();
 
@@ -131,6 +141,8 @@ export function VersePage({
       className="px-safe-offset-6 pt-safe-offset-12 pb-safe-offset-4 justify-center"
       style={{ height }}
     >
+      <VerseActions />
+
       <View
         className="w-full"
         onLayout={(event) => setContentWidth(event.nativeEvent.layout.width)}
@@ -227,6 +239,33 @@ export function VersePage({
           />
         </View>
       )}
+    </View>
+  );
+}
+
+function VerseActions() {
+  const foregroundColor = useCSSVariable("--foreground") as string;
+
+  return (
+    <View className="absolute right-0 bottom-0 z-10" pointerEvents="box-none">
+      <View
+        className="pr-safe-offset-4 pb-safe-offset-4 items-end gap-2"
+        pointerEvents="box-none"
+      >
+        {VERSE_ACTIONS.map((action) => (
+          <Pressable
+            key={action.label}
+            accessibilityRole="button"
+            accessibilityLabel={action.label}
+            className="bg-default size-10 items-center justify-center rounded-full active:opacity-60"
+            onPress={() => {
+              triggerHaptic();
+            }}
+          >
+            <Feather color={foregroundColor} name={action.iconName} size={20} />
+          </Pressable>
+        ))}
+      </View>
     </View>
   );
 }
