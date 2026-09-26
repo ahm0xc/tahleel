@@ -7,12 +7,9 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { PressableFeedback } from "heroui-native";
 import { useCSSVariable } from "uniwind";
 
-import { ChapterSelect } from "~/components/quran";
-import { Text, View } from "~/components/ui";
-import {
-  type EnglishVerse,
-  getEnglishChapter,
-} from "~/lib/quran/english-edition";
+import { ChapterSelect, VersePage } from "~/components/quran";
+import { View } from "~/components/ui";
+import { getEnglishChapter } from "~/lib/quran/english-edition";
 import { cn } from "~/lib/utils";
 import { type ReadingView, useReadingState } from "~/store/reading-state-store";
 
@@ -25,6 +22,7 @@ export default function ReadingScreen() {
   const setVerseNumber = useReadingState((state) => state.setVerseNumber);
   const setView = useReadingState((state) => state.setView);
   const [containerHeight, setContainerHeight] = React.useState(0);
+  const [containerWidth, setContainerWidth] = React.useState(0);
   const hasRestoredRef = React.useRef(false);
 
   const verses = React.useMemo(
@@ -65,21 +63,24 @@ export default function ReadingScreen() {
       <View
         className="flex-1"
         onLayout={(event) => {
-          const { height } = event.nativeEvent.layout;
+          const { height, width } = event.nativeEvent.layout;
           setContainerHeight(height);
+          setContainerWidth(width);
         }}
       >
-        {containerHeight > 0 && (
+        {containerHeight > 0 && containerWidth > 0 && (
           <FlatList
-            key={`${chapterNumber}:${verseNumber}`}
+            key={chapterNumber}
             data={verses}
             initialScrollIndex={initialScrollIndex}
             keyExtractor={(item) => String(item.verse)}
             renderItem={({ item }) => (
               <VersePage
+                key={item.verse}
                 chapterNumber={chapterNumber}
                 verse={item}
                 height={containerHeight}
+                width={containerWidth}
               />
             )}
             getItemLayout={(_, index) => ({
@@ -95,6 +96,7 @@ export default function ReadingScreen() {
             decelerationRate="fast"
             showsVerticalScrollIndicator={false}
             disableIntervalMomentum={true}
+            removeClippedSubviews={false}
           />
         )}
       </View>
@@ -151,28 +153,6 @@ function Header({
           <ChapterSelect />
         </View>
       </View>
-    </View>
-  );
-}
-
-function VersePage({
-  chapterNumber,
-  verse,
-  height,
-}: {
-  chapterNumber: number;
-  verse: EnglishVerse;
-  height: number;
-}) {
-  return (
-    <View
-      className="px-safe-offset-6 pt-safe-offset-12 pb-safe-offset-4 justify-center"
-      style={{ height }}
-    >
-      <Text className="text-muted mb-4 text-center text-sm">
-        {`${chapterNumber}:${verse.verse}`}
-      </Text>
-      <Text className="text-center text-xl leading-relaxed">{verse.text}</Text>
     </View>
   );
 }
