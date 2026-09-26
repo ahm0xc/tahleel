@@ -13,7 +13,11 @@ import { Text, View } from "~/components/ui";
 import { CHAPTERS, getChapter } from "~/constants/chapters";
 import { triggerHaptic } from "~/lib/haptics";
 import { type EnglishVerse } from "~/lib/quran/english-edition";
-import { MAX_LINES_PER_CHUNK, chunkVerseText } from "~/lib/quran/verse-chunks";
+import {
+  CHUNKING_VERSION,
+  MAX_LINES_PER_CHUNK,
+  chunkVerseText,
+} from "~/lib/quran/verse-chunks";
 
 const VERSE_TEXT_CLASS_NAME = "text-center text-xl leading-relaxed";
 
@@ -22,7 +26,7 @@ const CHEVRON_SIZE = 22;
 const chunkCache = new Map<string, string[]>();
 
 function cacheKey(chapterNumber: number, verseNumber: number, width: number) {
-  return `${chapterNumber}:${verseNumber}:${Math.round(width)}`;
+  return `${CHUNKING_VERSION}:${chapterNumber}:${verseNumber}:${Math.round(width)}`;
 }
 
 export function VersePage({
