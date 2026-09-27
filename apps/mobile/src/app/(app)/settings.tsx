@@ -4,12 +4,18 @@ import { useAuth, useUser } from "@clerk/expo";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 
-import { SettingsList, SettingsListItem } from "~/components/settings-list";
+import {
+  SettingsList,
+  SettingsListItem,
+  SettingsPicker,
+} from "~/components/settings-list";
 import { Image, Text, View } from "~/components/ui";
+import { LANGUAGES, getEditionsByLanguage } from "~/constants/editions";
 import { openAccountDeletionRequest } from "~/lib/account-deletion";
 import { openFeedback } from "~/lib/feedback";
 import { isDev } from "~/lib/utils";
 import { useOnboarding } from "~/store/onboarding-store";
+import { usePreferences } from "~/store/preferences-store";
 
 const PRIVACY_POLICY_URL = `${process.env.EXPO_PUBLIC_APP_URL}/privacy`;
 const TERMS_URL = `${process.env.EXPO_PUBLIC_APP_URL}/terms`;
@@ -18,12 +24,50 @@ export default function SettingsScreen() {
   const { signOut } = useAuth();
   const { user } = useUser();
   const { setCompleted: setOnboardingCompleted } = useOnboarding();
+  const language = usePreferences((state) => state.language);
+  const editionId = usePreferences((state) => state.editionId);
+  const setLanguage = usePreferences((state) => state.setLanguage);
+  const setEditionId = usePreferences((state) => state.setEditionId);
+
+  const editions = getEditionsByLanguage(language);
+  const selectedEditionId = editions.some((edition) => edition.id === editionId)
+    ? editionId
+    : (editions[0]?.id ?? "");
 
   return (
     <ScrollView className="pb-safe-offset-4 pt-safe-offset-2 bg-background flex-1">
       <Header />
 
       <ProfileCard />
+
+      <SettingsList title="Quran settings">
+        <SettingsPicker
+          icon="language-outline"
+          label="Language"
+          options={LANGUAGES.map((option) => ({
+            value: option.id,
+            label:
+              option.nativeName === option.name
+                ? option.name
+                : `${option.name} (${option.nativeName})`,
+          }))}
+          value={language}
+          onChange={setLanguage}
+        />
+
+        <SettingsPicker
+          icon="book-outline"
+          label="Translation"
+          options={editions.map((edition) => ({
+            value: edition.id,
+            label: edition.name,
+            description: edition.arabicName,
+          }))}
+          value={selectedEditionId}
+          onChange={setEditionId}
+          showDivider={false}
+        />
+      </SettingsList>
 
       <SettingsList title="Information">
         <SettingsListItem
