@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Alert, Platform } from "react-native";
+import { Alert, Platform, useColorScheme } from "react-native";
 
 import { useSignInWithApple } from "@clerk/expo/apple";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,7 +16,9 @@ export default function AppleSignInButton({
   onSignInComplete,
 }: AppleSignInButtonProps) {
   const [isAttempting, setIsAttempting] = React.useState(false);
+
   const { startAppleAuthenticationFlow } = useSignInWithApple();
+  const colorScheme = useColorScheme();
 
   async function handleAppleSignIn() {
     try {
@@ -51,12 +53,18 @@ export default function AppleSignInButton({
 
   return (
     <PressableFeedback
-      className="h-13 flex-row items-center justify-center gap-2 rounded-full border border-black bg-black"
+      className="h-13 flex-row items-center justify-center gap-2 rounded-full border border-black bg-black dark:border-white dark:bg-white"
       onPress={handleAppleSignIn}
       isDisabled={isAttempting}
     >
-      <Ionicons name="logo-apple" size={24} color="white" />
-      <Text className="font-medium text-white">Sign in with Apple</Text>
+      <Ionicons
+        name="logo-apple"
+        size={24}
+        color={colorScheme === "dark" ? "black" : "white"}
+      />
+      <Text className="font-medium text-white dark:text-black">
+        Sign in with Apple
+      </Text>
     </PressableFeedback>
   );
 }

@@ -20,7 +20,7 @@ export default function SettingsScreen() {
   const { setCompleted: setOnboardingCompleted } = useOnboarding();
 
   return (
-    <ScrollView className="pb-safe-offset-4 pt-safe-offset-2 flex-1">
+    <ScrollView className="pb-safe-offset-4 pt-safe-offset-2 bg-background flex-1">
       <Header />
 
       <ProfileCard />

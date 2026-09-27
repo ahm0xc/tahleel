@@ -31,7 +31,7 @@ function Header() {
 
 function StreakBadge({ days }: { days: number }) {
   return (
-    <View className="flex-row items-center gap-1.5 rounded-full border border-orange-200 bg-orange-100/80 py-1.5 pr-3 pl-2">
+    <View className="flex-row items-center gap-1.5 rounded-full border border-orange-200 bg-orange-100/80 py-1.5 pr-3 pl-2 dark:border-orange-500/30 dark:bg-orange-500/15">
       <Ionicons color="#F79009" name="flame" size={20} />
       <Text className="text-foreground text-sm font-semibold">{days}</Text>
     </View>

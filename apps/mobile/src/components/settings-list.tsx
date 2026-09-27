@@ -3,6 +3,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { Pressable } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
+import { useCSSVariable } from "uniwind";
 
 import { triggerHaptic } from "~/lib/haptics";
 import { cn } from "~/lib/utils";
@@ -30,7 +31,7 @@ export function SettingsList({ title, children }: SettingsListProps) {
       <Text className="text-foreground/60 mb-2 px-4 text-xs font-medium tracking-wider uppercase">
         {title}
       </Text>
-      <View className="overflow-hidden rounded-3xl border border-[#E5E5E0] bg-[#FAFAF8]">
+      <View className="border-border bg-surface overflow-hidden rounded-3xl border">
         {children}
       </View>
     </View>
@@ -44,14 +45,16 @@ export function SettingsListItem({
   destructive = false,
   showDivider = true,
 }: SettingsListItemProps) {
-  const color = destructive ? "#D92D20" : "#6B6B66";
+  const mutedColor = useCSSVariable("--muted") as string;
+  const dangerColor = useCSSVariable("--danger") as string;
+  const color = destructive ? dangerColor : mutedColor;
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
       className={cn(
-        "min-h-14 flex-row items-center px-4 active:bg-[#F0F0ED]",
+        "active:bg-surface-hover min-h-14 flex-row items-center px-4",
         showDivider && "border-border border-b"
       )}
       onPress={() => {
@@ -65,7 +68,7 @@ export function SettingsListItem({
       <Text
         className={cn(
           "font-sans-medium text-[16px]",
-          destructive ? "text-[#D92D20]" : "text-foreground"
+          destructive ? "text-danger" : "text-foreground"
         )}
       >
         {label}

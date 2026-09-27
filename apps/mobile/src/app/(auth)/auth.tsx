@@ -4,7 +4,7 @@ import { Image, Text, View } from "~/components/ui";
 
 export default function AuthScreen() {
   return (
-    <View className="pb-safe-offset-4 flex-1">
+    <View className="pb-safe-offset-4 bg-background flex-1">
       <View className="flex-1 overflow-hidden">
         <Image
           source={require("~/../assets/images/auth-banner.png")}

@@ -24,7 +24,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "tahleel",
-    userInterfaceStyle: "light",
+    userInterfaceStyle: "automatic",
     backgroundColor: "#FFF",
     ios: {
       icon: "./assets/images/app-icon.png",
