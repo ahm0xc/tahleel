@@ -2,7 +2,7 @@ export const FONT_SIZE_MIN = 16;
 export const FONT_SIZE_MAX = 40;
 export const FONT_SIZE_STEP = 2;
 
-export const DEFAULT_ARABIC_FONT_SIZE = 22;
+export const DEFAULT_ARABIC_FONT_SIZE = 28;
 export const DEFAULT_TRANSLATION_FONT_SIZE = 18;
 
 export const ARABIC_LINE_HEIGHT_RATIO = 1.9;
