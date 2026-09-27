@@ -73,6 +73,7 @@ function readChunkCache(key: string | null): string[] | null {
 export function VersePage({
   chapterNumber,
   fontSize,
+  isActive,
   script,
   verse,
   height,
@@ -80,6 +81,7 @@ export function VersePage({
 }: {
   chapterNumber: number;
   fontSize: number;
+  isActive: boolean;
   script: ArabicScript;
   verse: QuranVerse;
   height: number;
@@ -255,6 +257,7 @@ export function VersePage({
     >
       <VerseActions
         chapter={chapter}
+        isActive={isActive}
         verse={verse}
         onCapture={() => {
           setCaptureRequest((request) => request + 1);
@@ -416,19 +419,32 @@ function ChunkNav({
 
 function VerseActions({
   chapter,
+  isActive,
   verse,
   onCapture,
 }: {
   chapter: Chapter;
+  isActive: boolean;
   verse: QuranVerse;
   onCapture: () => void;
 }) {
   const foregroundColor = useCSSVariable("--foreground") as string;
   const dangerColor = useCSSVariable("--danger") as string;
+  const [isDetailsOpen, setIsDetailsOpen] = React.useState(false);
   const { isFavorite, toggleFavorite } = useFavorite({
     chapterNumber: chapter.chapterNumber,
     verseNumber: verse.verse,
   });
+
+  // The pager recycles a page for whichever verse scrolls into it, and the
+  // sheet is gone by the time the verse is no longer the one on screen, so the
+  // flag has to go with it. Left set, a recycled page would come back holding
+  // it and stand a sheet up already open.
+  React.useEffect(() => {
+    if (!isActive) {
+      setIsDetailsOpen(false);
+    }
+  }, [isActive]);
 
   return (
     <View className="absolute right-0 bottom-0 z-10" pointerEvents="box-none">
@@ -459,11 +475,31 @@ function VerseActions({
           <Feather color={foregroundColor} name="camera" size={20} />
         </VerseAction>
 
-        <VerseDetailSheet chapter={chapter} verse={verse}>
-          <VerseAction label="Verse details">
-            <Feather color={foregroundColor} name="info" size={20} />
-          </VerseAction>
-        </VerseDetailSheet>
+        <VerseAction
+          label="Verse details"
+          onPress={() => {
+            setIsDetailsOpen(true);
+          }}
+        >
+          <Feather color={foregroundColor} name="info" size={20} />
+        </VerseAction>
+
+        {/*
+          A closed sheet stays mounted, and one that has only just mounted has
+          not been measured yet, so it cannot snap to its open position until
+          it has. Standing it up on the tap left it stuck below the screen
+          until the next one, so it is mounted while the verse is still idle
+          instead. The pager keeps far more than one verse alive, so it is
+          mounted for the verse on screen and no other.
+        */}
+        {isActive && (
+          <VerseDetailSheet
+            chapter={chapter}
+            isOpen={isDetailsOpen}
+            onOpenChange={setIsDetailsOpen}
+            verse={verse}
+          />
+        )}
       </View>
     </View>
   );

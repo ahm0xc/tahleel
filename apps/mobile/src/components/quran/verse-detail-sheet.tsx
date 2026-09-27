@@ -23,22 +23,21 @@ const SHEET_SNAP_POINT = "60%";
 
 interface VerseDetailSheetProps {
   chapter: Chapter;
-  children: React.ReactNode;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
   verse: QuranVerse;
 }
 
 export function VerseDetailSheet({
   chapter,
-  children,
+  isOpen,
+  onOpenChange,
   verse,
 }: VerseDetailSheetProps) {
-  const [isOpen, setIsOpen] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState(TRANSLATION_TAB);
 
   return (
     <BottomSheet isOpen={isOpen} onOpenChange={handleOpenChange}>
-      <BottomSheet.Trigger asChild>{children}</BottomSheet.Trigger>
-
       <BottomSheet.Portal>
         <BottomSheet.Overlay />
 
@@ -98,13 +97,13 @@ export function VerseDetailSheet({
   );
 
   function handleOpenChange(open: boolean) {
-    setIsOpen(open);
-
     // Reopening on whatever tab was last left reads as a bug once the sheet is
     // also the way into the translation, so it always lands on that tab.
     if (open) {
       setActiveTab(TRANSLATION_TAB);
     }
+
+    onOpenChange(open);
   }
 }
 
