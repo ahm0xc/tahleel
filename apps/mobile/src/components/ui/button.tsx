@@ -6,7 +6,6 @@ import {
 } from "heroui-native";
 
 import { triggerHaptic } from "~/lib/haptics";
-import { cn } from "~/lib/utils";
 
 export type ButtonProps = React.ComponentPropsWithoutRef<
   typeof HeroUIButton
@@ -55,18 +54,6 @@ export function Button({
   return (
     <HeroUIButton
       variant={variant}
-      className={cn(
-        "rounded-full border-[1.5px]",
-        variant === "tertiary" && "border-surface-secondary",
-        variant === "secondary" && "border-border",
-        variant === "ghost" && "border-transparent",
-        variant === "danger" && "border-red-200",
-        variant === "danger-soft" && "border-red-50",
-        // "shadow-[inset_0px_1px_4px_rgba(255,255,255,0.3)]",
-        variant === "tertiary" &&
-          "shadow-[inset_0px_1px_4px_rgba(255,255,255,1)]",
-        className
-      )}
       onPress={handleOnPress}
       onPressIn={handleOnPressIn}
       onPressOut={handleOnPressOut}
