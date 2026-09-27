@@ -3,8 +3,11 @@ import { useMemo } from "react";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import { getEnglishVerse } from "~/lib/quran/english-edition";
+import { getArabicScript } from "~/constants/scripts";
+import { getEditionVerse } from "~/lib/quran/edition-data";
 import { zustandStorage } from "~/lib/storage";
+
+import { usePreferences } from "./preferences-store";
 
 export interface FavoriteVerseRef {
   chapterNumber: number;
@@ -110,17 +113,19 @@ export function useFavorite(reference: FavoriteVerseRef) {
 
 export function useFavoriteVerses() {
   const favorites = useFavorites((state) => state.favorites);
+  const scriptId = usePreferences((state) => state.scriptId);
+  const editionId = getArabicScript(scriptId).editionId;
 
   return useMemo(
     () =>
       [...favorites]
         .sort((a, b) => b.addedAt - a.addedAt)
         .map(({ chapterNumber, verseNumber }) => {
-          const verse = getEnglishVerse(chapterNumber, verseNumber);
+          const verse = getEditionVerse(editionId, chapterNumber, verseNumber);
 
           return verse ? { chapterNumber, verseNumber, ...verse } : null;
         })
         .filter((verse): verse is FavoriteVerse => verse !== null),
-    [favorites]
+    [editionId, favorites]
   );
 }

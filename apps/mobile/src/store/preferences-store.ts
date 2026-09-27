@@ -2,33 +2,49 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 import {
-  DEFAULT_LANGUAGE,
-  type EditionLanguage,
-  getEditionsByLanguage,
-} from "~/constants/editions";
+  type ArabicScriptId,
+  DEFAULT_ARABIC_SCRIPT,
+} from "~/constants/scripts";
+import {
+  DEFAULT_TRANSLATION_LANGUAGE,
+  type TranslationLanguageId,
+} from "~/constants/translations";
+import {
+  DEFAULT_ARABIC_FONT_SIZE,
+  DEFAULT_TRANSLATION_FONT_SIZE,
+  clampFontSize,
+} from "~/constants/typography";
 import { zustandStorage } from "~/lib/storage";
 
-interface PreferencesStateStore {
-  language: EditionLanguage;
-  editionId: string;
-  setLanguage: (language: EditionLanguage) => void;
-  setEditionId: (editionId: string) => void;
+interface PreferencesStore {
+  scriptId: ArabicScriptId;
+  translationLanguageId: TranslationLanguageId;
+  arabicFontSize: number;
+  translationFontSize: number;
+  setScriptId: (scriptId: ArabicScriptId) => void;
+  setTranslationLanguageId: (id: TranslationLanguageId) => void;
+  setArabicFontSize: (fontSize: number) => void;
+  setTranslationFontSize: (fontSize: number) => void;
 }
 
-function defaultEditionId(language: EditionLanguage): string {
-  return getEditionsByLanguage(language)[0]?.id ?? "";
-}
-
-export const usePreferences = create<PreferencesStateStore>()(
+export const usePreferences = create<PreferencesStore>()(
   persist(
     (set) => ({
-      language: DEFAULT_LANGUAGE,
-      editionId: defaultEditionId(DEFAULT_LANGUAGE),
-      setLanguage(language) {
-        set({ language, editionId: defaultEditionId(language) });
+      scriptId: DEFAULT_ARABIC_SCRIPT,
+      translationLanguageId: DEFAULT_TRANSLATION_LANGUAGE,
+      arabicFontSize: DEFAULT_ARABIC_FONT_SIZE,
+      translationFontSize: DEFAULT_TRANSLATION_FONT_SIZE,
+      setScriptId(scriptId) {
+        set({ scriptId });
       },
-      setEditionId(editionId) {
-        set({ editionId });
+      setTranslationLanguageId(translationLanguageId) {
+        set({ translationLanguageId });
+      },
+      setArabicFontSize(arabicFontSize) {
+        set({ arabicFontSize: clampFontSize(arabicFontSize) });
+      },
+      setTranslationFontSize(translationFontSize) {
+        set({ translationFontSize: clampFontSize(translationFontSize) });
       },
     }),
     {

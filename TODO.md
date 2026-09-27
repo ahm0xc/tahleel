@@ -1,2 +1,3 @@
 - add credits for font authors
 - enable react compiler
+- add different weights for noto sans

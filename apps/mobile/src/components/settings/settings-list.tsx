@@ -10,7 +10,7 @@ import { useCSSVariable } from "uniwind";
 import { triggerHaptic } from "~/lib/haptics";
 import { cn } from "~/lib/utils";
 
-import { Text, View } from "./ui";
+import { Text, View } from "../ui";
 
 type IconName = ComponentProps<typeof Ionicons>["name"];
 
@@ -26,6 +26,8 @@ interface SettingsListItemProps {
   value?: string;
   destructive?: boolean;
   showDivider?: boolean;
+  /** Trailing affordance for rows that open another page. */
+  chevron?: boolean;
 }
 
 export interface SettingsPickerOption<Value extends string = string> {
@@ -49,9 +51,15 @@ export function SettingsList({ title, children }: SettingsListProps) {
       <Text className="text-foreground/60 mb-2 px-4 text-xs font-medium tracking-wider uppercase">
         {title}
       </Text>
-      <View className="border-border bg-surface overflow-hidden rounded-3xl border">
-        {children}
-      </View>
+      <SettingsCard>{children}</SettingsCard>
+    </View>
+  );
+}
+
+export function SettingsCard({ children }: { children: ReactNode }) {
+  return (
+    <View className="border-border bg-surface overflow-hidden rounded-3xl border">
+      {children}
     </View>
   );
 }
@@ -63,6 +71,7 @@ export function SettingsListItem({
   value,
   destructive = false,
   showDivider = true,
+  chevron = false,
 }: SettingsListItemProps) {
   const mutedColor = useCSSVariable("--muted") as string;
   const dangerColor = useCSSVariable("--danger") as string;
@@ -86,9 +95,9 @@ export function SettingsListItem({
       </View>
       <Text
         className={cn(
-          "font-sans-medium text-[16px]",
+          "text-[16px] font-medium",
           destructive ? "text-danger" : "text-foreground",
-          value ? "flex-1" : null
+          (value ?? chevron) && "flex-1"
         )}
       >
         {label}
@@ -98,6 +107,65 @@ export function SettingsListItem({
           {value}
         </Text>
       ) : null}
+      {chevron ? (
+        <Ionicons
+          className="ml-1"
+          color={color}
+          name="chevron-forward"
+          size={18}
+        />
+      ) : null}
+    </Pressable>
+  );
+}
+
+export function SettingsRadioRow({
+  description,
+  isSelected,
+  onPress,
+  preview,
+  showDivider = true,
+  label,
+}: {
+  label: string;
+  description?: string;
+  isSelected: boolean;
+  onPress: () => void;
+  preview?: ReactNode;
+  showDivider?: boolean;
+}) {
+  const accentColor = useCSSVariable("--accent") as string;
+  const mutedColor = useCSSVariable("--muted") as string;
+
+  return (
+    <Pressable
+      accessibilityRole="radio"
+      accessibilityState={{ selected: isSelected }}
+      accessibilityLabel={label}
+      className={cn(
+        "active:bg-surface-hover min-h-16 flex-row items-center gap-3 px-4 py-3",
+        showDivider && "border-border border-b"
+      )}
+      onPress={() => {
+        triggerHaptic();
+        onPress();
+      }}
+    >
+      <View className="flex-1">
+        <Text className="text-foreground text-[16px] font-medium">{label}</Text>
+
+        {description ? (
+          <Text className="text-muted mt-0.5 text-sm">{description}</Text>
+        ) : null}
+      </View>
+
+      {preview}
+
+      {isSelected ? (
+        <Ionicons color={accentColor} name="checkmark" size={20} />
+      ) : (
+        <Ionicons color={mutedColor} name="ellipse-outline" size={20} />
+      )}
     </Pressable>
   );
 }
@@ -137,7 +205,7 @@ export function SettingsPicker<Value extends string>({
           enableOverDrag={false}
           enableDynamicSizing={false}
         >
-          <Text className="text-foreground px-safe-offset-4 font-sans-semi-bold pb-2 text-lg">
+          <Text className="text-foreground px-safe-offset-4 pb-2 text-lg font-semibold">
             {label}
           </Text>
 

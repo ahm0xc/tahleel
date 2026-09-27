@@ -4,7 +4,9 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useCSSVariable } from "uniwind";
 
 import { Text, View } from "~/components/ui";
+import { getArabicScript } from "~/constants/scripts";
 import { useFavoriteVerses } from "~/store/favorite-store";
+import { usePreferences } from "~/store/preferences-store";
 
 import { type PagedVerse, VersePager } from "./verse-pager";
 
@@ -12,15 +14,18 @@ const FAVORITES_LIST_KEY = "favorites";
 
 export function FavoritesView() {
   const favorites = useFavoriteVerses();
+  const scriptId = usePreferences((state) => state.scriptId);
+  const fontSize = usePreferences((state) => state.arabicFontSize);
+  const script = getArabicScript(scriptId);
 
   const verses = React.useMemo<PagedVerse[]>(
     () =>
       favorites.map(({ chapterNumber, verseNumber, verse, text }) => ({
-        key: `${chapterNumber}:${verseNumber}`,
+        key: `${script.editionId}:${chapterNumber}:${verseNumber}`,
         chapterNumber,
         verse: { verse, text },
       })),
-    [favorites]
+    [favorites, script.editionId]
   );
 
   if (verses.length === 0) {
@@ -28,7 +33,13 @@ export function FavoritesView() {
   }
 
   return (
-    <VersePager listKey={FAVORITES_LIST_KEY} initialIndex={0} verses={verses} />
+    <VersePager
+      fontSize={fontSize}
+      listKey={FAVORITES_LIST_KEY}
+      initialIndex={0}
+      script={script}
+      verses={verses}
+    />
   );
 }
 

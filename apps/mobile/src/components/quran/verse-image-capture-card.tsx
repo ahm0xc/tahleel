@@ -3,28 +3,40 @@ import { useCSSVariable } from "uniwind";
 
 import { Text, View } from "~/components/ui";
 import { type Chapter } from "~/constants/chapters";
-import { type EnglishVerse } from "~/lib/quran/english-edition";
+import { type ArabicScript } from "~/constants/scripts";
+import {
+  ARABIC_LINE_HEIGHT_RATIO,
+  getLineHeight,
+} from "~/constants/typography";
+import { type QuranVerse } from "~/lib/quran/edition-data";
 
 const ASPECT_RATIO = 1.25;
 const PADDING = 28;
 const BORDER_RADIUS = 24;
 const RULE_WIDTH = 36;
 const RULE_HEIGHT = 2;
+const CHAPTER_NAME_RATIO = 0.8;
 
 interface VerseImageCaptureCardProps {
   chapter: Chapter;
-  verse: EnglishVerse;
+  fontSize: number;
+  script: ArabicScript;
+  verse: QuranVerse;
   width: number;
 }
 
 export function VerseImageCaptureCard({
   chapter,
+  fontSize,
+  script,
   verse,
   width,
 }: VerseImageCaptureCardProps) {
   const backgroundColor = useCSSVariable("--background") as string;
   const surfaceColor = useCSSVariable("--surface") as string;
   const accentColor = useCSSVariable("--accent") as string;
+
+  const chapterNameSize = Math.round(fontSize * CHAPTER_NAME_RATIO);
 
   return (
     <LinearGradient
@@ -39,12 +51,31 @@ export function VerseImageCaptureCard({
       }}
     >
       <View className="flex-1 justify-between">
-        <Text className="text-muted text-center text-lg">
+        <Text
+          className="text-muted text-center"
+          style={{
+            fontFamily: script.fontFamily,
+            fontSize: chapterNameSize,
+            lineHeight: getLineHeight(
+              chapterNameSize,
+              ARABIC_LINE_HEIGHT_RATIO
+            ),
+            writingDirection: script.direction,
+          }}
+        >
           {chapter.arabicName}
         </Text>
 
         <View className="flex-1 justify-center py-8">
-          <Text className="text-foreground w-full text-center text-2xl leading-relaxed">
+          <Text
+            className="text-foreground w-full text-center"
+            style={{
+              fontFamily: script.fontFamily,
+              fontSize,
+              lineHeight: getLineHeight(fontSize, ARABIC_LINE_HEIGHT_RATIO),
+              writingDirection: script.direction,
+            }}
+          >
             {verse.text}
           </Text>
         </View>

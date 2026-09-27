@@ -3,14 +3,16 @@ import { Alert, Linking, ScrollView } from "react-native";
 import { useAuth, useUser } from "@clerk/expo";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
+import { router } from "expo-router";
 
 import {
   SettingsList,
   SettingsListItem,
   SettingsPicker,
-} from "~/components/settings-list";
+} from "~/components/settings";
 import { Image, Text, View } from "~/components/ui";
-import { LANGUAGES, getEditionsByLanguage } from "~/constants/editions";
+import { getArabicScript } from "~/constants/scripts";
+import { TRANSLATION_LANGUAGES } from "~/constants/translations";
 import { openAccountDeletionRequest } from "~/lib/account-deletion";
 import { openFeedback } from "~/lib/feedback";
 import { isDev } from "~/lib/utils";
@@ -24,15 +26,19 @@ export default function SettingsScreen() {
   const { signOut } = useAuth();
   const { user } = useUser();
   const { setCompleted: setOnboardingCompleted } = useOnboarding();
-  const language = usePreferences((state) => state.language);
-  const editionId = usePreferences((state) => state.editionId);
-  const setLanguage = usePreferences((state) => state.setLanguage);
-  const setEditionId = usePreferences((state) => state.setEditionId);
+  const scriptId = usePreferences((state) => state.scriptId);
+  const translationLanguageId = usePreferences(
+    (state) => state.translationLanguageId
+  );
+  const arabicFontSize = usePreferences((state) => state.arabicFontSize);
+  const translationFontSize = usePreferences(
+    (state) => state.translationFontSize
+  );
+  const setTranslationLanguageId = usePreferences(
+    (state) => state.setTranslationLanguageId
+  );
 
-  const editions = getEditionsByLanguage(language);
-  const selectedEditionId = editions.some((edition) => edition.id === editionId)
-    ? editionId
-    : (editions[0]?.id ?? "");
+  const script = getArabicScript(scriptId);
 
   return (
     <ScrollView className="pb-safe-offset-4 pt-safe-offset-2 bg-background flex-1">
@@ -43,29 +49,42 @@ export default function SettingsScreen() {
       <SettingsList title="Quran settings">
         <SettingsPicker
           icon="language-outline"
-          label="Language"
-          options={LANGUAGES.map((option) => ({
+          label="Translation language"
+          options={TRANSLATION_LANGUAGES.map((option) => ({
             value: option.id,
             label:
               option.nativeName === option.name
                 ? option.name
                 : `${option.name} (${option.nativeName})`,
+            description: option.author,
           }))}
-          value={language}
-          onChange={setLanguage}
+          value={translationLanguageId}
+          onChange={setTranslationLanguageId}
         />
 
-        <SettingsPicker
+        <SettingsListItem
+          chevron
+          icon="text-outline"
+          label="Script"
+          value={script.name}
+          onPress={() => router.push("/settings/script")}
+        />
+
+        <SettingsListItem
+          chevron
+          icon="resize-outline"
+          label="Font size"
+          value={String(arabicFontSize)}
+          onPress={() => router.push("/settings/font-size")}
+        />
+
+        <SettingsListItem
+          chevron
           icon="book-outline"
-          label="Translation"
-          options={editions.map((edition) => ({
-            value: edition.id,
-            label: edition.name,
-            description: edition.arabicName,
-          }))}
-          value={selectedEditionId}
-          onChange={setEditionId}
+          label="Translation font size"
           showDivider={false}
+          value={String(translationFontSize)}
+          onPress={() => router.push("/settings/translation-font-size")}
         />
       </SettingsList>
 
@@ -200,14 +219,14 @@ function ProfileCard() {
                   style={{ height: 64, width: 64 }}
                 />
               ) : (
-                <Text className="text-accent-foreground font-sans-semi-bold text-xl">
+                <Text className="text-accent-foreground text-xl font-semibold">
                   {initials}
                 </Text>
               )}
             </View>
 
             <View className="ml-4 flex-1">
-              <Text className="text-foreground font-sans-semi-bold text-xl">
+              <Text className="text-foreground text-xl font-semibold">
                 {name || "Unknown"}
               </Text>
               <Text

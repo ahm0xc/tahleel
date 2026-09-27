@@ -1,6 +1,8 @@
 import React from "react";
 
-import { getEnglishChapter } from "~/lib/quran/english-edition";
+import { getArabicScript } from "~/constants/scripts";
+import { getEditionChapter } from "~/lib/quran/edition-data";
+import { usePreferences } from "~/store/preferences-store";
 import { useReadingState } from "~/store/reading-state-store";
 
 import { type PagedVerse, VersePager } from "./verse-pager";
@@ -9,15 +11,18 @@ export function ReadingView() {
   const chapterNumber = useReadingState((state) => state.chapterNumber);
   const verseNumber = useReadingState((state) => state.verseNumber);
   const setVerseNumber = useReadingState((state) => state.setVerseNumber);
+  const scriptId = usePreferences((state) => state.scriptId);
+  const fontSize = usePreferences((state) => state.arabicFontSize);
+  const script = getArabicScript(scriptId);
 
   const verses = React.useMemo<PagedVerse[]>(
     () =>
-      getEnglishChapter(chapterNumber).map((verse) => ({
-        key: `${chapterNumber}:${verse.verse}`,
+      getEditionChapter(script.editionId, chapterNumber).map((verse) => ({
+        key: `${script.editionId}:${chapterNumber}:${verse.verse}`,
         chapterNumber,
         verse,
       })),
-    [chapterNumber]
+    [chapterNumber, script.editionId]
   );
 
   const initialIndex = React.useMemo(
@@ -35,9 +40,11 @@ export function ReadingView() {
 
   return (
     <VersePager
-      listKey={String(chapterNumber)}
+      fontSize={fontSize}
+      listKey={`${script.editionId}:${chapterNumber}`}
       initialIndex={initialIndex}
       onPageChange={handlePageChange}
+      script={script}
       verses={verses}
     />
   );

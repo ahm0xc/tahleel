@@ -15,7 +15,7 @@ export default function AuthScreen() {
 
       <View className="mt-8 px-4">
         <View className="mt-4">
-          <Text className="android:text-3xl font-sans-semi-bold text-4xl">
+          <Text className="android:text-3xl text-4xl font-semibold">
             Make room for the photos that matter.
           </Text>
           <Text className="text-foreground/80 mt-3 text-lg font-medium">

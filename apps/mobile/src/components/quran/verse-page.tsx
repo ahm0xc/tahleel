@@ -14,8 +14,13 @@ import { useCSSVariable } from "uniwind";
 
 import { Text, View } from "~/components/ui";
 import { CHAPTERS, type Chapter, getChapter } from "~/constants/chapters";
+import { type ArabicScript } from "~/constants/scripts";
+import {
+  ARABIC_LINE_HEIGHT_RATIO,
+  getLineHeight,
+} from "~/constants/typography";
 import { triggerHaptic } from "~/lib/haptics";
-import { type EnglishVerse } from "~/lib/quran/english-edition";
+import { type QuranVerse } from "~/lib/quran/edition-data";
 import { shareVerse } from "~/lib/quran/share";
 import {
   CHUNKING_VERSION,
@@ -27,35 +32,77 @@ import { useFavorite } from "~/store/favorite-store";
 
 import { VerseImageCapture } from "./verse-image-capture";
 
-const VERSE_TEXT_CLASS_NAME = "text-center text-xl leading-relaxed";
+const VERSE_TEXT_CLASS_NAME = "text-center";
 
 const CHEVRON_SIZE = 22;
 
 const chunkCache = new Map<string, string[]>();
 
-function cacheKey(chapterNumber: number, verseNumber: number, width: number) {
-  return `${CHUNKING_VERSION}:${chapterNumber}:${verseNumber}:${Math.round(width)}`;
+/**
+ * A split is a set of cut points measured against one width *and* one font, so
+ * a cached one has to name the script and size it came from. Without them a
+ * verse split for a narrow font would be served again for a wide one, cutting
+ * lines that fit. There is nothing to measure against until the page has a
+ * width, hence the null.
+ */
+function cacheKey(
+  scriptId: string,
+  fontSize: number,
+  chapterNumber: number,
+  verseNumber: number,
+  width: number
+): string | null {
+  if (width <= 0) {
+    return null;
+  }
+
+  return `${CHUNKING_VERSION}:${scriptId}:${fontSize}:${chapterNumber}:${verseNumber}:${Math.round(width)}`;
+}
+
+/**
+ * A single chunk is not worth a page of its own, so a hit only counts once it
+ * has something to page to.
+ */
+function readChunkCache(key: string | null): string[] | null {
+  const cached = key === null ? undefined : chunkCache.get(key);
+
+  return cached && cached.length > 1 ? cached : null;
 }
 
 export function VersePage({
   chapterNumber,
+  fontSize,
+  script,
   verse,
   height,
   width,
 }: {
   chapterNumber: number;
-  verse: EnglishVerse;
+  fontSize: number;
+  script: ArabicScript;
+  verse: QuranVerse;
   height: number;
   width: number;
 }) {
-  const [chunks, setChunks] = React.useState<string[] | null>(() => {
-    const cached =
-      width > 0
-        ? chunkCache.get(cacheKey(chapterNumber, verse.verse, width))
-        : undefined;
-
-    return cached && cached.length > 1 ? cached : null;
-  });
+  const verseTextStyle = React.useMemo(
+    () => ({
+      fontFamily: script.fontFamily,
+      fontSize,
+      lineHeight: getLineHeight(fontSize, ARABIC_LINE_HEIGHT_RATIO),
+      writingDirection: script.direction,
+    }),
+    [fontSize, script.direction, script.fontFamily]
+  );
+  const chunkKey = cacheKey(
+    script.id,
+    fontSize,
+    chapterNumber,
+    verse.verse,
+    width
+  );
+  const [chunks, setChunks] = React.useState<string[] | null>(() =>
+    readChunkCache(chunkKey)
+  );
   const chapter = getChapter(chapterNumber) ?? CHAPTERS[0];
   const [contentWidth, setContentWidth] = React.useState(0);
   const [activeChunk, setActiveChunk] = React.useState(0);
@@ -65,6 +112,27 @@ export function VersePage({
   const isProgrammaticRef = React.useRef(false);
   const chunkListRef = React.useRef<FlatList<string>>(null);
   const [captureRequest, setCaptureRequest] = React.useState(0);
+  const chunkKeyRef = React.useRef(chunkKey);
+
+  // Changing the font re-lays the verse out, but `chunks` still holds the split
+  // measured for the old one, and a re-measure only ever adds chunks back. A
+  // verse that used to need splitting may no longer do, so the split is dropped
+  // and re-measured whenever the geometry it was measured against changes.
+  React.useEffect(() => {
+    if (chunkKey === null || chunkKeyRef.current === chunkKey) {
+      return;
+    }
+
+    chunkKeyRef.current = chunkKey;
+    // The paged strip is about to be rebuilt, so the drag bookkeeping guarding
+    // its scroll events has to start clean or it would swallow the first swipe.
+    activeChunkRef.current = 0;
+    isDraggingRef.current = false;
+    isProgrammaticRef.current = false;
+    hasTickedRef.current = false;
+    setActiveChunk(0);
+    setChunks(readChunkCache(chunkKey));
+  }, [chunkKey]);
 
   function commit(index: number) {
     if (index === activeChunkRef.current) {
@@ -172,7 +240,10 @@ export function VersePage({
       return;
     }
 
-    chunkCache.set(cacheKey(chapterNumber, verse.verse, width), split);
+    if (chunkKey !== null) {
+      chunkCache.set(chunkKey, split);
+    }
+
     setChunks(split);
   }
 
@@ -195,7 +266,9 @@ export function VersePage({
       >
         {chunks === null ? (
           <>
-            <Text className={VERSE_TEXT_CLASS_NAME}>{verse.text}</Text>
+            <Text className={VERSE_TEXT_CLASS_NAME} style={verseTextStyle}>
+              {verse.text}
+            </Text>
 
             <Text
               accessibilityElementsHidden={true}
@@ -203,13 +276,16 @@ export function VersePage({
               importantForAccessibility="no-hide-descendants"
               onTextLayout={handleTextLayout}
               pointerEvents="none"
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                opacity: 0,
-              }}
+              style={[
+                verseTextStyle,
+                {
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  opacity: 0,
+                },
+              ]}
             >
               {verse.text}
             </Text>
@@ -237,7 +313,7 @@ export function VersePage({
             renderItem={({ item }) => (
               <Text
                 className={VERSE_TEXT_CLASS_NAME}
-                style={{ width: contentWidth }}
+                style={[verseTextStyle, { width: contentWidth }]}
               >
                 {item}
               </Text>
@@ -293,7 +369,9 @@ export function VersePage({
 
       <VerseImageCapture
         chapter={chapter}
+        fontSize={fontSize}
         request={captureRequest}
+        script={script}
         verse={verse}
         width={width}
       />
@@ -341,7 +419,7 @@ function VerseActions({
   onCapture,
 }: {
   chapter: Chapter;
-  verse: EnglishVerse;
+  verse: QuranVerse;
   onCapture: () => void;
 }) {
   const foregroundColor = useCSSVariable("--foreground") as string;

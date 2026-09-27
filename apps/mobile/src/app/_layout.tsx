@@ -2,6 +2,7 @@ import React from "react";
 
 import { ClerkProvider, useAuth, useUser } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
+import { useFonts } from "expo-font";
 import * as Notifications from "expo-notifications";
 import { Slot, usePathname, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -9,6 +10,7 @@ import { StatusBar } from "expo-status-bar";
 import { HeroUINativeProvider } from "heroui-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+import { FONT_ASSETS } from "~/constants/fonts";
 import "~/globals.css";
 import {
   NotificationProvider,
@@ -36,6 +38,8 @@ if (!CLERK_PUBLISHABLE_KEY) {
 function InitialLayout() {
   const [isAppReady, setIsAppReady] = React.useState(false);
 
+  const [fontsLoaded, fontsError] = useFonts(FONT_ASSETS);
+
   const { isLoaded: isAuthLoaded, isSignedIn } = useAuth({
     treatPendingAsSignedOut: false,
   });
@@ -50,8 +54,15 @@ function InitialLayout() {
   const pathname = usePathname();
   const inAuthGroup = pathname === "/auth" || pathname.startsWith("/auth/");
   const inOnboarding = pathname === "/onboarding";
+  const areFontsReady = fontsLoaded || fontsError != null;
 
   useNotificationObserver();
+
+  React.useEffect(() => {
+    if (fontsError) {
+      console.warn("[Fonts] Failed to load:", fontsError.message);
+    }
+  }, [fontsError]);
 
   React.useEffect(() => {
     if (!isAuthLoaded || !isUserLoaded || !hasOnboardingHydrated) return;
@@ -81,13 +92,14 @@ function InitialLayout() {
     (isOnboardingCompleted && isAuthenticated && (inOnboarding || inAuthGroup));
 
   React.useEffect(() => {
-    if (isAppReady) {
+    if (isAppReady && areFontsReady) {
       SplashScreen.hideAsync();
     }
-  }, [isAppReady]);
+  }, [isAppReady, areFontsReady]);
 
   if (
     !isAppReady ||
+    !areFontsReady ||
     !isAuthLoaded ||
     !isUserLoaded ||
     !hasOnboardingHydrated ||

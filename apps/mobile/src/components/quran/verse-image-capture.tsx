@@ -7,7 +7,8 @@ import { useCSSVariable } from "uniwind";
 
 import { View } from "~/components/ui";
 import { type Chapter } from "~/constants/chapters";
-import { type EnglishVerse } from "~/lib/quran/english-edition";
+import { type ArabicScript } from "~/constants/scripts";
+import { type QuranVerse } from "~/lib/quran/edition-data";
 import { captureVerseImage, shareVerseImage } from "~/lib/quran/verse-image";
 
 import { VerseImageCaptureCard } from "./verse-image-capture-card";
@@ -17,8 +18,10 @@ const CARD_GUTTER = 48;
 
 interface VerseImageCaptureProps {
   chapter: Chapter;
+  fontSize: number;
   request: number;
-  verse: EnglishVerse;
+  script: ArabicScript;
+  verse: QuranVerse;
   width: number;
 }
 
@@ -29,7 +32,9 @@ interface VerseImageCaptureProps {
  */
 export function VerseImageCapture({
   chapter,
+  fontSize,
   request,
+  script,
   verse,
   width,
 }: VerseImageCaptureProps) {
@@ -110,7 +115,7 @@ export function VerseImageCapture({
     return () => {
       isCancelled = true;
     };
-  }, [chapter, isArmed, isLaidOut, verse.verse]);
+  }, [chapter, fontSize, isArmed, isLaidOut, script.id, verse.verse]);
 
   if (!isArmed) {
     return null;
@@ -132,6 +137,8 @@ export function VerseImageCapture({
       >
         <VerseImageCaptureCard
           chapter={chapter}
+          fontSize={fontSize}
+          script={script}
           verse={verse}
           width={cardWidth}
         />

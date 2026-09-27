@@ -3,7 +3,8 @@ import React from "react";
 import { FlatList, type ViewToken } from "react-native";
 
 import { View } from "~/components/ui";
-import { type EnglishVerse } from "~/lib/quran/english-edition";
+import { type ArabicScript } from "~/constants/scripts";
+import { type QuranVerse } from "~/lib/quran/edition-data";
 
 import { VersePage } from "./verse-page";
 
@@ -12,10 +13,12 @@ const viewabilityConfig = { itemVisiblePercentThreshold: 50 };
 export interface PagedVerse {
   key: string;
   chapterNumber: number;
-  verse: EnglishVerse;
+  verse: QuranVerse;
 }
 
 interface VersePagerProps {
+  script: ArabicScript;
+  fontSize: number;
   verses: PagedVerse[];
   listKey: string;
   initialIndex: number;
@@ -23,6 +26,8 @@ interface VersePagerProps {
 }
 
 export function VersePager({
+  script,
+  fontSize,
   verses,
   listKey,
   initialIndex,
@@ -103,9 +108,17 @@ export function VersePager({
           data={verses}
           initialScrollIndex={initialIndex}
           keyExtractor={(item) => item.key}
+          // The verse text is set by props rather than the data, so a font
+          // change leaves `data` untouched and the mounted rows would otherwise
+          // keep rendering at the size they were built with. Folding this into
+          // `listKey` instead would remount the list and lose the reader's
+          // place, so the list is re-rendered rather than rebuilt.
+          extraData={`${script.id}:${fontSize}`}
           renderItem={({ item }) => (
             <VersePage
               chapterNumber={item.chapterNumber}
+              fontSize={fontSize}
+              script={script}
               verse={item.verse}
               height={containerHeight}
               width={containerWidth}

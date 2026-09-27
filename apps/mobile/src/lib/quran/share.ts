@@ -1,9 +1,9 @@
 import { Share } from "react-native";
 
 import { type Chapter } from "~/constants/chapters";
-import { type EnglishVerse } from "~/lib/quran/english-edition";
+import { type QuranVerse } from "~/lib/quran/edition-data";
 
-export async function shareVerse(chapter: Chapter, verse: EnglishVerse) {
+export async function shareVerse(chapter: Chapter, verse: QuranVerse) {
   const reference = `Quran ${chapter.chapterNumber}:${verse.verse} (${chapter.name})`;
 
   try {

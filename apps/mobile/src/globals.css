@@ -8,6 +8,10 @@
 @source "./components";
 @source "./context";
 
+@theme {
+  --font-sans: "NotoSans", ui-sans-serif, system-ui, sans-serif;
+}
+
 @layer theme {
   :root {
     @variant light {
