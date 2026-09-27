@@ -2,10 +2,12 @@ import React from "react";
 
 import { ScrollView, StyleSheet } from "react-native";
 
-import { BottomSheet, Tabs } from "heroui-native";
+import Feather from "@expo/vector-icons/Feather";
+import { BottomSheet, Tabs, useToast } from "heroui-native";
 import Animated, { FadeIn } from "react-native-reanimated";
+import { useCSSVariable } from "uniwind";
 
-import { Text, View } from "~/components/ui";
+import { Button, ButtonLabel, Text, View } from "~/components/ui";
 import { type Chapter } from "~/constants/chapters";
 import { getTranslationLanguage } from "~/constants/translations";
 import {
@@ -13,6 +15,7 @@ import {
   getLineHeight,
 } from "~/constants/typography";
 import { type QuranVerse, getEditionVerse } from "~/lib/quran/edition-data";
+import { shareTranslation } from "~/lib/quran/share";
 import { usePreferences } from "~/store/preferences-store";
 
 const TRANSLATION_TAB = "translation";
@@ -73,7 +76,11 @@ export function VerseDetailSheet({
               >
                 <Tabs.Content value={TRANSLATION_TAB}>
                   <Animated.View entering={FadeIn.duration(180)}>
-                    <TranslationTab chapter={chapter} verse={verse} />
+                    <TranslationTab
+                      chapter={chapter}
+                      onClose={handleClose}
+                      verse={verse}
+                    />
                   </Animated.View>
                 </Tabs.Content>
 
@@ -105,13 +112,19 @@ export function VerseDetailSheet({
 
     onOpenChange(open);
   }
+
+  function handleClose() {
+    onOpenChange(false);
+  }
 }
 
 function TranslationTab({
   chapter,
+  onClose,
   verse,
 }: {
   chapter: Chapter;
+  onClose: () => void;
   verse: QuranVerse;
 }) {
   const translationLanguageId = usePreferences(
@@ -121,6 +134,9 @@ function TranslationTab({
     (state) => state.translationFontSize
   );
   const language = getTranslationLanguage(translationLanguageId);
+  const shareIconColor = useCSSVariable("--default-foreground") as string;
+  const { toast } = useToast();
+  const isSharingRef = React.useRef(false);
   const translation = React.useMemo(
     () =>
       getEditionVerse(language.editionId, chapter.chapterNumber, verse.verse)
@@ -136,6 +152,8 @@ function TranslationTab({
     );
   }
 
+  const text = translation;
+
   return (
     <View className="gap-3">
       <Text
@@ -149,12 +167,47 @@ function TranslationTab({
           writingDirection: language.direction,
         }}
       >
-        {translation}
+        {text}
       </Text>
 
       <Text className="text-muted text-sm">{language.author}</Text>
+
+      <View className="mt-2 flex-row">
+        <Button
+          variant="tertiary"
+          size="sm"
+          haptics="Light"
+          onPress={handleShare}
+        >
+          <Feather color={shareIconColor} name="share" size={14} />
+          <ButtonLabel className="text-sm">Share</ButtonLabel>
+        </Button>
+      </View>
     </View>
   );
+
+  async function handleShare() {
+    if (isSharingRef.current) return;
+    isSharingRef.current = true;
+
+    onClose();
+
+    const result = await shareTranslation(
+      chapter,
+      verse,
+      text,
+      language.author
+    );
+
+    isSharingRef.current = false;
+
+    if (result === "failed") {
+      toast.show({
+        label: "Couldn't share this translation",
+        variant: "danger",
+      });
+    }
+  }
 }
 
 function PlaceholderTab({ label }: { label: string }) {
