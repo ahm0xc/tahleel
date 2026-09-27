@@ -63,6 +63,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       "expo-apple-authentication",
       "expo-video",
       "expo-image",
+      "expo-sharing",
       "expo-mail-composer",
       "expo-notifications",
       "expo-font",

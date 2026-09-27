@@ -25,6 +25,8 @@ import {
 import { cn } from "~/lib/utils";
 import { useFavorite } from "~/store/favorite-store";
 
+import { VerseImageCapture } from "./verse-image-capture";
+
 const VERSE_TEXT_CLASS_NAME = "text-center text-xl leading-relaxed";
 
 const CHEVRON_SIZE = 22;
@@ -62,6 +64,7 @@ export function VersePage({
   const hasTickedRef = React.useRef(false);
   const isProgrammaticRef = React.useRef(false);
   const chunkListRef = React.useRef<FlatList<string>>(null);
+  const [captureRequest, setCaptureRequest] = React.useState(0);
 
   function commit(index: number) {
     if (index === activeChunkRef.current) {
@@ -178,7 +181,13 @@ export function VersePage({
       className="px-safe-offset-6 pt-safe-offset-12 pb-safe-offset-4 justify-center"
       style={{ height }}
     >
-      <VerseActions chapter={chapter} verse={verse} />
+      <VerseActions
+        chapter={chapter}
+        verse={verse}
+        onCapture={() => {
+          setCaptureRequest((request) => request + 1);
+        }}
+      />
 
       <View
         className="w-full"
@@ -281,6 +290,13 @@ export function VersePage({
           />
         </View>
       )}
+
+      <VerseImageCapture
+        chapter={chapter}
+        request={captureRequest}
+        verse={verse}
+        width={width}
+      />
     </View>
   );
 }
@@ -322,9 +338,11 @@ function ChunkNav({
 function VerseActions({
   chapter,
   verse,
+  onCapture,
 }: {
   chapter: Chapter;
   verse: EnglishVerse;
+  onCapture: () => void;
 }) {
   const foregroundColor = useCSSVariable("--foreground") as string;
   const dangerColor = useCSSVariable("--danger") as string;
@@ -358,7 +376,7 @@ function VerseActions({
           <Feather color={foregroundColor} name="share" size={20} />
         </VerseAction>
 
-        <VerseAction label="Capture photo">
+        <VerseAction label="Capture photo" onPress={onCapture}>
           <Feather color={foregroundColor} name="camera" size={20} />
         </VerseAction>
 
