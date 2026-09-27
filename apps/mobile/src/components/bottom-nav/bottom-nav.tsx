@@ -18,15 +18,20 @@ interface NavItemProps {
   iconName: IconName;
   color: string;
   isActive: boolean;
+  isCurrent: boolean;
 }
 
-const NAV_ITEMS: Omit<NavItemProps, "color" | "isActive">[] = [
+const NAV_ITEMS: Omit<NavItemProps, "color" | "isActive" | "isCurrent">[] = [
   { href: "/", label: "Home", iconName: "home" },
   { href: "/reading", label: "Reading", iconName: "book-open" },
   { href: "/explore", label: "Explore", iconName: "compass" },
   { href: "/friends", label: "Friends", iconName: "users" },
   { href: "/settings", label: "Settings", iconName: "settings" },
 ];
+
+function isTabActive(pathname: string, href: string) {
+  return pathname === href;
+}
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -39,14 +44,22 @@ export function BottomNav() {
           key={item.href}
           {...item}
           color={color}
-          isActive={pathname === item.href}
+          isActive={isTabActive(pathname, item.href)}
+          isCurrent={pathname === item.href}
         />
       ))}
     </View>
   );
 }
 
-function NavItem({ color, href, iconName, isActive, label }: NavItemProps) {
+function NavItem({
+  color,
+  href,
+  iconName,
+  isActive,
+  isCurrent,
+  label,
+}: NavItemProps) {
   return (
     <Pressable
       accessibilityRole="tab"
@@ -56,6 +69,7 @@ function NavItem({ color, href, iconName, isActive, label }: NavItemProps) {
         "flex-1 items-center gap-1 py-1 active:opacity-60",
         isActive ? "opacity-100" : "opacity-40"
       )}
+      disabled={isCurrent}
       onPress={() => {
         triggerHaptic();
         router.replace(href);
