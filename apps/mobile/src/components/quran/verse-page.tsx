@@ -30,6 +30,7 @@ import {
 import { cn } from "~/lib/utils";
 import { useFavorite } from "~/store/favorite-store";
 
+import { VerseDetailSheet } from "./verse-detail-sheet";
 import { VerseImageCapture } from "./verse-image-capture";
 
 const VERSE_TEXT_CLASS_NAME = "text-center";
@@ -458,9 +459,11 @@ function VerseActions({
           <Feather color={foregroundColor} name="camera" size={20} />
         </VerseAction>
 
-        <VerseAction label="Verse info">
-          <Feather color={foregroundColor} name="info" size={20} />
-        </VerseAction>
+        <VerseDetailSheet chapter={chapter} verse={verse}>
+          <VerseAction label="Verse details">
+            <Feather color={foregroundColor} name="info" size={20} />
+          </VerseAction>
+        </VerseDetailSheet>
       </View>
     </View>
   );
