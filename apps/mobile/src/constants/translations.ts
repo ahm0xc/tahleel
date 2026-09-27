@@ -1,6 +1,6 @@
 import type { FontFamily } from "./fonts";
 
-export type TranslationLanguageId = "english";
+export type TranslationLanguageId = "english" | "bengali";
 
 export interface TranslationLanguage {
   id: TranslationLanguageId;
@@ -21,6 +21,15 @@ export const TRANSLATION_LANGUAGES: TranslationLanguage[] = [
     editionId: "eng-mustafakhattaba",
     fontFamily: "NotoSans",
     author: "Mustafa Khattaba",
+  },
+  {
+    id: "bengali",
+    name: "Bengali",
+    nativeName: "বাংলা",
+    direction: "ltr",
+    editionId: "ben-abubakrzakaria",
+    fontFamily: "HindSiliguri",
+    author: "Abu Bakr Zakaria",
   },
 ];
 
