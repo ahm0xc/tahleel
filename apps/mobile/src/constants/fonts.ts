@@ -6,8 +6,4 @@ export const FONT_ASSETS = {
 
 export type FontFamily = keyof typeof FONT_ASSETS;
 
-/**
- * The family every piece of UI text is set in. `globals.css` points Tailwind's
- * `--font-sans` at the same name, so the two have to move together.
- */
-export const SANS_FONT_FAMILY: FontFamily = "NotoSans";
+export const SANS_FONT_FAMILY = "NotoSans" satisfies FontFamily;

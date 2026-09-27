@@ -1,3 +1,5 @@
+import React from "react";
+
 import { ScrollView } from "react-native";
 
 import { FontSizeSlider, VersePreviewCard } from "~/components/settings";
@@ -12,8 +14,10 @@ import { usePreferences } from "~/store/preferences-store";
 
 export default function FontSizeScreen() {
   const scriptId = usePreferences((state) => state.scriptId);
-  const arabicFontSize = usePreferences((state) => state.arabicFontSize);
+  const savedFontSize = usePreferences((state) => state.arabicFontSize);
   const setArabicFontSize = usePreferences((state) => state.setArabicFontSize);
+
+  const [fontSize, setFontSize] = React.useState(savedFontSize);
 
   const script = getArabicScript(scriptId);
 
@@ -27,7 +31,7 @@ export default function FontSizeScreen() {
           caption="Al-Fatiha 1:1"
           direction={script.direction}
           fontFamily={script.fontFamily}
-          fontSize={arabicFontSize}
+          fontSize={fontSize}
           lineHeightRatio={ARABIC_LINE_HEIGHT_RATIO}
           text={getEditionSample(script.editionId)}
         />
@@ -36,7 +40,8 @@ export default function FontSizeScreen() {
       <FontSizeSlider
         defaultValue={DEFAULT_ARABIC_FONT_SIZE}
         title="Arabic"
-        value={arabicFontSize}
+        value={fontSize}
+        onChange={setFontSize}
         onCommit={setArabicFontSize}
       />
     </ScrollView>

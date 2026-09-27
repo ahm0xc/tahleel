@@ -1,3 +1,5 @@
+import React from "react";
+
 import { ScrollView } from "react-native";
 
 import { FontSizeSlider, VersePreviewCard } from "~/components/settings";
@@ -14,12 +16,12 @@ export default function TranslationFontSizeScreen() {
   const translationLanguageId = usePreferences(
     (state) => state.translationLanguageId
   );
-  const translationFontSize = usePreferences(
-    (state) => state.translationFontSize
-  );
+  const savedFontSize = usePreferences((state) => state.translationFontSize);
   const setTranslationFontSize = usePreferences(
     (state) => state.setTranslationFontSize
   );
+
+  const [fontSize, setFontSize] = React.useState(savedFontSize);
 
   const language = getTranslationLanguage(translationLanguageId);
 
@@ -33,7 +35,7 @@ export default function TranslationFontSizeScreen() {
           caption={`Al-Fatiha 1:1 · ${language.name} · ${language.author}`}
           direction={language.direction}
           fontFamily={language.fontFamily}
-          fontSize={translationFontSize}
+          fontSize={fontSize}
           lineHeightRatio={TRANSLATION_LINE_HEIGHT_RATIO}
           text={getEditionSample(language.editionId)}
         />
@@ -42,7 +44,8 @@ export default function TranslationFontSizeScreen() {
       <FontSizeSlider
         defaultValue={DEFAULT_TRANSLATION_FONT_SIZE}
         title="Translation"
-        value={translationFontSize}
+        value={fontSize}
+        onChange={setFontSize}
         onCommit={setTranslationFontSize}
       />
     </ScrollView>

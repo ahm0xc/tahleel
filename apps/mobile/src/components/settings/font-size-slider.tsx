@@ -17,6 +17,7 @@ interface FontSizeSliderProps {
   title: string;
   value: number;
   defaultValue: number;
+  onChange: (fontSize: number) => void;
   onCommit: (fontSize: number) => void;
 }
 
@@ -28,15 +29,15 @@ export function FontSizeSlider({
   title,
   value,
   defaultValue,
+  onChange,
   onCommit,
 }: FontSizeSliderProps) {
-  const [draft, setDraft] = React.useState(value);
-  const isDefault = value === defaultValue;
+  const [isDefault, setIsDefault] = React.useState(value === defaultValue);
 
-  // Picks up a value changed elsewhere, such as the reset below.
-  React.useEffect(() => {
-    setDraft(value);
-  }, [value]);
+  function commit(next: number) {
+    setIsDefault(next === defaultValue);
+    onCommit(next);
+  }
 
   return (
     <View className="px-safe-offset-4 mt-6">
@@ -50,7 +51,7 @@ export function FontSizeSlider({
             <Text className="text-foreground text-[16px] font-medium">
               Text size
             </Text>
-            <Text className="text-muted text-[16px]">{draft}</Text>
+            <Text className="text-muted text-[16px]">{value}</Text>
           </View>
 
           <Slider
@@ -58,9 +59,9 @@ export function FontSizeSlider({
             maxValue={FONT_SIZE_MAX}
             minValue={FONT_SIZE_MIN}
             step={FONT_SIZE_STEP}
-            value={draft}
-            onChange={(next) => setDraft(toSingleValue(next))}
-            onChangeEnd={(next) => onCommit(toSingleValue(next))}
+            value={value}
+            onChange={(next) => onChange(toSingleValue(next))}
+            onChangeEnd={(next) => commit(toSingleValue(next))}
           >
             <Slider.Track>
               <Slider.Fill />
@@ -80,8 +81,8 @@ export function FontSizeSlider({
                 className="px-2 py-1 active:opacity-60"
                 hitSlop={8}
                 onPress={() => {
-                  setDraft(defaultValue);
-                  onCommit(defaultValue);
+                  onChange(defaultValue);
+                  commit(defaultValue);
                 }}
               >
                 <Text className="text-link text-sm">Reset</Text>
