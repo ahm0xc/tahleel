@@ -13,9 +13,10 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useCSSVariable } from "uniwind";
 
 import { Text, View } from "~/components/ui";
-import { CHAPTERS, getChapter } from "~/constants/chapters";
+import { CHAPTERS, type Chapter, getChapter } from "~/constants/chapters";
 import { triggerHaptic } from "~/lib/haptics";
 import { type EnglishVerse } from "~/lib/quran/english-edition";
+import { shareVerse } from "~/lib/quran/share";
 import {
   CHUNKING_VERSION,
   MAX_LINES_PER_CHUNK,
@@ -177,7 +178,7 @@ export function VersePage({
       className="px-safe-offset-6 pt-safe-offset-12 pb-safe-offset-4 justify-center"
       style={{ height }}
     >
-      <VerseActions chapterNumber={chapterNumber} verseNumber={verse.verse} />
+      <VerseActions chapter={chapter} verse={verse} />
 
       <View
         className="w-full"
@@ -319,17 +320,17 @@ function ChunkNav({
 }
 
 function VerseActions({
-  chapterNumber,
-  verseNumber,
+  chapter,
+  verse,
 }: {
-  chapterNumber: number;
-  verseNumber: number;
+  chapter: Chapter;
+  verse: EnglishVerse;
 }) {
   const foregroundColor = useCSSVariable("--foreground") as string;
   const dangerColor = useCSSVariable("--danger") as string;
   const { isFavorite, toggleFavorite } = useFavorite({
-    chapterNumber,
-    verseNumber,
+    chapterNumber: chapter.chapterNumber,
+    verseNumber: verse.verse,
   });
 
   return (
@@ -350,7 +351,10 @@ function VerseActions({
           />
         </VerseAction>
 
-        <VerseAction label="Share verse">
+        <VerseAction
+          label="Share verse"
+          onPress={() => shareVerse(chapter, verse)}
+        >
           <Feather color={foregroundColor} name="share" size={20} />
         </VerseAction>
 
