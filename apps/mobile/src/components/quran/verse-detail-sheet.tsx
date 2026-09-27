@@ -27,6 +27,7 @@ const SHEET_SNAP_POINT = "60%";
 interface VerseDetailSheetProps {
   chapter: Chapter;
   isOpen: boolean;
+  onCaptureImage: () => void;
   onOpenChange: (open: boolean) => void;
   verse: QuranVerse;
 }
@@ -34,6 +35,7 @@ interface VerseDetailSheetProps {
 export function VerseDetailSheet({
   chapter,
   isOpen,
+  onCaptureImage,
   onOpenChange,
   verse,
 }: VerseDetailSheetProps) {
@@ -78,6 +80,7 @@ export function VerseDetailSheet({
                   <Animated.View entering={FadeIn.duration(180)}>
                     <TranslationTab
                       chapter={chapter}
+                      onCaptureImage={onCaptureImage}
                       onClose={handleClose}
                       verse={verse}
                     />
@@ -120,10 +123,12 @@ export function VerseDetailSheet({
 
 function TranslationTab({
   chapter,
+  onCaptureImage,
   onClose,
   verse,
 }: {
   chapter: Chapter;
+  onCaptureImage: () => void;
   onClose: () => void;
   verse: QuranVerse;
 }) {
@@ -134,7 +139,7 @@ function TranslationTab({
     (state) => state.translationFontSize
   );
   const language = getTranslationLanguage(translationLanguageId);
-  const shareIconColor = useCSSVariable("--default-foreground") as string;
+  const iconColor = useCSSVariable("--default-foreground") as string;
   const { toast } = useToast();
   const isSharingRef = React.useRef(false);
   const translation = React.useMemo(
@@ -172,15 +177,25 @@ function TranslationTab({
 
       <Text className="text-muted text-sm">{language.author}</Text>
 
-      <View className="mt-2 flex-row">
+      <View className="mt-2 flex-row gap-2">
         <Button
           variant="tertiary"
           size="sm"
           haptics="Light"
           onPress={handleShare}
         >
-          <Feather color={shareIconColor} name="share" size={14} />
+          <Feather color={iconColor} name="share" size={14} />
           <ButtonLabel className="text-sm">Share</ButtonLabel>
+        </Button>
+
+        <Button
+          variant="tertiary"
+          size="sm"
+          haptics="Light"
+          onPress={handleShareImage}
+        >
+          <Feather color={iconColor} name="image" size={14} />
+          <ButtonLabel className="text-sm">Share image</ButtonLabel>
         </Button>
       </View>
     </View>
@@ -207,6 +222,15 @@ function TranslationTab({
         variant: "danger",
       });
     }
+  }
+
+  /**
+   * No guard of its own: the capture host drops a request that lands while one
+   * is in flight, and the page dismisses this sheet on the way out so the
+   * button is gone with it.
+   */
+  function handleShareImage() {
+    onCaptureImage();
   }
 }
 

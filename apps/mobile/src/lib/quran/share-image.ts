@@ -5,9 +5,7 @@ import { type View } from "react-native";
 import * as Sharing from "expo-sharing";
 import { captureRef } from "react-native-view-shot";
 
-import { type Chapter } from "~/constants/chapters";
-
-export type ShareVerseImageResult = "shared" | "unavailable" | "failed";
+export type ShareImageResult = "shared" | "unavailable" | "failed";
 
 const CAPTURE_OPTIONS = {
   format: "png",
@@ -15,35 +13,35 @@ const CAPTURE_OPTIONS = {
   result: "tmpfile",
 } as const;
 
-export async function captureVerseImage(
+export async function captureShareImage(
   target: RefObject<View | null>
 ): Promise<string | null> {
   try {
     return await captureRef(target, CAPTURE_OPTIONS);
   } catch (err) {
-    console.error("[VerseImage] Failed to capture verse image:", err);
+    console.error("[ShareImage] Failed to capture share image:", err);
     return null;
   }
 }
 
-export async function shareVerseImage(
-  chapter: Chapter,
+export async function shareImage(
+  title: string,
   uri: string
-): Promise<ShareVerseImageResult> {
+): Promise<ShareImageResult> {
   try {
     if (!(await Sharing.isAvailableAsync())) {
       return "unavailable";
     }
 
     await Sharing.shareAsync(uri, {
-      dialogTitle: `Quran ${chapter.chapterNumber}:${chapter.name}`,
+      dialogTitle: title,
       mimeType: "image/png",
       UTI: "public.png",
     });
 
     return "shared";
   } catch (err) {
-    console.error("[VerseImage] Failed to share verse image:", err);
+    console.error("[ShareImage] Failed to share image:", err);
     return "failed";
   }
 }

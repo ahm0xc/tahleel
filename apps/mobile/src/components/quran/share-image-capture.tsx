@@ -6,38 +6,39 @@ import { useToast } from "heroui-native";
 import { useCSSVariable } from "uniwind";
 
 import { View } from "~/components/ui";
-import { type Chapter } from "~/constants/chapters";
-import { type ArabicScript } from "~/constants/scripts";
-import { type QuranVerse } from "~/lib/quran/edition-data";
-import { captureVerseImage, shareVerseImage } from "~/lib/quran/verse-image";
-
-import { VerseImageCaptureCard } from "./verse-image-capture-card";
+import { captureShareImage, shareImage } from "~/lib/quran/share-image";
 
 const CARD_MAX_WIDTH = 360;
 const CARD_GUTTER = 48;
 
-interface VerseImageCaptureProps {
-  chapter: Chapter;
-  fontSize: number;
+type ShareImageCardRenderer = (cardWidth: number) => React.ReactNode;
+
+interface ShareImageCaptureProps {
+  children: ShareImageCardRenderer;
   request: number;
-  script: ArabicScript;
-  verse: QuranVerse;
+  shareTitle: string;
   width: number;
 }
 
 /**
- * Rasterizes the current verse and hands the image straight to the system share
- * sheet, mirroring what the share action does for the verse text. The card is
- * only mounted for the few frames the capture takes.
+ * Rasterizes a card built by `children` and hands the image straight to the
+ * system share sheet. The card is only mounted for the few frames the capture
+ * takes.
+ *
+ * Bumping `request` is the signal to start a capture: it re-arms the host, which
+ * remounts the card and replays its layout so the capture always sees a measured
+ * view. Taps that land while a capture is already in flight are dropped: the
+ * card is mounted by then, so it would not lay out again and the request would
+ * stall. `children` is expected to be memoized on whatever it renders, so a
+ * capture in flight is retaken -- rather than finished against stale content --
+ * if the card's own inputs change underneath it.
  */
-export function VerseImageCapture({
-  chapter,
-  fontSize,
+export function ShareImageCapture({
+  children,
   request,
-  script,
-  verse,
+  shareTitle,
   width,
-}: VerseImageCaptureProps) {
+}: ShareImageCaptureProps) {
   const { toast } = useToast();
   const backgroundColor = useCSSVariable("--background") as string;
   // `toast` is rebuilt whenever a toast is shown or dismissed, so it cannot be
@@ -53,10 +54,6 @@ export function VerseImageCapture({
 
   const cardWidth = Math.min(width - CARD_GUTTER, CARD_MAX_WIDTH);
 
-  // Bumping the request re-arms the host, which remounts the card and replays
-  // its layout so the capture always sees a measured view. Taps that land while
-  // a capture is already in flight are dropped: the card is mounted by then, so
-  // it would not lay out again and the request would stall.
   React.useEffect(() => {
     if (request === 0 || isCapturingRef.current) {
       return;
@@ -78,7 +75,7 @@ export function VerseImageCapture({
     // can be rasterized; capturing in the same frame yields a blank image.
     requestAnimationFrame(() => {
       requestAnimationFrame(async () => {
-        const captured = await captureVerseImage(cardRef);
+        const captured = await captureShareImage(cardRef);
 
         if (isCancelled) {
           return;
@@ -95,7 +92,7 @@ export function VerseImageCapture({
           return;
         }
 
-        const result = await shareVerseImage(chapter, captured);
+        const result = await shareImage(shareTitle, captured);
 
         // A completed share needs no confirmation: the system sheet is the receipt.
         if (result === "shared" || isCancelled) {
@@ -115,7 +112,7 @@ export function VerseImageCapture({
     return () => {
       isCancelled = true;
     };
-  }, [chapter, fontSize, isArmed, isLaidOut, script.id, verse.verse]);
+  }, [children, isArmed, isLaidOut, shareTitle]);
 
   if (!isArmed) {
     return null;
@@ -135,13 +132,7 @@ export function VerseImageCapture({
           setIsLaidOut(true);
         }}
       >
-        <VerseImageCaptureCard
-          chapter={chapter}
-          fontSize={fontSize}
-          script={script}
-          verse={verse}
-          width={cardWidth}
-        />
+        {children(cardWidth)}
       </View>
 
       <View

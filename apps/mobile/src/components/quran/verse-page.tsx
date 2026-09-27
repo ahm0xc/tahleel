@@ -15,12 +15,13 @@ import { useCSSVariable } from "uniwind";
 import { Text, View } from "~/components/ui";
 import { CHAPTERS, type Chapter, getChapter } from "~/constants/chapters";
 import { type ArabicScript } from "~/constants/scripts";
+import { getTranslationLanguage } from "~/constants/translations";
 import {
   ARABIC_LINE_HEIGHT_RATIO,
   getLineHeight,
 } from "~/constants/typography";
 import { triggerHaptic } from "~/lib/haptics";
-import { type QuranVerse } from "~/lib/quran/edition-data";
+import { type QuranVerse, getEditionVerse } from "~/lib/quran/edition-data";
 import { shareVerse } from "~/lib/quran/share";
 import {
   CHUNKING_VERSION,
@@ -29,9 +30,12 @@ import {
 } from "~/lib/quran/verse-chunks";
 import { cn } from "~/lib/utils";
 import { useFavorite } from "~/store/favorite-store";
+import { usePreferences } from "~/store/preferences-store";
 
+import { ShareImageCapture } from "./share-image-capture";
+import { TranslationImageCaptureCard } from "./translation-image-capture-card";
 import { VerseDetailSheet } from "./verse-detail-sheet";
-import { VerseImageCapture } from "./verse-image-capture";
+import { VerseImageCaptureCard } from "./verse-image-capture-card";
 
 const VERSE_TEXT_CLASS_NAME = "text-center";
 
@@ -115,7 +119,56 @@ export function VersePage({
   const isProgrammaticRef = React.useRef(false);
   const chunkListRef = React.useRef<FlatList<string>>(null);
   const [captureRequest, setCaptureRequest] = React.useState(0);
+  const [translationCaptureRequest, setTranslationCaptureRequest] =
+    React.useState(0);
   const chunkKeyRef = React.useRef(chunkKey);
+
+  const translationLanguageId = usePreferences(
+    (state) => state.translationLanguageId
+  );
+  const translationFontSize = usePreferences(
+    (state) => state.translationFontSize
+  );
+  const language = getTranslationLanguage(translationLanguageId);
+  const translation = React.useMemo(
+    () =>
+      getEditionVerse(language.editionId, chapter.chapterNumber, verse.verse)
+        ?.text,
+    [chapter.chapterNumber, language.editionId, verse.verse]
+  );
+
+  const verseShareTitle = `Quran ${chapter.chapterNumber}:${chapter.name}`;
+  const translationShareTitle = `${verseShareTitle} · ${language.name}`;
+
+  const renderVerseCard = React.useCallback(
+    (cardWidth: number) => (
+      <VerseImageCaptureCard
+        chapter={chapter}
+        fontSize={fontSize}
+        script={script}
+        verse={verse}
+        width={cardWidth}
+      />
+    ),
+    [chapter, fontSize, script, verse]
+  );
+
+  const renderTranslationCard = React.useCallback(
+    (cardWidth: number) =>
+      // The host is only mounted for a translation that exists, so this is only
+      // here to keep the renderer total.
+      translation === undefined ? null : (
+        <TranslationImageCaptureCard
+          chapter={chapter}
+          fontSize={translationFontSize}
+          language={language}
+          text={translation}
+          verseNumber={verse.verse}
+          width={cardWidth}
+        />
+      ),
+    [chapter, language, translation, translationFontSize, verse.verse]
+  );
 
   // Changing the font re-lays the verse out, but `chunks` still holds the split
   // measured for the old one, and a re-measure only ever adds chunks back. A
@@ -262,6 +315,9 @@ export function VersePage({
         onCapture={() => {
           setCaptureRequest((request) => request + 1);
         }}
+        onCaptureTranslation={() => {
+          setTranslationCaptureRequest((request) => request + 1);
+        }}
       />
 
       <View
@@ -371,14 +427,30 @@ export function VersePage({
         </View>
       )}
 
-      <VerseImageCapture
-        chapter={chapter}
-        fontSize={fontSize}
+      <ShareImageCapture
         request={captureRequest}
-        script={script}
-        verse={verse}
+        shareTitle={verseShareTitle}
         width={width}
-      />
+      >
+        {renderVerseCard}
+      </ShareImageCapture>
+
+      {/*
+        The host lives on the page, not inside the sheet that asks for the
+        capture: the sheet is translated off the screen as it dismisses, and an
+        off-screen host rasterizes blank. Nothing can ask for a missing
+        translation either -- that tab says so instead of offering the button --
+        so the host only exists when there is one to capture.
+      */}
+      {translation !== undefined && (
+        <ShareImageCapture
+          request={translationCaptureRequest}
+          shareTitle={translationShareTitle}
+          width={width}
+        >
+          {renderTranslationCard}
+        </ShareImageCapture>
+      )}
     </View>
   );
 }
@@ -422,11 +494,13 @@ function VerseActions({
   isActive,
   verse,
   onCapture,
+  onCaptureTranslation,
 }: {
   chapter: Chapter;
   isActive: boolean;
   verse: QuranVerse;
   onCapture: () => void;
+  onCaptureTranslation: () => void;
 }) {
   const foregroundColor = useCSSVariable("--foreground") as string;
   const dangerColor = useCSSVariable("--danger") as string;
@@ -496,6 +570,7 @@ function VerseActions({
           <VerseDetailSheet
             chapter={chapter}
             isOpen={isDetailsOpen}
+            onCaptureImage={handleCaptureTranslation}
             onOpenChange={setIsDetailsOpen}
             verse={verse}
           />
@@ -503,6 +578,15 @@ function VerseActions({
       </View>
     </View>
   );
+
+  /**
+   * The system share sheet has to come up over the details sheet, so the
+   * capture is armed on the way out rather than while the sheet is still up.
+   */
+  function handleCaptureTranslation() {
+    setIsDetailsOpen(false);
+    onCaptureTranslation();
+  }
 }
 
 function VerseAction({
