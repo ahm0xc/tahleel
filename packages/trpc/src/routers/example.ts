@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure } from "../trpc.js";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "../trpc.js";
 
 export const exampleRouter = createTRPCRouter({
   hello: publicProcedure
@@ -28,4 +32,24 @@ export const exampleRouter = createTRPCRouter({
       const sum = input.x + input.y;
       return sum;
     }),
+
+  /**
+   * Public on purpose: lets a client confirm whether the server picked up its session token
+   * without needing access to a protected resource.
+   */
+  whoami: publicProcedure.query(({ ctx }) => {
+    const { isAuthenticated, userId, sessionId } = ctx.auth;
+    return { isAuthenticated, userId, sessionId };
+  }),
+
+  /**
+   * Anonymous callers get `UNAUTHORIZED` before the resolver runs.
+   */
+  secret: protectedProcedure.query(({ ctx }) => {
+    return {
+      userId: ctx.auth.userId,
+      sessionId: ctx.auth.sessionId,
+      secret: `${ctx.auth.userId} is using a protected procedure`,
+    };
+  }),
 });

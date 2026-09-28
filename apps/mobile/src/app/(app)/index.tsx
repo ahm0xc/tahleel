@@ -2,13 +2,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { Card } from "heroui-native";
 
 import { Button, ButtonLabel, Image, Text, View } from "~/components/ui";
-import { api } from "~/trpc/client";
 
 export default function HomeScreen() {
-  const { data } = api.example.hello.useQuery({ text: "Ahmed" });
-
-  console.log({ data });
-
   return (
     <View className="bg-background flex-1">
       <Header />
