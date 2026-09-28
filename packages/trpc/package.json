@@ -1,0 +1,44 @@
+{
+  "name": "@repo/trpc",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./trpc": {
+      "types": "./src/trpc.ts",
+      "default": "./dist/trpc.js"
+    },
+    "./root": {
+      "types": "./src/root.ts",
+      "default": "./dist/root.js"
+    }
+  },
+  "dependencies": {
+    "@ai-sdk/google": "^2.0.8",
+    "@ai-sdk/openai": "^2.0.20",
+    "@clerk/backend": "^2.1.0",
+    "@posthog/ai": "^6.4.3",
+    "@trpc/client": "^11.19.0",
+    "@trpc/react-query": "^11.19.0",
+    "@trpc/server": "^11.6.0",
+    "@vercel/edge-config": "^1.4.0",
+    "ai": "^5.0.23",
+    "nanoid": "^5.1.6",
+    "posthog-node": "^5.9.2",
+    "server-only": "^0.0.1",
+    "superjson": "^2.2.2",
+    "zod": "^4.1.1"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "typescript": "latest"
+  }
+}
