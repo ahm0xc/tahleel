@@ -14,10 +14,14 @@ export const dailyProgress = pgTable(
     userId: text().notNull(),
     // the user's LOCAL calendar date, stored as 'YYYY-MM-DD'
     day: date({ mode: "string" }).notNull(),
-    hasanatEarned: integer().notNull().default(0),
+
     goalSnapshot: integer().notNull(),
     completed: boolean().notNull().default(false),
     completedAt: timestamp({ withTimezone: true }),
+
+    hasanatEarned: integer().notNull().default(0),
+    versesRead: integer().notNull().default(0),
+    timeSpent: integer().notNull().default(0),
 
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
