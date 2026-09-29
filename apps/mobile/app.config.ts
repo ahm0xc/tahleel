@@ -77,6 +77,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         },
       ],
     ],
+    experiments: {
+      reactCompiler: true,
+    },
     extra: {
       eas: {
         projectId: "700ffcd1-f18b-4b82-8c19-545c19f73966",
