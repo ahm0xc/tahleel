@@ -27,6 +27,7 @@ export default function SettingsScreen() {
   const { user } = useUser();
   const { setCompleted: setOnboardingCompleted } = useOnboarding();
   const scriptId = usePreferences((state) => state.scriptId);
+  const dailyVerseGoal = usePreferences((state) => state.dailyVerseGoal);
   const translationLanguageId = usePreferences(
     (state) => state.translationLanguageId
   );
@@ -47,6 +48,14 @@ export default function SettingsScreen() {
       <ProfileCard />
 
       <SettingsList title="Quran settings">
+        <SettingsListItem
+          chevron
+          icon="flag-outline"
+          label="Daily goal"
+          value={`${dailyVerseGoal} ${dailyVerseGoal === 1 ? "verse" : "verses"}`}
+          onPress={() => router.push("/settings/daily-goal")}
+        />
+
         <SettingsPicker
           icon="language-outline"
           label="Translation language"
