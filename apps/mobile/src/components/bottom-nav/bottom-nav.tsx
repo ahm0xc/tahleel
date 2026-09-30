@@ -25,7 +25,7 @@ const NAV_ITEMS: Omit<NavItemProps, "color" | "isActive" | "isCurrent">[] = [
   { href: "/", label: "Home", iconName: "home" },
   { href: "/reading", label: "Reading", iconName: "book-open" },
   { href: "/explore", label: "Explore", iconName: "compass" },
-  { href: "/friends", label: "Friends", iconName: "users" },
+  { href: "/leaderboard", label: "Leaderboard", iconName: "bar-chart-2" },
   { href: "/settings", label: "Settings", iconName: "settings" },
 ];
 
