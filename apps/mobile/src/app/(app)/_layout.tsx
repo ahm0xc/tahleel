@@ -11,6 +11,7 @@ export default function Layout() {
         <Stack.Screen name="reading" />
         <Stack.Screen name="explore" />
         <Stack.Screen name="leaderboard" />
+        <Stack.Screen name="add-friend" />
         <Stack.Screen name="friends" />
         <Stack.Screen name="settings" />
       </Stack>

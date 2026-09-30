@@ -93,6 +93,7 @@ function Header() {
           <Button
             accessibilityLabel="Add friend"
             isIconOnly
+            onPress={() => router.push("/add-friend")}
             size="md"
             variant="ghost"
           >

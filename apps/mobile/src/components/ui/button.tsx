@@ -53,6 +53,7 @@ export function Button({
 
   return (
     <HeroUIButton
+      className={className}
       variant={variant}
       onPress={handleOnPress}
       onPressIn={handleOnPressIn}
