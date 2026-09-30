@@ -3,12 +3,12 @@ import { useCSSVariable } from "uniwind";
 
 import { Text, View } from "~/components/ui";
 import { cn } from "~/lib/utils";
-import { api } from "~/trpc/client";
+import { useStreaks } from "~/store/streaks-context";
 
 const FLAME_COLOR = "#F79009";
 
 export function StreaksBadge() {
-  const { data, isPending } = api.streaks.get.useQuery();
+  const { userStreaks: data, userStreaksPending: isPending } = useStreaks();
   const mutedColor = useCSSVariable("--muted") as string;
 
   const days = data?.currentStreak ?? 0;

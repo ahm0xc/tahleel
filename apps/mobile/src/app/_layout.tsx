@@ -17,6 +17,7 @@ import {
   useNotificationObserver,
 } from "~/store/notification-store";
 import { useOnboarding } from "~/store/onboarding-store";
+import { StreaksProvider } from "~/store/streaks-context";
 import { TRPCProvider } from "~/trpc/provider";
 
 SplashScreen.preventAutoHideAsync();
@@ -120,16 +121,18 @@ export default function RootLayout() {
       telemetry={false}
     >
       <TRPCProvider>
-        <NotificationProvider>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <StatusBar style="auto" />
-            <HeroUINativeProvider
-              config={{ devInfo: { stylingPrinciples: false } }}
-            >
-              <InitialLayout />
-            </HeroUINativeProvider>
-          </GestureHandlerRootView>
-        </NotificationProvider>
+        <StreaksProvider>
+          <NotificationProvider>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <StatusBar style="auto" />
+              <HeroUINativeProvider
+                config={{ devInfo: { stylingPrinciples: false } }}
+              >
+                <InitialLayout />
+              </HeroUINativeProvider>
+            </GestureHandlerRootView>
+          </NotificationProvider>
+        </StreaksProvider>
       </TRPCProvider>
     </ClerkProvider>
   );

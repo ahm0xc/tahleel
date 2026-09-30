@@ -15,6 +15,7 @@ import { getArabicScript } from "~/constants/scripts";
 import { TRANSLATION_LANGUAGES } from "~/constants/translations";
 import { openAccountDeletionRequest } from "~/lib/account-deletion";
 import { openFeedback } from "~/lib/feedback";
+import { cacheStorage } from "~/lib/storage";
 import { isDev } from "~/lib/utils";
 import { useOnboarding } from "~/store/onboarding-store";
 import { usePreferences } from "~/store/preferences-store";
@@ -40,6 +41,11 @@ export default function SettingsScreen() {
   );
 
   const script = getArabicScript(scriptId);
+
+  async function handleSignout() {
+    cacheStorage.clearAll();
+    await signOut();
+  }
 
   return (
     <ScrollView className="pb-safe-offset-4 pt-safe-offset-2 bg-background flex-1">
@@ -150,7 +156,7 @@ export default function SettingsScreen() {
               {
                 text: "Sign out",
                 style: "destructive",
-                onPress: () => void signOut(),
+                onPress: () => void handleSignout(),
               },
             ])
           }
@@ -172,7 +178,7 @@ export default function SettingsScreen() {
             label="Reset onboarding and sign out"
             onPress={() => {
               setOnboardingCompleted(false);
-              void signOut();
+              void handleSignout();
             }}
             showDivider={false}
           />
