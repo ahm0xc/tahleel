@@ -1,24 +1,43 @@
+import { ScrollView } from "react-native";
+
 import { router } from "expo-router";
 import { Card } from "heroui-native";
 
+import { StatsGrid } from "~/components/stats-grid";
 import { StreaksBadge } from "~/components/streaks-badge";
 import { StreaksWeekCalendar } from "~/components/streaks-week-calendar";
 import { Button, ButtonLabel, Image, Text, View } from "~/components/ui";
 import { useStreaks } from "~/store/streaks-context";
 
 export default function HomeScreen() {
+  const { todayProgress, userStreaksPending } = useStreaks();
+
   return (
     <View className="bg-background flex-1">
       <Header />
 
-      <View className="px-safe-offset-4">
+      <ScrollView
+        className="flex-1"
+        contentContainerClassName="px-safe-offset-4 pb-8"
+      >
         <View className="mt-6">
           <StreaksWeekCalendar />
         </View>
         <View className="mt-6">
-          <GoalCard />
+          <GoalCard
+            todayProgress={todayProgress}
+            userStreaksPending={userStreaksPending}
+          />
         </View>
-      </View>
+        <View className="mt-6">
+          <StatsGrid
+            hasanat={todayProgress?.hasanatEarned ?? 0}
+            versesRead={todayProgress?.versesRead ?? 0}
+            timeSpent={todayProgress?.timeSpent ?? 0}
+            isLoading={userStreaksPending}
+          />
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -37,9 +56,12 @@ function Header() {
   );
 }
 
-function GoalCard() {
-  const { todayProgress, userStreaksPending } = useStreaks();
+type GoalCardProps = {
+  todayProgress: ReturnType<typeof useStreaks>["todayProgress"];
+  userStreaksPending: boolean;
+};
 
+function GoalCard({ todayProgress, userStreaksPending }: GoalCardProps) {
   const versesRead = todayProgress?.versesRead ?? 0;
   const goal = todayProgress?.goalSnapshot ?? 0;
   const hasanatEarned = todayProgress?.hasanatEarned ?? 0;
