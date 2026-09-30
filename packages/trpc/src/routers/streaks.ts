@@ -26,6 +26,17 @@ function toStreakState(row: typeof userStreaks.$inferSelect): StreakState {
   };
 }
 
+function toTodayProgress(row: typeof dailyProgress.$inferSelect) {
+  return {
+    day: row.day,
+    goalSnapshot: row.goalSnapshot,
+    versesRead: row.versesRead,
+    hasanatEarned: row.hasanatEarned,
+    timeSpent: row.timeSpent,
+    completed: row.completed,
+  };
+}
+
 export const streaksRouter = createTRPCRouter({
   get: protectedProcedure
     .input(z.object({ today: daySchema.optional() }).optional())
@@ -38,9 +49,14 @@ export const streaksRouter = createTRPCRouter({
 
       const stored = streakRow ? toStreakState(streakRow) : EMPTY_STREAK;
 
+      const progressRow = await db.query.dailyProgress.findFirst({
+        where: { userId: ctx.auth.userId, day: today },
+      });
+
       return {
         ...readStreak(stored, today),
         isAlive: isStreakAlive(stored, today),
+        todayProgress: progressRow ? toTodayProgress(progressRow) : null,
       };
     }),
 

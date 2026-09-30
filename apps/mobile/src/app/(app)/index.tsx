@@ -1,7 +1,9 @@
+import { router } from "expo-router";
 import { Card } from "heroui-native";
 
 import { StreaksBadge } from "~/components/streaks-badge";
-import { Button, ButtonLabel, Image, View } from "~/components/ui";
+import { Button, ButtonLabel, Image, Text, View } from "~/components/ui";
+import { useStreaks } from "~/store/streaks-context";
 
 export default function HomeScreen() {
   return (
@@ -29,28 +31,66 @@ function Header() {
   );
 }
 
-interface GoalCardProps {}
+function GoalCard() {
+  const { todayProgress, userStreaksPending } = useStreaks();
 
-function GoalCard({}: GoalCardProps) {
+  const versesRead = todayProgress?.versesRead ?? 0;
+  const goal = todayProgress?.goalSnapshot ?? 0;
+  const hasanatEarned = todayProgress?.hasanatEarned ?? 0;
+  const timeSpent = todayProgress?.timeSpent ?? 0;
+  const isCompleted = todayProgress?.completed ?? false;
+
+  const progress = goal > 0 ? Math.min(versesRead / goal, 1) : 0;
+
   return (
     <Card className="rounded-4xl">
       <Card.Header>
         <Card.Title className="text-2xl">Goal</Card.Title>
-        <Card.Description>0/5 Verses Today</Card.Description>
+        <Card.Description>
+          {userStreaksPending
+            ? "Loading…"
+            : `${versesRead}/${goal} Verses Today`}
+        </Card.Description>
       </Card.Header>
       <Card.Body className="pt-4">
-        <View className="bg-default h-2.5 rounded-full">
+        <View className="bg-default h-2.5 overflow-hidden rounded-full">
           <View
-            style={{ width: "50%" }}
-            className="bg-accent h-full w-full rounded-full"
+            style={{ width: `${progress * 100}%` }}
+            className="bg-accent h-full rounded-full"
           />
         </View>
       </Card.Body>
       <Card.Footer className="pt-4">
-        <Button>
-          <ButtonLabel>Start Reading</ButtonLabel>
+        {todayProgress !== null && (
+          <View className="mb-3 flex-row items-center justify-between">
+            <Text className="text-muted text-sm">+{hasanatEarned} hasanat</Text>
+            <Text className="text-muted text-sm">
+              {formatDuration(timeSpent)}
+            </Text>
+          </View>
+        )}
+
+        <Button onPress={() => router.push("/reading")}>
+          <ButtonLabel>
+            {isCompleted ? "Keep Reading" : "Start Reading"}
+          </ButtonLabel>
         </Button>
       </Card.Footer>
     </Card>
   );
+}
+
+function formatDuration(totalSeconds: number): string {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+
+  if (minutes > 0) {
+    return `${minutes}m`;
+  }
+
+  return `${totalSeconds}s`;
 }
