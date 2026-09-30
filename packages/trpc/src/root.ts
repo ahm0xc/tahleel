@@ -1,4 +1,5 @@
 import { exampleRouter } from "./routers/example.js";
+import { streaksRouter } from "./routers/streaks.js";
 import { createCallerFactory, createTRPCRouter } from "./trpc.js";
 
 /**
@@ -8,6 +9,7 @@ import { createCallerFactory, createTRPCRouter } from "./trpc.js";
  */
 export const appRouter = createTRPCRouter({
   example: exampleRouter,
+  streaks: streaksRouter,
 });
 
 // export type definition of API
