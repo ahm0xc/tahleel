@@ -1,7 +1,7 @@
-import { Ionicons } from "@expo/vector-icons";
 import { Card } from "heroui-native";
 
-import { Button, ButtonLabel, Image, Text, View } from "~/components/ui";
+import { StreaksBadge } from "~/components/streaks-badge";
+import { Button, ButtonLabel, Image, View } from "~/components/ui";
 
 export default function HomeScreen() {
   return (
@@ -24,16 +24,7 @@ function Header() {
         style={{ height: 32, width: 32, borderRadius: 8 }}
       />
 
-      <StreakBadge days={7} />
-    </View>
-  );
-}
-
-function StreakBadge({ days }: { days: number }) {
-  return (
-    <View className="flex-row items-center gap-1.5 rounded-full border border-orange-200 bg-orange-100/80 py-1.5 pr-3 pl-2 dark:border-orange-500/30 dark:bg-orange-500/15">
-      <Ionicons color="#F79009" name="flame" size={20} />
-      <Text className="text-foreground text-sm font-semibold">{days}</Text>
+      <StreaksBadge />
     </View>
   );
 }
