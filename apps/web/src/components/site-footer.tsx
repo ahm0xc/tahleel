@@ -3,7 +3,7 @@ import Link from "next/link";
 export function SiteFooter() {
   return (
     <footer className="border-border text-muted-foreground mt-20 flex items-center justify-between border-t pt-6 text-[12px] sm:mt-28">
-      <span>© 2026 Swipe Go</span>
+      <span>© {new Date().getFullYear()} Tahleel</span>
       <div className="flex items-center gap-5">
         <Link
           href="/privacy"

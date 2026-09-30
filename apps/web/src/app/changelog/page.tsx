@@ -1,47 +1,62 @@
+import type { Metadata } from "next";
+
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 
+export const metadata: Metadata = {
+  title: "Changelog",
+  description:
+    "A record of what shipped in Tahleel, the daily Quran reading app, and when.",
+};
+
 const release = {
   version: "1.0.0",
-  date: "September 22, 2026",
+  date: "September 30, 2026",
   sections: [
     {
-      title: "Gallery Cleanup",
+      title: "Daily Reading",
       items: [
-        "Swipe right to keep photos, swipe left to delete them.",
-        "Browse your photo library by month, going back up to 5 years.",
-        "Quick access to your 50 most recent photos.",
-        "Review all deletion choices in a grid before confirming.",
-        "Undo any swipe decision before you finalize.",
-        "Images preloaded in the background for smooth transitions.",
+        "Scroll through the Quran a verse at a time, at whatever pace suits you.",
+        "Read the translation alongside the Arabic, verse by verse.",
+        "Pick up exactly where you left off every time you open the app.",
+        "Read offline, wherever you happen to be.",
       ],
     },
     {
-      title: "Authentication",
+      title: "Hasanaat",
       items: [
-        "Sign in with Apple for a quick, secure account setup.",
-        "Your credentials are stored securely on device.",
+        "Every ayah you read earns you hasanaat.",
+        "Watch your hasanaat add up day by day.",
+        "A running total of everything you have read so far.",
+      ],
+    },
+    {
+      title: "Friends",
+      items: [
+        "Add the people you read with and keep them in your list.",
+        "See how many hasanaat you have and how many they have.",
+        "A little friendly competition goes a long way.",
+      ],
+    },
+    {
+      title: "Rankings",
+      items: [
+        "A global leaderboard of readers around the world.",
+        "A separate ranking between you and your friends.",
+        "Every reader is counted the same way, with nothing to skip.",
       ],
     },
     {
       title: "Getting Started",
       items: [
-        "Two-step onboarding that explains how swiping works.",
-        "Progress remembered so you only see it once.",
-      ],
-    },
-    {
-      title: "Notifications",
-      items: [
-        "Gentle reminders to come back and sort a few photos.",
-        "Tap a notification to jump straight into the app.",
+        "A short introduction to how scrolling and hasanaat work.",
+        "Set the app up once and get straight to reading.",
       ],
     },
     {
       title: "Settings",
       items: [
         "Send feedback directly from the app.",
-        "Quick access to privacy policy and terms of use.",
         "Request account deletion at any time.",
         "View device and app info at a glance.",
       ],
