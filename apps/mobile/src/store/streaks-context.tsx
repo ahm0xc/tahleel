@@ -15,7 +15,7 @@ import type { AppRouter } from "@repo/trpc";
 import type { inferRouterOutputs } from "@trpc/server";
 
 import { useQueryWithCallbacks } from "~/hooks/use-query-with-callbacks";
-import { diffInDays, todayInUTC } from "~/lib/days";
+import { diffInDays, getWeekStart, todayInUTC } from "~/lib/days";
 import { calculateHasanat } from "~/lib/quran/hasanat";
 import { cacheStorage } from "~/lib/storage";
 import { usePreferences } from "~/store/preferences-store";
@@ -23,6 +23,7 @@ import { api } from "~/trpc/client";
 
 type UserStreaks = inferRouterOutputs<AppRouter>["streaks"]["get"];
 type TodayProgress = NonNullable<UserStreaks["todayProgress"]>;
+type StreaksHistory = inferRouterOutputs<AppRouter>["streaks"]["history"];
 
 type RecordVerseReadInput = {
   chapterNumber: number;
@@ -43,11 +44,20 @@ type StreaksContextType = {
   userStreaksPending: boolean;
   todayProgress: TodayProgress | null;
   recordVerseRead: (input: RecordVerseReadInput) => void;
+  streaksHistory: StreaksHistory | undefined;
+  streaksHistoryPending: boolean;
 };
 
 type CachedStreaks = {
   day: string;
   data: UserStreaks;
+};
+
+type CachedHistory = {
+  day: string;
+  from: string;
+  to: string;
+  data: StreaksHistory;
 };
 
 const SYNC_DEBOUNCE_MS = 5_000;
@@ -62,6 +72,10 @@ function isStreakAlive(lastCompletedDay: string | null): boolean {
 
 function cacheKeyFor(userId: string) {
   return `streaks.get:${userId}`;
+}
+
+function historyCacheKey(userId: string) {
+  return `streaks.history:${userId}`;
 }
 
 function emptySession(): SessionProgress {
@@ -144,6 +158,38 @@ function readCachedStreaks(
   return cached.data;
 }
 
+function readCachedHistory(
+  userId: string,
+  from: string,
+  to: string
+): StreaksHistory | undefined {
+  const key = historyCacheKey(userId);
+  const raw = cacheStorage.getString(key);
+
+  if (!raw) return undefined;
+
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(raw);
+  } catch (err) {
+    console.error("[Streaks] Failed to parse cached history:", { error: err });
+    cacheStorage.remove(key);
+    return undefined;
+  }
+
+  if (typeof parsed !== "object" || parsed === null) return undefined;
+
+  const cached = parsed as Partial<CachedHistory>;
+
+  if (cached.from !== from || cached.to !== to || !Array.isArray(cached.data)) {
+    cacheStorage.remove(key);
+    return undefined;
+  }
+
+  return cached.data;
+}
+
 type StreaksProviderProps = {
   children: ReactNode;
 };
@@ -192,6 +238,34 @@ export function StreaksProvider({ children }: StreaksProviderProps) {
         cacheStorage.set(
           cacheKeyFor(userId),
           JSON.stringify({ day: todayInUTC(), data } satisfies CachedStreaks)
+        );
+      },
+    });
+
+  const today = todayInUTC();
+  const weekStart = getWeekStart(today);
+
+  const historySnapshot = useMemo(
+    () => (userId ? readCachedHistory(userId, weekStart, today) : undefined),
+    [userId, weekStart, today]
+  );
+
+  const { data: streaksHistory, isPending: streaksHistoryPending } =
+    useQueryWithCallbacks({
+      ...utils.streaks.history.queryOptions({ from: weekStart, to: today }),
+      enabled: Boolean(userId),
+      staleTime: 0,
+      initialData: historySnapshot,
+      onSuccess(data) {
+        if (!userId) return;
+        cacheStorage.set(
+          historyCacheKey(userId),
+          JSON.stringify({
+            day: today,
+            from: weekStart,
+            to: today,
+            data,
+          } satisfies CachedHistory)
         );
       },
     });
@@ -367,8 +441,22 @@ export function StreaksProvider({ children }: StreaksProviderProps) {
   }, [userId, userStreaks]);
 
   const value = useMemo<StreaksContextType>(
-    () => ({ userStreaks, userStreaksPending, todayProgress, recordVerseRead }),
-    [recordVerseRead, todayProgress, userStreaks, userStreaksPending]
+    () => ({
+      userStreaks,
+      userStreaksPending,
+      todayProgress,
+      recordVerseRead,
+      streaksHistory,
+      streaksHistoryPending,
+    }),
+    [
+      recordVerseRead,
+      streaksHistory,
+      streaksHistoryPending,
+      todayProgress,
+      userStreaks,
+      userStreaksPending,
+    ]
   );
 
   return (

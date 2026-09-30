@@ -34,3 +34,14 @@ export function addDays(day: string, amount: number): string {
 export function diffInDays(from: string, to: string): number {
   return toEpochDay(to) - toEpochDay(from);
 }
+
+export const WEEK_START_WEEKDAY = 6;
+
+export function weekdayIndex(day: string): number {
+  return new Date(`${day}T00:00:00Z`).getUTCDay();
+}
+
+export function getWeekStart(day: string): string {
+  const offset = (weekdayIndex(day) - WEEK_START_WEEKDAY + 7) % 7;
+  return addDays(day, -offset);
+}

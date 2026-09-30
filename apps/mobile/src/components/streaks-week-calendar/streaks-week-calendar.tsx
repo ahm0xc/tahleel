@@ -1,17 +1,20 @@
 import React from "react";
 
-import { useAuth } from "@clerk/expo";
 import { Ionicons } from "@expo/vector-icons";
 
 import { Text, View } from "~/components/ui";
-import { addDays, diffInDays, todayInUTC } from "~/lib/days";
+import {
+  addDays,
+  diffInDays,
+  getWeekStart,
+  todayInUTC,
+  weekdayIndex,
+} from "~/lib/days";
 import { cn } from "~/lib/utils";
 import { useStreaks } from "~/store/streaks-context";
-import { api } from "~/trpc/client";
 
 const GRACE_DAYS = 2;
 const WEEK_LENGTH = 7;
-const WEEK_START_WEEKDAY = 6;
 
 const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -24,24 +27,19 @@ type WeekDay = {
 };
 
 export function StreaksWeekCalendar() {
-  const { userId } = useAuth();
-  const { userStreaks } = useStreaks();
+  const { userStreaks, todayProgress, streaksHistory: history } = useStreaks();
 
   const today = todayInUTC();
-  const weekStart = getWeekStart(today, WEEK_START_WEEKDAY);
-
-  const { data: history } = api.streaks.history.useQuery(
-    { from: weekStart, to: today },
-    { enabled: Boolean(userId) }
-  );
+  const weekStart = getWeekStart(today);
 
   const completedDays = React.useMemo(() => {
     const completed = new Set<string>();
     for (const row of history ?? []) {
       if (row.completed) completed.add(row.day);
     }
+    if (todayProgress?.completed) completed.add(today);
     return completed;
-  }, [history]);
+  }, [history, today, todayProgress?.completed]);
 
   const days = React.useMemo<WeekDay[]>(() => {
     const lastCompletedDay = userStreaks?.lastCompletedDay ?? null;
@@ -188,13 +186,4 @@ function getDayStatus(
   }
 
   return "missed";
-}
-
-function weekdayIndex(day: string): number {
-  return new Date(`${day}T00:00:00Z`).getUTCDay();
-}
-
-function getWeekStart(day: string, startWeekday: number): string {
-  const offset = (weekdayIndex(day) - startWeekday + WEEK_LENGTH) % WEEK_LENGTH;
-  return addDays(day, -offset);
 }
