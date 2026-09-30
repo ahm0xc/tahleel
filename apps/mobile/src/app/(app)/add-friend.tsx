@@ -24,13 +24,13 @@ const COPIED_RESET_DELAY = 2000;
 export default function AddFriendScreen() {
   return (
     <View className="bg-background flex-1">
+      <Header />
+
       <ScrollView
         className="flex-1"
         contentContainerClassName="grow px-safe-offset-4 pb-6"
         showsVerticalScrollIndicator={false}
       >
-        <Header />
-
         <View className="w-full items-center gap-8">
           <Invite />
           <Actions />
@@ -42,7 +42,7 @@ export default function AddFriendScreen() {
 
 function Header() {
   return (
-    <View className="pt-safe-offset-2 pb-5">
+    <View className="pt-safe-offset-2 px-safe-offset-4 pb-5">
       <View className="flex-row items-center gap-3">
         <Host matchContents>
           <NativeButton
