@@ -5,6 +5,7 @@ import { ScrollView } from "react-native";
 import { useUser } from "@clerk/expo";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
+import { router } from "expo-router";
 import { Tabs } from "heroui-native";
 import { useCSSVariable } from "uniwind";
 
@@ -83,6 +84,7 @@ function Header() {
           <Button
             accessibilityLabel="Friends"
             isIconOnly
+            onPress={() => router.push("/friends")}
             size="md"
             variant="ghost"
           >
