@@ -19,8 +19,12 @@ function fromEpochDay(epochDay: number): string {
   ].join("-");
 }
 
+export function toUTCDay(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
 export function todayInUTC(): string {
-  return new Date().toISOString().slice(0, 10);
+  return toUTCDay(new Date());
 }
 
 export function addDays(day: string, amount: number): string {

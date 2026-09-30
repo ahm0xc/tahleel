@@ -106,6 +106,8 @@ function isUserStreaks(value: unknown): value is UserStreaks {
     (candidate.lastCompletedDay === null ||
       typeof candidate.lastCompletedDay === "string") &&
     typeof candidate.isAlive === "boolean" &&
+    (candidate.firstProgressDay === null ||
+      typeof candidate.firstProgressDay === "string") &&
     (candidate.todayProgress === null ||
       typeof candidate.todayProgress === "object")
   );
@@ -251,6 +253,7 @@ export function StreaksProvider({ children }: StreaksProviderProps) {
         longestStreak: result.streak.longestStreak,
         lastCompletedDay: result.streak.lastCompletedDay,
         isAlive,
+        firstProgressDay: userStreaksRef.current?.firstProgressDay ?? null,
         todayProgress: {
           day: nextProgress.day,
           goalSnapshot: nextProgress.goalSnapshot,

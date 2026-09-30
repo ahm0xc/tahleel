@@ -1,6 +1,6 @@
 import { db, schema } from "@repo/db";
 import { TRPCError } from "@trpc/server";
-import { and, asc, eq, gte, lte } from "drizzle-orm";
+import { and, asc, eq, gte, lte, min } from "drizzle-orm";
 import { z } from "zod";
 
 import { daySchema, diffInDays, todayInUTC } from "../lib/days.js";
@@ -53,10 +53,16 @@ export const streaksRouter = createTRPCRouter({
         where: { userId: ctx.auth.userId, day: today },
       });
 
+      const [firstProgress] = await db
+        .select({ day: min(dailyProgress.day) })
+        .from(dailyProgress)
+        .where(eq(dailyProgress.userId, ctx.auth.userId));
+
       return {
         ...readStreak(stored, today),
         isAlive: isStreakAlive(stored, today),
         todayProgress: progressRow ? toTodayProgress(progressRow) : null,
+        firstProgressDay: firstProgress?.day ?? null,
       };
     }),
 

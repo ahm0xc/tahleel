@@ -11,11 +11,11 @@ import { api } from "~/trpc/client";
 
 const GRACE_DAYS = 2;
 const WEEK_LENGTH = 7;
-const WEEK_START_WEEKDAY = 1;
+const WEEK_START_WEEKDAY = 6;
 
 const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-type DayStatus = "completed" | "grace" | "missed" | "empty";
+type DayStatus = "completed" | "grace" | "missed" | "empty" | "upcoming";
 
 type WeekDay = {
   day: string;
@@ -45,6 +45,7 @@ export function StreaksWeekCalendar() {
 
   const days = React.useMemo<WeekDay[]>(() => {
     const lastCompletedDay = userStreaks?.lastCompletedDay ?? null;
+    const firstProgressDay = userStreaks?.firstProgressDay ?? null;
 
     return Array.from({ length: WEEK_LENGTH }, (_, index) => {
       const day = addDays(weekStart, index);
@@ -52,10 +53,22 @@ export function StreaksWeekCalendar() {
       return {
         day,
         isToday: day === today,
-        status: getDayStatus(day, today, completedDays, lastCompletedDay),
+        status: getDayStatus(
+          day,
+          today,
+          completedDays,
+          lastCompletedDay,
+          firstProgressDay
+        ),
       };
     });
-  }, [completedDays, today, userStreaks?.lastCompletedDay, weekStart]);
+  }, [
+    completedDays,
+    today,
+    userStreaks?.firstProgressDay,
+    userStreaks?.lastCompletedDay,
+    weekStart,
+  ]);
 
   return (
     <View>
@@ -122,8 +135,10 @@ function DayCircle({
       return <FilledCircle className="bg-sky-500" icon="snow" />;
     case "missed":
       return <FilledCircle className="bg-red-500" icon="close" />;
-    default:
+    case "upcoming":
       return <View className="border-border/60 size-9 rounded-full border" />;
+    default:
+      return <View className="bg-muted/20 size-9 rounded-full" />;
   }
 }
 
@@ -150,11 +165,18 @@ function getDayStatus(
   day: string,
   today: string,
   completedDays: Set<string>,
-  lastCompletedDay: string | null
+  lastCompletedDay: string | null,
+  firstProgressDay: string | null
 ): DayStatus {
   if (completedDays.has(day)) return "completed";
 
-  if (day >= today) return "empty";
+  if (day > today) return "upcoming";
+
+  if (day === today) return "empty";
+
+  // Days before the user's first progress report were never a chance to
+  // complete, so they must not count as missed.
+  if (firstProgressDay !== null && day < firstProgressDay) return "empty";
 
   if (lastCompletedDay === null) return "empty";
 
