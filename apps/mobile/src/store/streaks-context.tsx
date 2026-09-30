@@ -15,6 +15,7 @@ import type { AppRouter } from "@repo/trpc";
 import type { inferRouterOutputs } from "@trpc/server";
 
 import { useQueryWithCallbacks } from "~/hooks/use-query-with-callbacks";
+import { diffInDays, todayInUTC } from "~/lib/days";
 import { calculateHasanat } from "~/lib/quran/hasanat";
 import { cacheStorage } from "~/lib/storage";
 import { usePreferences } from "~/store/preferences-store";
@@ -50,27 +51,8 @@ type CachedStreaks = {
 };
 
 const SYNC_DEBOUNCE_MS = 5_000;
-const MILLISECONDS_PER_DAY = 86_400_000;
 
 const StreaksContext = createContext<StreaksContextType | undefined>(undefined);
-
-function todayInUTC() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function epochDay(day: string): number {
-  return (
-    Date.UTC(
-      Number(day.slice(0, 4)),
-      Number(day.slice(5, 7)) - 1,
-      Number(day.slice(8, 10))
-    ) / MILLISECONDS_PER_DAY
-  );
-}
-
-function diffInDays(from: string, to: string): number {
-  return epochDay(to) - epochDay(from);
-}
 
 function isStreakAlive(lastCompletedDay: string | null): boolean {
   return (

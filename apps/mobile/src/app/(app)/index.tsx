@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import { Card } from "heroui-native";
 
 import { StreaksBadge } from "~/components/streaks-badge";
+import { StreaksWeekCalendar } from "~/components/streaks-week-calendar";
 import { Button, ButtonLabel, Image, Text, View } from "~/components/ui";
 import { useStreaks } from "~/store/streaks-context";
 
@@ -10,8 +11,13 @@ export default function HomeScreen() {
     <View className="bg-background flex-1">
       <Header />
 
-      <View className="px-safe-offset-4 pt-6">
-        <GoalCard />
+      <View className="px-safe-offset-4">
+        <View className="mt-6">
+          <StreaksWeekCalendar />
+        </View>
+        <View className="mt-6">
+          <GoalCard />
+        </View>
       </View>
     </View>
   );
