@@ -11,12 +11,14 @@ import { useCSSVariable } from "uniwind";
 
 import { Button, Text, View } from "~/components/ui";
 import { useStreaks } from "~/store/streaks-context";
+import { api } from "~/trpc/client";
 
 export default function LeaderboardScreen() {
   const [scope, setScope] = useState("friends");
 
   const { user } = useUser();
   const { todayProgress } = useStreaks();
+  const { data: friendLeaderboard } = api.friends.leaderboard.useQuery();
   const currentUserEntry: LeaderboardEntry | null = user
     ? {
         id: user.id,
@@ -29,10 +31,14 @@ export default function LeaderboardScreen() {
         isCurrentUser: true,
       }
     : null;
-  const friendsEntries = rankEntries([
-    ...FRIEND_ENTRIES,
-    ...(currentUserEntry ? [currentUserEntry] : []),
-  ]);
+  const friendsEntries = rankEntries(
+    (friendLeaderboard ?? []).map((entry) => ({
+      id: entry.userId,
+      name: entry.displayName,
+      hasanat: entry.hasanat,
+      isCurrentUser: entry.isCurrentUser,
+    }))
+  );
   const globalEntries = rankEntries([
     ...GLOBAL_ENTRIES,
     ...(currentUserEntry ? [currentUserEntry] : []),
@@ -165,11 +171,6 @@ type LeaderboardEntry = {
   hasanat: number;
   isCurrentUser?: boolean;
 };
-
-const FRIEND_ENTRIES: LeaderboardEntry[] = [
-  { id: "friend-aisha", name: "Aisha Rahman", hasanat: 18240 },
-  { id: "friend-omar", name: "Omar Farooq", hasanat: 16375 },
-];
 
 const FIRST_NAMES = [
   "Aisha",

@@ -12,6 +12,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { FONT_ASSETS } from "~/constants/fonts";
 import "~/globals.css";
+import { useInviteDeepLink } from "~/hooks/use-invite-deep-link";
+import { useInviteStore } from "~/store/invite-store";
 import {
   NotificationProvider,
   useNotificationObserver,
@@ -59,6 +61,7 @@ function InitialLayout() {
   const areFontsReady = fontsLoaded || fontsError != null;
 
   useNotificationObserver();
+  useInviteDeepLink();
 
   React.useEffect(() => {
     if (fontsError) {
@@ -74,7 +77,13 @@ function InitialLayout() {
     } else if (!isAuthenticated) {
       if (!inAuthGroup) router.replace("/auth");
     } else if (inOnboarding || inAuthGroup) {
-      router.replace("/");
+      const pendingCode = useInviteStore.getState().pendingCode;
+      if (pendingCode) {
+        useInviteStore.getState().setPendingCode(null);
+        router.replace(`/invite/${pendingCode}`);
+      } else {
+        router.replace("/");
+      }
     }
 
     setIsAppReady(true);

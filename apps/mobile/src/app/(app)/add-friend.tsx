@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import type { LayoutChangeEvent } from "react-native";
-import { ScrollView, Share } from "react-native";
+import { ActivityIndicator, ScrollView, Share } from "react-native";
 
 import { Host, Button as NativeButton } from "@expo/ui/swift-ui";
 import {
@@ -17,11 +17,17 @@ import QRCode from "react-native-qrcode-svg";
 import { useCSSVariable } from "uniwind";
 
 import { Button, ButtonLabel, Text, View } from "~/components/ui";
+import { INVITE_BASE_URL } from "~/constants/config";
+import { api } from "~/trpc/client";
 
-const INVITE_LINK = "https://example.com/invite";
 const COPIED_RESET_DELAY = 2000;
 
 export default function AddFriendScreen() {
+  const { data: myInvite, isLoading } = api.friends.getMyInvite.useQuery();
+  const inviteLink = myInvite
+    ? `${INVITE_BASE_URL}/invite/${myInvite.code}`
+    : null;
+
   return (
     <View className="bg-background flex-1">
       <Header />
@@ -32,8 +38,8 @@ export default function AddFriendScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View className="w-full items-center gap-8">
-          <Invite />
-          <Actions />
+          <Invite inviteLink={inviteLink} isLoading={isLoading} />
+          <Actions inviteLink={inviteLink} />
         </View>
       </ScrollView>
     </View>
@@ -65,7 +71,13 @@ function Header() {
   );
 }
 
-function Invite() {
+function Invite({
+  inviteLink,
+  isLoading,
+}: {
+  inviteLink: string | null;
+  isLoading: boolean;
+}) {
   const [qrSize, setQrSize] = useState(0);
 
   function handleLayout(event: LayoutChangeEvent) {
@@ -76,13 +88,20 @@ function Invite() {
     <View className="w-full items-center gap-6">
       <View className="border-border w-full rounded-3xl border bg-white p-7">
         <View className="w-full" onLayout={handleLayout}>
-          {qrSize > 0 ? (
+          {isLoading || !inviteLink ? (
+            <View
+              style={{ height: qrSize > 0 ? qrSize : 260 }}
+              className="items-center justify-center"
+            >
+              <ActivityIndicator />
+            </View>
+          ) : qrSize > 0 ? (
             <QRCode
               backgroundColor="#FFFFFF"
               color="#0F0F0F"
               ecl="M"
               size={qrSize}
-              value={INVITE_LINK}
+              value={inviteLink}
             />
           ) : null}
         </View>
@@ -96,7 +115,7 @@ function Invite() {
   );
 }
 
-function Actions() {
+function Actions({ inviteLink }: { inviteLink: string | null }) {
   const [isCopied, setIsCopied] = useState(false);
   const accentForegroundColor = useCSSVariable("--accent-foreground") as string;
   const foregroundColor = useCSSVariable("--foreground") as string;
@@ -112,8 +131,9 @@ function Actions() {
   }, [isCopied]);
 
   async function handleCopy() {
+    if (!inviteLink) return;
     try {
-      await Clipboard.setStringAsync(INVITE_LINK);
+      await Clipboard.setStringAsync(inviteLink);
       setIsCopied(true);
     } catch (err) {
       console.error("[Clipboard] Failed to copy invite link:", err);
@@ -121,8 +141,9 @@ function Actions() {
   }
 
   async function handleShare() {
+    if (!inviteLink) return;
     try {
-      await Share.share({ message: INVITE_LINK });
+      await Share.share({ message: inviteLink });
     } catch (err) {
       console.error("[Share] Failed to share invite link:", err);
     }
@@ -133,6 +154,7 @@ function Actions() {
       <Button
         className="flex-1"
         haptics="Light"
+        isDisabled={!inviteLink}
         onPress={() => void handleCopy()}
         variant="secondary"
       >
@@ -152,6 +174,7 @@ function Actions() {
       <Button
         className="flex-1"
         haptics="Light"
+        isDisabled={!inviteLink}
         onPress={() => void handleShare()}
       >
         <Feather color={accentForegroundColor} name="share-2" size={18} />

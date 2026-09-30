@@ -12,10 +12,25 @@ import { useRouter } from "expo-router";
 import { Menu } from "heroui-native";
 import { useCSSVariable } from "uniwind";
 
-import { Text, View } from "~/components/ui";
+import { Image, Text, View } from "~/components/ui";
+import { api } from "~/trpc/client";
 
 export default function FriendsScreen() {
   const router = useRouter();
+  const { data: friends } = api.friends.list.useQuery();
+  const removeFriend = api.friends.remove.useMutation();
+  const utils = api.useUtils();
+
+  function handleRemove(userId: string) {
+    removeFriend.mutate(
+      { friendUserId: userId },
+      {
+        onSuccess: () => {
+          utils.friends.list.invalidate();
+        },
+      }
+    );
+  }
 
   return (
     <View className="bg-background flex-1">
@@ -40,17 +55,26 @@ export default function FriendsScreen() {
         </View>
       </View>
 
-      <View className="px-safe-offset-4">
-        <View className="border-border bg-surface overflow-hidden rounded-3xl border">
-          {FRIENDS.map((friend, index) => (
-            <FriendRow
-              key={friend.id}
-              friend={friend}
-              showDivider={index < FRIENDS.length - 1}
-            />
-          ))}
+      {!friends || friends.length === 0 ? (
+        <View className="px-safe-offset-4 items-center gap-2 pt-16">
+          <Text className="text-muted text-sm">
+            No friends yet. Add someone from the leaderboard to get started.
+          </Text>
         </View>
-      </View>
+      ) : (
+        <View className="px-safe-offset-4">
+          <View className="border-border bg-surface overflow-hidden rounded-3xl border">
+            {friends.map((friend, index) => (
+              <FriendRow
+                key={friend.userId}
+                friend={friend}
+                showDivider={index < friends.length - 1}
+                onRemove={() => handleRemove(friend.userId)}
+              />
+            ))}
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -58,13 +82,16 @@ export default function FriendsScreen() {
 function FriendRow({
   friend,
   showDivider,
+  onRemove,
 }: {
   friend: Friend;
   showDivider: boolean;
+  onRemove: () => void;
 }) {
   const foregroundColor = String(useCSSVariable("--foreground") ?? "#4d4d4d");
-  const initials = friend.name
+  const initials = friend.displayName
     .split(" ")
+    .slice(0, 2)
     .map((part) => part[0])
     .join("")
     .toUpperCase();
@@ -77,20 +104,30 @@ function FriendRow({
           : "flex-row items-center px-4 py-3"
       }
     >
-      <View className="bg-accent size-11 items-center justify-center rounded-full">
-        <Text className="text-accent-foreground font-semibold">{initials}</Text>
+      <View className="bg-accent size-11 items-center justify-center overflow-hidden rounded-full">
+        {friend.imageUrl ? (
+          <Image
+            source={friend.imageUrl}
+            contentFit="cover"
+            style={{ height: 44, width: 44 }}
+          />
+        ) : (
+          <Text className="text-accent-foreground font-semibold">
+            {initials}
+          </Text>
+        )}
       </View>
 
       <View className="ml-3 min-w-0 flex-1">
         <Text className="text-foreground font-semibold" numberOfLines={1}>
-          {friend.name}
+          {friend.displayName}
         </Text>
       </View>
 
       <Menu>
         <Menu.Trigger asChild>
           <Pressable
-            accessibilityLabel={`Actions for ${friend.name}`}
+            accessibilityLabel={`Actions for ${friend.displayName}`}
             className="active:bg-default ml-2 size-10 items-center justify-center rounded-full"
           >
             <Feather color={foregroundColor} name="more-horizontal" size={21} />
@@ -105,7 +142,7 @@ function FriendRow({
             <Menu.Item>
               <Menu.ItemTitle>Send encouragement</Menu.ItemTitle>
             </Menu.Item>
-            <Menu.Item variant="danger">
+            <Menu.Item variant="danger" onPress={onRemove}>
               <Menu.ItemTitle>Remove friend</Menu.ItemTitle>
             </Menu.Item>
           </Menu.Content>
@@ -116,14 +153,7 @@ function FriendRow({
 }
 
 type Friend = {
-  id: string;
-  name: string;
+  userId: string;
+  displayName: string;
+  imageUrl: string | null;
 };
-
-const FRIENDS: Friend[] = [
-  { id: "aisha-rahman", name: "Aisha Rahman" },
-  { id: "omar-farooq", name: "Omar Farooq" },
-  { id: "fatima-khan", name: "Fatima Khan" },
-  { id: "yusuf-ahmed", name: "Yusuf Ahmed" },
-  { id: "maryam-hassan", name: "Maryam Hassan" },
-];

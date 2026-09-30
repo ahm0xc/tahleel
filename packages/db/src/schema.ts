@@ -35,3 +35,19 @@ export const userStreaks = pgTable("user_streaks", {
   lastCompletedDay: date({ mode: "string" }), // null = never
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
+
+export const invites = pgTable("invites", {
+  code: text().primaryKey(),
+  userId: text().notNull().unique(),
+  createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+});
+
+export const friendships = pgTable(
+  "friendships",
+  {
+    user1Id: text().notNull(),
+    user2Id: text().notNull(),
+    connectedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.user1Id, t.user2Id] })]
+);

@@ -31,6 +31,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       supportsTablet: false,
       bundleIdentifier: getUniqueIdentifier(),
       usesAppleSignIn: true,
+      associatedDomains: ["applinks:tahleel-app.vercel.app"],
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
         CFBundleAllowMixedLocalizations: true,
@@ -44,6 +45,19 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         backgroundColor: "#FFF",
       },
       package: getUniqueIdentifier(),
+      intentFilters: [
+        {
+          action: "VIEW",
+          data: [
+            {
+              scheme: "https",
+              host: "tahleel-app.vercel.app",
+              pathPrefix: "/invite",
+            },
+          ],
+          category: ["BROWSABLE", "DEFAULT"],
+        },
+      ],
     },
     plugins: [
       "expo-router",
