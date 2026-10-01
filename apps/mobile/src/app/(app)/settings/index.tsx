@@ -205,8 +205,11 @@ function Header() {
   return (
     <View className="px-safe-offset-4 items-center pt-4">
       <Image
-        source={require("~/../assets/images/logo-long.png")}
-        style={{ height: 30, width: (434 / 100) * 30 }}
+        source={{
+          light: require("~/../assets/images/logo-long.png"),
+          dark: require("~/../assets/images/logo-long-dark.png"),
+        }}
+        height={30}
       />
     </View>
   );

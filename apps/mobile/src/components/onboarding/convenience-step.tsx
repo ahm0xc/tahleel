@@ -29,8 +29,11 @@ export function ConvenienceStep({ onContinue }: ConvenienceStepProps) {
     <View className="pt-safe-offset-4 flex-1 px-6">
       <View className="items-start">
         <Image
-          source={require("~/../assets/images/logo-long.png")}
-          style={{ height: 24, width: (434 / 100) * 24 }}
+          source={{
+            light: require("~/../assets/images/logo-long.png"),
+            dark: require("~/../assets/images/logo-long-dark.png"),
+          }}
+          height={24}
         />
       </View>
 

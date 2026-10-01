@@ -46,9 +46,13 @@ function Header() {
   return (
     <View className="pt-safe-offset-2 px-safe-offset-4 flex-row items-center justify-between py-3">
       <Image
-        source={require("~/../assets/images/logo-long.png")}
+        source={{
+          light: require("~/../assets/images/logo-long.png"),
+          dark: require("~/../assets/images/logo-long-dark.png"),
+        }}
         contentFit="cover"
-        style={{ height: 32, width: (609 / 174) * 32, borderRadius: 8 }}
+        height={32}
+        style={{ borderRadius: 8 }}
       />
 
       <StreaksBadge />
