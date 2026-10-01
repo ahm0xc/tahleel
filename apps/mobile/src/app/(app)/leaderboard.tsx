@@ -65,18 +65,6 @@ export default function LeaderboardScreen() {
         className="flex-1"
         contentContainerClassName="gap-2 px-safe-offset-4 pb-6 pt-4"
       >
-        <View className="flex-row items-center justify-between px-1 pb-1">
-          <Text className="text-muted text-xs font-semibold tracking-wider uppercase">
-            Ranked by daily hasanat
-          </Text>
-          {isLoading ? (
-            <Skeleton className="h-3 w-14 rounded-full" />
-          ) : (
-            <Text className="text-muted text-xs">
-              {entries.length} {scope === "friends" ? "people" : "readers"}
-            </Text>
-          )}
-        </View>
         {isLoading
           ? SKELETON_NAME_WIDTHS.map((nameWidth, index) => (
               <LeaderboardRowSkeleton key={index} nameWidth={nameWidth} />

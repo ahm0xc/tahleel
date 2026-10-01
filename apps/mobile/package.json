@@ -4,8 +4,8 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "APP_VARIANT=development npx expo start --dev-client",
-    "ios": "npx expo run:ios",
-    "android": "npx expo run:android",
+    "ios": "APP_VARIANT=development npx expo run:ios",
+    "android": "APP_VARIANT=development npx expo run:android",
     "tunnel": "expo start --tunnel",
     "check-types": "tsc --noEmit"
   },

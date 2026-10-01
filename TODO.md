@@ -1,3 +1,4 @@
 - add credits for font authors
 - enable react compiler
 - add different weights for noto sans
+- do not start streaks tracking unless authenticated

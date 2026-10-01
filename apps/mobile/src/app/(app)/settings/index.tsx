@@ -205,7 +205,7 @@ function Header() {
   return (
     <View className="px-safe-offset-4 items-center pt-4">
       <Image
-        source={require("~/../assets/images/app-logo-long.png")}
+        source={require("~/../assets/images/logo-long.png")}
         style={{ height: 30, width: (434 / 100) * 30 }}
       />
     </View>
@@ -260,7 +260,12 @@ function ProfileCard() {
               </Text>
             </View>
 
-            <Ionicons className="ml-2" color={foregroundColor} name="chevron-forward" size={18} />
+            <Ionicons
+              className="ml-2"
+              color={foregroundColor}
+              name="chevron-forward"
+              size={18}
+            />
           </View>
         </View>
       </Pressable>
