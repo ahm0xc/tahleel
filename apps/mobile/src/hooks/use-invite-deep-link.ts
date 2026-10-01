@@ -3,9 +3,8 @@ import { useEffect, useRef } from "react";
 import { useAuth } from "@clerk/expo";
 import * as Linking from "expo-linking";
 
+import { APP_DOMAIN } from "~/constants/config";
 import { useInviteStore } from "~/store/invite-store";
-
-const APP_DOMAIN = "tahleel-app.vercel.app";
 
 function extractInviteCode(url: string): string | null {
   const parsed = Linking.parse(url);

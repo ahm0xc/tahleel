@@ -1,5 +1,7 @@
 import { ConfigContext, ExpoConfig } from "expo/config";
 
+const APP_DOMAIN = "tahleel.ahm0xc.me";
+
 const IS_DEV = process.env.APP_VARIANT === "development";
 const IS_PREVIEW = process.env.APP_VARIANT === "preview";
 
@@ -31,7 +33,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       supportsTablet: false,
       bundleIdentifier: getUniqueIdentifier(),
       usesAppleSignIn: true,
-      associatedDomains: ["applinks:tahleel-app.vercel.app"],
+      associatedDomains: [`applinks:${APP_DOMAIN}`],
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
         CFBundleAllowMixedLocalizations: true,
@@ -51,7 +53,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           data: [
             {
               scheme: "https",
-              host: "tahleel-app.vercel.app",
+              host: APP_DOMAIN,
               pathPrefix: "/invite",
             },
           ],
