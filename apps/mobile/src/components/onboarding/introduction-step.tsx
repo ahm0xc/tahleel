@@ -13,7 +13,7 @@ export function IntroductionStep({ onContinue }: IntroductionStepProps) {
             light: require("~/../assets/images/logo-long.png"),
             dark: require("~/../assets/images/logo-long-dark.png"),
           }}
-          height={24}
+          height={34}
         />
       </View>
 
@@ -27,18 +27,17 @@ export function IntroductionStep({ onContinue }: IntroductionStepProps) {
           </View>
 
           <Text className="mt-8 text-center text-4xl font-semibold tracking-[-1px]">
-            Clean up your gallery, one swipe at a time.
+            Read the Quran, one verse at a time.
           </Text>
-          <Text className="text-muted mt-4 px-2 text-center text-base leading-6">
-            Swipe right to keep the memories you love. Swipe left to delete the
-            ones you don&apos;t.
+          <Text className="text-muted mt-4 px-2 text-center text-lg leading-7">
+            Scroll up for the next ayah, down to go back. Read at your own pace.
           </Text>
         </View>
 
         <View className="mt-8">
           <Button className="h-14 w-full" haptics="Light" onPress={onContinue}>
             <ButtonLabel className="text-base font-semibold">
-              Get started
+              Begin reading
             </ButtonLabel>
           </Button>
         </View>
