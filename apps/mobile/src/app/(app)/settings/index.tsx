@@ -1,9 +1,11 @@
-import { Alert, Linking, ScrollView } from "react-native";
+import { Alert, Linking, Pressable, ScrollView } from "react-native";
 
 import { useAuth, useUser } from "@clerk/expo";
+import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import { router } from "expo-router";
+import { useCSSVariable } from "uniwind";
 
 import {
   SettingsList,
@@ -212,6 +214,7 @@ function Header() {
 
 function ProfileCard() {
   const { user } = useUser();
+  const foregroundColor = useCSSVariable("--foreground") as string;
 
   const name = [user?.firstName, user?.lastName].filter(Boolean).join(" ");
   const email = user?.primaryEmailAddress?.emailAddress ?? "No email added";
@@ -223,7 +226,12 @@ function ProfileCard() {
 
   return (
     <View className="px-safe-offset-4 pt-8">
-      <View className="border-border bg-surface overflow-hidden rounded-[28px] border">
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Profile"
+        className="border-border bg-surface overflow-hidden rounded-[28px] border active:opacity-80"
+        onPress={() => router.push("/settings/profile")}
+      >
         <View className="px-4 py-4">
           <View className="flex-row items-center">
             <View className="bg-accent h-16 w-16 items-center justify-center overflow-hidden rounded-full">
@@ -251,9 +259,11 @@ function ProfileCard() {
                 {email}
               </Text>
             </View>
+
+            <Ionicons className="ml-2" color={foregroundColor} name="chevron-forward" size={18} />
           </View>
         </View>
-      </View>
+      </Pressable>
     </View>
   );
 }

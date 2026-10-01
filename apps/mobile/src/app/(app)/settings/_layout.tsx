@@ -25,6 +25,7 @@ export default function SettingsLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="profile" options={{ title: "Profile" }} />
       <Stack.Screen name="font-size" options={{ title: "Font size" }} />
       <Stack.Screen
         name="translation-font-size"
