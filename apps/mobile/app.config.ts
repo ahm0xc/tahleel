@@ -83,6 +83,13 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       "expo-font",
       "expo-web-browser",
       [
+        "expo-image-picker",
+        {
+          photosPermission:
+            "Allow Tahleel to access your photos so you can set a profile picture.",
+        },
+      ],
+      [
         "expo-build-properties",
         {
           ios: {

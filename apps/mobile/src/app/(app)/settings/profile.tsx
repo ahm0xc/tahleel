@@ -1,10 +1,14 @@
 import { useState } from "react";
 
-import { ScrollView } from "react-native";
+import { Pressable, ScrollView } from "react-native";
 
 import { useUser } from "@clerk/expo";
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
+import { File } from "expo-file-system";
 import { Input, Label, TextField, useToast } from "heroui-native";
+import { useCSSVariable } from "uniwind";
 
 import { SettingsCard } from "~/components/settings";
 import { Button, ButtonLabel, Image, Text, View } from "~/components/ui";
@@ -12,10 +16,12 @@ import { Button, ButtonLabel, Image, Text, View } from "~/components/ui";
 export default function ProfileScreen() {
   const { user } = useUser();
   const { toast } = useToast();
+  const backgroundColor = useCSSVariable("--background") as string;
 
   const [firstName, setFirstName] = useState(user?.firstName ?? "");
   const [lastName, setLastName] = useState(user?.lastName ?? "");
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const email = user?.primaryEmailAddress?.emailAddress ?? "";
   const initials =
@@ -24,7 +30,11 @@ export default function ProfileScreen() {
       .join("")
       .toUpperCase() || "U";
 
-  const canSave = firstName.trim().length > 0 && !isSaving;
+  const hasNameChanged =
+    firstName.trim() !== (user?.firstName ?? "") ||
+    lastName.trim() !== (user?.lastName ?? "");
+
+  const canSave = firstName.trim().length > 0 && hasNameChanged && !isSaving;
 
   async function handleSave() {
     if (!user || !canSave) return;
@@ -44,25 +54,68 @@ export default function ProfileScreen() {
     }
   }
 
+  async function handlePickImage() {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (result.canceled) return;
+
+    const asset = result.assets[0];
+
+    if (!user) return;
+
+    setIsUploadingImage(true);
+    try {
+      await user.setProfileImage({ file: new File(asset.uri) });
+      toast.show({ label: "Profile picture updated", variant: "success" });
+    } catch (error) {
+      console.error("[ProfileImage] Failed to set profile image:", error);
+      toast.show({
+        label: "Couldn't update your profile picture",
+        variant: "danger",
+      });
+    } finally {
+      setIsUploadingImage(false);
+    }
+  }
+
   return (
     <ScrollView
       className="bg-background flex-1"
       contentContainerClassName="px-safe-offset-4 pb-safe-offset-6 pt-4"
     >
       <View className="items-center py-2">
-        <View className="bg-accent h-24 w-24 items-center justify-center overflow-hidden rounded-full">
-          {user?.imageUrl ? (
-            <Image
-              source={user.imageUrl}
-              contentFit="cover"
-              style={{ height: 96, width: 96 }}
-            />
-          ) : (
-            <Text className="text-accent-foreground text-3xl font-semibold">
-              {initials}
-            </Text>
-          )}
-        </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Change profile picture"
+          onPress={() => void handlePickImage()}
+        >
+          <View className="bg-accent h-24 w-24 items-center justify-center overflow-hidden rounded-full">
+            {user?.imageUrl ? (
+              <Image
+                source={user.imageUrl}
+                contentFit="cover"
+                style={{ height: 96, width: 96 }}
+              />
+            ) : (
+              <Text className="text-accent-foreground text-3xl font-semibold">
+                {initials}
+              </Text>
+            )}
+
+            <View className="bg-foreground absolute right-0 bottom-0 h-8 w-8 items-center justify-center rounded-full border-4 border-background">
+              <Ionicons color={backgroundColor} name="camera" size={14} />
+            </View>
+          </View>
+        </Pressable>
+
+        <Text className="text-muted mt-2 text-sm">
+          {isUploadingImage ? "Uploading..." : "Tap to change profile picture"}
+        </Text>
       </View>
 
       <View className="mt-6">
