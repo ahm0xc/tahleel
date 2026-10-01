@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 
 export default function Home() {
   return (
-    <main className="bg-background text-foreground selection:text-background min-h-screen selection:bg-emerald-200 dark:selection:bg-emerald-900">
+    <main className="bg-background text-foreground selection:text-background min-h-screen selection:bg-blue-200 dark:selection:bg-blue-900/70">
       <div className="mx-auto max-w-[780px] px-5 pb-12 sm:px-8 sm:pb-16">
         <SiteHeader />
 
@@ -12,7 +12,7 @@ export default function Home() {
           <div className="border-border bg-card relative flex aspect-[1.35] flex-col items-center justify-center gap-4 overflow-hidden rounded-[23px] border px-8 text-center shadow-[0_16px_60px_rgba(0,0,0,0.25)] sm:rounded-[25px]">
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_0%,rgb(16_185_129/0.18),transparent_65%)] dark:bg-[radial-gradient(120%_90%_at_50%_0%,rgb(16_185_129/0.28),transparent_65%)]"
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_0%,rgb(11_106_224/0.16),transparent_65%)] dark:bg-[radial-gradient(120%_90%_at_50%_0%,rgb(23_176_255/0.26),transparent_65%)]"
             />
             <p className="font-heading relative text-[clamp(2.5rem,9vw,4.25rem)] leading-[0.9] font-semibold tracking-[-0.06em]">
               Tahleel

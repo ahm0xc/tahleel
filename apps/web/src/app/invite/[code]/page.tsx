@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { BrandLogo } from "@/components/brand-logo";
 import { createCaller } from "@repo/trpc/root";
 import { createTRPCContext } from "@repo/trpc/trpc";
 
@@ -42,11 +43,9 @@ export default async function InvitePage({ params }: InvitePageProps) {
       <div className="border-border bg-card relative flex w-full max-w-md flex-col items-center gap-5 overflow-hidden rounded-[24px] border px-8 py-10 shadow-[0_16px_60px_rgba(0,0,0,0.25)]">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_0%,rgb(16_185_129/0.18),transparent_65%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_0%,rgb(11_106_224/0.16),transparent_65%)] dark:bg-[radial-gradient(120%_90%_at_50%_0%,rgb(23_176_255/0.26),transparent_65%)]"
         />
-        <p className="font-heading relative text-4xl font-semibold tracking-[-0.06em]">
-          Tahleel
-        </p>
+        <BrandLogo height={44} priority />
         <p className="text-muted-foreground relative text-[15px] leading-[1.5]">
           {preview
             ? `${preview.displayName} invited you to read a little Quran together, every day.`

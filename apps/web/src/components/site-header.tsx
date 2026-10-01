@@ -1,16 +1,13 @@
 import Link from "next/link";
 
+import { BrandLogo } from "@/components/brand-logo";
 import { DownloadCta } from "@/components/download-cta";
 
 export function SiteHeader() {
   return (
     <nav className="flex items-center justify-between py-7 sm:py-8">
-      <Link
-        href="/"
-        aria-label="Tahleel home"
-        className="font-heading text-[22px] leading-none font-semibold tracking-[-0.04em]"
-      >
-        Tahleel
+      <Link href="/" aria-label="Tahleel home">
+        <BrandLogo height={26} priority />
       </Link>
       <div className="flex items-center gap-4 sm:gap-7">
         <Link
