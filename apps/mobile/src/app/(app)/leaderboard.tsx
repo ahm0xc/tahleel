@@ -6,7 +6,7 @@ import { useUser } from "@clerk/expo";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
-import { Tabs } from "heroui-native";
+import { Skeleton, Tabs } from "heroui-native";
 import { useCSSVariable } from "uniwind";
 
 import { Button, Text, View } from "~/components/ui";
@@ -18,7 +18,8 @@ export default function LeaderboardScreen() {
 
   const { user } = useUser();
   const { todayProgress } = useStreaks();
-  const { data: friendLeaderboard } = api.friends.leaderboard.useQuery();
+  const { data: friendLeaderboard, isLoading: isFriendsLoading } =
+    api.friends.leaderboard.useQuery();
   const currentUserEntry: LeaderboardEntry | null = user
     ? {
         id: user.id,
@@ -44,6 +45,7 @@ export default function LeaderboardScreen() {
     ...(currentUserEntry ? [currentUserEntry] : []),
   ]);
   const entries = scope === "friends" ? friendsEntries : globalEntries;
+  const isLoading = scope === "friends" && isFriendsLoading;
 
   return (
     <View className="bg-background flex-1">
@@ -67,13 +69,21 @@ export default function LeaderboardScreen() {
           <Text className="text-muted text-xs font-semibold tracking-wider uppercase">
             Ranked by daily hasanat
           </Text>
-          <Text className="text-muted text-xs">
-            {entries.length} {scope === "friends" ? "people" : "readers"}
-          </Text>
+          {isLoading ? (
+            <Skeleton className="h-3 w-14 rounded-full" />
+          ) : (
+            <Text className="text-muted text-xs">
+              {entries.length} {scope === "friends" ? "people" : "readers"}
+            </Text>
+          )}
         </View>
-        {entries.map((entry, index) => (
-          <LeaderboardRow key={entry.id} entry={entry} rank={index + 1} />
-        ))}
+        {isLoading
+          ? SKELETON_NAME_WIDTHS.map((nameWidth, index) => (
+              <LeaderboardRowSkeleton key={index} nameWidth={nameWidth} />
+            ))
+          : entries.map((entry, index) => (
+              <LeaderboardRow key={entry.id} entry={entry} rank={index + 1} />
+            ))}
       </ScrollView>
     </View>
   );
@@ -165,6 +175,22 @@ function LeaderboardRow({
   );
 }
 
+function LeaderboardRowSkeleton({ nameWidth }: { nameWidth: string }) {
+  return (
+    <View className="border-border bg-surface flex-row items-center gap-3 rounded-2xl border px-3 py-3">
+      <Skeleton className="size-8 rounded-full" />
+      <Skeleton className="size-10 rounded-full" />
+      <View className="min-w-0 flex-1 flex-row items-center gap-2">
+        <Skeleton className={`h-4 rounded-full ${nameWidth}`} />
+      </View>
+      <View className="items-end">
+        <Skeleton className="h-4 w-12 rounded-full" />
+        <Skeleton className="h-3 w-14 rounded-full" />
+      </View>
+    </View>
+  );
+}
+
 type LeaderboardEntry = {
   id: string;
   name: string;
@@ -196,6 +222,17 @@ const LAST_NAMES = [
   "Malik",
   "Hussain",
   "Qureshi",
+];
+
+const SKELETON_NAME_WIDTHS = [
+  "w-1/2",
+  "w-2/5",
+  "w-3/5",
+  "w-2/3",
+  "w-1/3",
+  "w-2/5",
+  "w-1/2",
+  "w-3/5",
 ];
 
 const GLOBAL_ENTRIES: LeaderboardEntry[] = Array.from(
