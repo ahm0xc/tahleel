@@ -1,11 +1,13 @@
-import type { ComponentType } from "react";
-
 import { SvgProps } from "react-native-svg";
 import { useCSSVariable } from "uniwind";
 
-const ICONS: Record<string, ComponentType<any>> = {};
+import DonationIcon from "../../assets/icons/donation.svg";
 
-export type IconName = string;
+export const ICONS = {
+  donation: DonationIcon,
+};
+
+export type IconName = keyof typeof ICONS;
 
 interface IconComponentProps extends SvgProps {
   name: IconName;
@@ -22,8 +24,6 @@ export function Icon({
   const variableColor = useCSSVariable(`--color-${color}`);
 
   const IconComponent = ICONS[name];
-
-  if (!IconComponent) return null;
 
   return (
     <IconComponent

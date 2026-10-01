@@ -6,16 +6,17 @@ import Feather from "@expo/vector-icons/Feather";
 import { router, usePathname } from "expo-router";
 import { useCSSVariable } from "uniwind";
 
+import { ICONS, Icon, type IconName } from "~/components/icon";
 import { Text, View } from "~/components/ui";
 import { triggerHaptic } from "~/lib/haptics";
 import { cn } from "~/lib/utils";
 
-type IconName = ComponentProps<typeof Feather>["name"];
+type FeatherIconName = ComponentProps<typeof Feather>["name"];
 
 interface NavItemProps {
   href: string;
   label: string;
-  iconName: IconName;
+  iconName: FeatherIconName | IconName;
   color: string;
   isActive: boolean;
   isCurrent: boolean;
@@ -24,7 +25,7 @@ interface NavItemProps {
 const NAV_ITEMS: Omit<NavItemProps, "color" | "isActive" | "isCurrent">[] = [
   { href: "/", label: "Home", iconName: "home" },
   { href: "/reading", label: "Reading", iconName: "book-open" },
-  { href: "/explore", label: "Explore", iconName: "compass" },
+  { href: "/donate", label: "Donate", iconName: "donation" },
   { href: "/leaderboard", label: "Leaderboard", iconName: "bar-chart-2" },
   { href: "/settings", label: "Settings", iconName: "settings" },
 ];
@@ -75,8 +76,16 @@ function NavItem({
         router.replace(href);
       }}
     >
-      <Feather color={color} name={iconName} size={22} />
+      {isCustomIcon(iconName) ? (
+        <Icon color="foreground" name={iconName} size={22} strokeWidth={2} />
+      ) : (
+        <Feather color={color} name={iconName} size={22} />
+      )}
       <Text className="text-[10px] font-medium">{label}</Text>
     </Pressable>
   );
+}
+
+export function isCustomIcon(name: string): name is IconName {
+  return name in ICONS;
 }

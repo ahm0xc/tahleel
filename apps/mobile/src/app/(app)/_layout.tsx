@@ -9,7 +9,7 @@ export default function Layout() {
       <Stack screenOptions={{ headerShown: false, animation: "none" }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="reading" />
-        <Stack.Screen name="explore" />
+        <Stack.Screen name="donate" />
         <Stack.Screen name="leaderboard" />
         <Stack.Screen name="add-friend" />
         <Stack.Screen name="friends" />
