@@ -194,17 +194,14 @@ export const friendsRouter = createTRPCRouter({
       progressRows.map((row) => [row.userId, row.hasanatEarned])
     );
 
-    const profiles = await getUsersProfiles(friendIds);
+    const profiles = await getUsersProfiles(userIds);
     const profileByUserId = new Map(
       profiles.map((profile) => [profile.userId, profile])
     );
 
     const entries = userIds.map((userId) => ({
       userId,
-      displayName:
-        userId === me
-          ? "You"
-          : (profileByUserId.get(userId)?.displayName ?? "Unknown"),
+      displayName: profileByUserId.get(userId)?.displayName ?? "Unknown",
       imageUrl: profileByUserId.get(userId)?.imageUrl ?? null,
       hasanat: hasanatByUserId.get(userId) ?? 0,
       isCurrentUser: userId === me,

@@ -9,7 +9,9 @@ import { router } from "expo-router";
 import { Skeleton, Tabs } from "heroui-native";
 import { useCSSVariable } from "uniwind";
 
-import { Button, Text, View } from "~/components/ui";
+import { Icon } from "~/components/icon";
+import { Button, Image, Text, View } from "~/components/ui";
+import { cn } from "~/lib/utils";
 import { useStreaks } from "~/store/streaks-context";
 import { api } from "~/trpc/client";
 
@@ -29,6 +31,7 @@ export default function LeaderboardScreen() {
           user.username ||
           "You",
         hasanat: todayProgress?.hasanatEarned ?? 0,
+        imageUrl: user.imageUrl ?? null,
         isCurrentUser: true,
       }
     : null;
@@ -37,6 +40,7 @@ export default function LeaderboardScreen() {
       id: entry.userId,
       name: entry.displayName,
       hasanat: entry.hasanat,
+      imageUrl: entry.imageUrl,
       isCurrentUser: entry.isCurrentUser,
     }))
   );
@@ -70,7 +74,12 @@ export default function LeaderboardScreen() {
               <LeaderboardRowSkeleton key={index} nameWidth={nameWidth} />
             ))
           : entries.map((entry, index) => (
-              <LeaderboardRow key={entry.id} entry={entry} rank={index + 1} />
+              <LeaderboardRow
+                key={entry.id}
+                entry={entry}
+                rank={index + 1}
+                highlighted={scope === "global" && entry.isCurrentUser === true}
+              />
             ))}
       </ScrollView>
     </View>
@@ -112,9 +121,11 @@ function Header() {
 function LeaderboardRow({
   entry,
   rank,
+  highlighted,
 }: {
   entry: LeaderboardEntry;
   rank: number;
+  highlighted: boolean;
 }) {
   const initials = entry.name
     .split(" ")
@@ -124,41 +135,104 @@ function LeaderboardRow({
     .toUpperCase();
 
   return (
-    <View className="border-border bg-surface flex-row items-center gap-3 rounded-2xl border px-3 py-3">
+    <View
+      className={cn(
+        "border-border flex-row items-center gap-3 rounded-2xl border px-3 py-3",
+        highlighted ? "bg-accent" : "bg-surface"
+      )}
+    >
+      <RankBadge highlighted={highlighted} rank={rank} />
       <View
-        className={
-          rank === 1
-            ? "bg-accent size-8 items-center justify-center rounded-full"
-            : "bg-default size-8 items-center justify-center rounded-full"
-        }
+        className={cn(
+          "size-10 items-center justify-center overflow-hidden rounded-full",
+          highlighted ? "bg-accent-foreground" : "bg-accent"
+        )}
       >
-        <Text
-          className={
-            rank === 1
-              ? "text-accent-foreground text-xs font-semibold"
-              : "text-muted text-xs font-semibold"
-          }
-        >
-          {rank}
-        </Text>
-      </View>
-      <View className="bg-default size-10 items-center justify-center rounded-full">
-        <Text className="text-sm font-semibold">{initials}</Text>
-      </View>
-      <View className="min-w-0 flex-1 flex-row items-center gap-2">
-        <Text className="shrink font-medium" numberOfLines={1}>
-          {entry.name}
-        </Text>
-        {entry.isCurrentUser && (
-          <Text className="text-accent text-[10px] font-semibold">YOU</Text>
+        {entry.imageUrl ? (
+          <Image
+            source={entry.imageUrl}
+            contentFit="cover"
+            style={{ height: 40, width: 40 }}
+          />
+        ) : (
+          <Text
+            className={cn(
+              "text-sm font-semibold",
+              highlighted ? "text-accent" : "text-accent-foreground"
+            )}
+          >
+            {initials}
+          </Text>
         )}
       </View>
-      <View className="items-end">
-        <Text className="text-sm font-semibold">
-          {entry.hasanat.toLocaleString()}
+      <View className="min-w-0 flex-1 flex-row items-center gap-2">
+        <Text
+          className={cn(
+            "shrink font-medium",
+            highlighted && "text-accent-foreground"
+          )}
+          numberOfLines={1}
+        >
+          {entry.name}
         </Text>
-        <Text className="text-muted text-xs">hasanat</Text>
       </View>
+      <View className="items-end">
+        <View className="flex-row items-center gap-1">
+          <Text
+            className={cn(
+              "text-sm font-semibold",
+              highlighted && "text-accent-foreground"
+            )}
+          >
+            {entry.hasanat.toLocaleString()}
+          </Text>
+          <Icon name="color.heart" size={14} />
+        </View>
+        <Text
+          className={cn(
+            "text-xs",
+            highlighted ? "text-accent-foreground" : "text-muted"
+          )}
+        >
+          hasanat
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+function RankBadge({
+  rank,
+  highlighted,
+}: {
+  rank: number;
+  highlighted: boolean;
+}) {
+  const rankColor = String(
+    useCSSVariable(highlighted ? "--accent-foreground" : "--muted") ?? "#8a8a8a"
+  );
+
+  if (rank <= PODIUM_IMAGES.length) {
+    return (
+      <Image
+        source={PODIUM_IMAGES[rank - 1]}
+        contentFit="contain"
+        style={{ height: 32, width: 32 }}
+      />
+    );
+  }
+
+  return (
+    <View className="min-w-8 flex-row items-center justify-center gap-0.5 px-1">
+      <Feather color={rankColor} name="hash" size={13} />
+      <Text
+        className={cn(
+          "text-xs font-semibold",
+          highlighted ? "text-accent-foreground" : "text-muted"
+        )}
+      >
+        {rank}
+      </Text>
     </View>
   );
 }
@@ -183,8 +257,15 @@ type LeaderboardEntry = {
   id: string;
   name: string;
   hasanat: number;
+  imageUrl: string | null;
   isCurrentUser?: boolean;
 };
+
+const PODIUM_IMAGES = [
+  require("~/../assets/images/1st-prize.png"),
+  require("~/../assets/images/2nd-place.png"),
+  require("~/../assets/images/3rd-place.png"),
+];
 
 const FIRST_NAMES = [
   "Aisha",
@@ -231,6 +312,7 @@ const GLOBAL_ENTRIES: LeaderboardEntry[] = Array.from(
       LAST_NAMES[Math.floor(index / FIRST_NAMES.length)]
     }`,
     hasanat: 28450 - index * 173,
+    imageUrl: null,
   })
 );
 
