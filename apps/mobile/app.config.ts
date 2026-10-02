@@ -27,7 +27,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     icon: "./assets/images/icon.png",
     scheme: "tahleel",
     userInterfaceStyle: "automatic",
-    backgroundColor: "#FFF",
+    backgroundColor: "#FFFFFF",
     ios: {
       icon: "./assets/images/app-icon.png",
       supportsTablet: false,
@@ -44,7 +44,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     android: {
       adaptiveIcon: {
         foregroundImage: "./assets/images/adaptive-app-icon.png",
-        backgroundColor: "#FFF",
+        backgroundColor: "#FFFFFF",
       },
       package: getUniqueIdentifier(),
       googleServicesFile: "./google-services.json",
