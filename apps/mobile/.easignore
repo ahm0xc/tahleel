@@ -1,11 +1,8 @@
-google-services.json
 *.bak
+.env.*
+!.env.example
 
 build-*
-.env
-.env.local
-.env*
-!.env.example
 
 # dependencies
 node_modules/
@@ -37,12 +34,9 @@ yarn-error.*
 .DS_Store
 *.pem
 
-# local env files
-.env*.local
 
 # typescript
 *.tsbuildinfo
 
 app-example
 
-.env.local

@@ -51,3 +51,10 @@ export const friendships = pgTable(
   },
   (t) => [primaryKey({ columns: [t.user1Id, t.user2Id] })]
 );
+
+export const pushTokens = pgTable("push_tokens", {
+  userId: text().primaryKey(),
+  expoPushToken: text().notNull(),
+  platform: text().notNull(),
+  updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+});

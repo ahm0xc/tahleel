@@ -47,6 +47,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         backgroundColor: "#FFF",
       },
       package: getUniqueIdentifier(),
+      googleServicesFile: "./google-services.json",
       intentFilters: [
         {
           action: "VIEW",

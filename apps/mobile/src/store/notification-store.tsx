@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Linking } from "react-native";
+import { Linking, Platform } from "react-native";
 
 import { tryCatch } from "@ahm0xc/utils";
 import { useAuth } from "@clerk/expo";
@@ -11,8 +11,9 @@ import { useRouter } from "expo-router";
 
 import { registerForPushNotificationsAsync } from "~/lib/notification";
 import { localStorage } from "~/lib/storage";
+import { api } from "~/trpc/client";
 
-const LAST_TRACKED_EXPO_PUSH_TOKEN = "last-tracked-expo-push-token";
+const LAST_SENT_PUSH_TOKEN_KEY = "last-sent-push-token";
 
 interface NotificationContextType {
   expoPushToken: string | null;
@@ -37,6 +38,8 @@ export function NotificationProvider({
 
   const currentAppState = useAppState();
   const { userId } = useAuth();
+  const registerPushToken = api.notifications.registerPushToken.useMutation();
+  const syncingTokenRef = React.useRef<string | null>(null);
 
   async function registerNotification() {
     const [token, error] = await tryCatch(registerForPushNotificationsAsync());
@@ -100,24 +103,46 @@ export function NotificationProvider({
   }, [currentAppState]);
 
   React.useEffect(() => {
-    async function handler() {
-      if (!expoPushToken) return;
-      if (!userId) return;
+    if (!userId) return;
 
-      const lastTrackedExpoPushToken = localStorage.getString(
-        LAST_TRACKED_EXPO_PUSH_TOKEN
-      );
+    let cancelled = false;
 
-      if (
-        typeof lastTrackedExpoPushToken === "undefined" ||
-        lastTrackedExpoPushToken !== expoPushToken
-      ) {
-        localStorage.set(LAST_TRACKED_EXPO_PUSH_TOKEN, expoPushToken);
-      }
+    async function register() {
+      await registerNotification();
+      if (cancelled) return;
     }
 
-    handler();
-  }, [expoPushToken, userId]);
+    register();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
+
+React.useEffect(() => {
+    if (!userId || !expoPushToken) return;
+
+    const tokenKey = `${userId}:${expoPushToken}`;
+    if (localStorage.getString(LAST_SENT_PUSH_TOKEN_KEY) === tokenKey) return;
+    if (syncingTokenRef.current === tokenKey) return;
+
+    syncingTokenRef.current = tokenKey;
+
+    registerPushToken
+      .mutateAsync({
+        expoPushToken,
+        platform: Platform.OS === "ios" ? "ios" : "android",
+      })
+      .then(() => {
+        localStorage.set(LAST_SENT_PUSH_TOKEN_KEY, tokenKey);
+      })
+      .catch((error) => {
+        console.error("[Notification] Failed to sync push token", error);
+      })
+      .finally(() => {
+        syncingTokenRef.current = null;
+      });
+  }, [userId, expoPushToken]);
 
   const value: NotificationContextType = {
     expoPushToken,

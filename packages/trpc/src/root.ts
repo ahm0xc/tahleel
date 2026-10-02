@@ -1,5 +1,6 @@
 import { exampleRouter } from "./routers/example.js";
 import { friendsRouter } from "./routers/friends.js";
+import { notificationsRouter } from "./routers/notifications.js";
 import { streaksRouter } from "./routers/streaks.js";
 import { usersRouter } from "./routers/users.js";
 import { createCallerFactory, createTRPCRouter } from "./trpc.js";
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   streaks: streaksRouter,
   friends: friendsRouter,
   users: usersRouter,
+  notifications: notificationsRouter,
 });
 
 // export type definition of API
