@@ -6,6 +6,7 @@ import Feather from "@expo/vector-icons/Feather";
 import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import {
   BottomSheet,
+  type InputRef,
   PressableFeedback,
   SearchField,
   useBottomSheetAwareHandlers,
@@ -28,6 +29,7 @@ export function ChapterSelect({ className }: ChapterSelectProps) {
   const setChapterNumber = useReadingState((state) => state.setChapterNumber);
   const [isOpen, setIsOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
+  const searchInputRef = React.useRef<InputRef>(null);
 
   const selected = getChapter(chapterNumber) ?? CHAPTERS[0];
   const mutedColor = useCSSVariable("--muted") as string;
@@ -61,7 +63,11 @@ export function ChapterSelect({ className }: ChapterSelectProps) {
           keyboardBehavior="extend"
         >
           <View className="pb-3">
-            <ChapterSearchField value={query} onChange={setQuery} />
+            <ChapterSearchField
+              ref={searchInputRef}
+              value={query}
+              onChange={setQuery}
+            />
           </View>
 
           <ChapterList
@@ -83,6 +89,7 @@ export function ChapterSelect({ className }: ChapterSelectProps) {
   }
 
   function handleSelect(chapter: Chapter) {
+    searchInputRef.current?.blur();
     setChapterNumber(chapter.chapterNumber);
     setIsOpen(false);
     setQuery("");
@@ -90,13 +97,13 @@ export function ChapterSelect({ className }: ChapterSelectProps) {
   }
 }
 
-function ChapterSearchField({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-}) {
+const ChapterSearchField = React.forwardRef<
+  InputRef,
+  {
+    value: string;
+    onChange: (value: string) => void;
+  }
+>(function ChapterSearchField({ value, onChange }, ref) {
   const { onFocus, onBlur } = useBottomSheetAwareHandlers();
 
   return (
@@ -104,6 +111,7 @@ function ChapterSearchField({
       <SearchField.Group>
         <SearchField.SearchIcon />
         <SearchField.Input
+          ref={ref}
           placeholder="Search chapters"
           returnKeyType="search"
           className="rounded-full"
@@ -114,7 +122,7 @@ function ChapterSearchField({
       </SearchField.Group>
     </SearchField>
   );
-}
+});
 
 function ChapterList({
   query,
