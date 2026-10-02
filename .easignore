@@ -1,0 +1,39 @@
+android/
+ios/
+
+# secrets
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+
+# deps / build
+node_modules/
+.turbo/
+out/
+dist/
+web-build/
+*.tgz
+coverage/
+*.lcov
+*.tsbuildinfo
+
+# env
+.env
+.env.*
+!.env.example
+
+# expo / native
+.expo/
+expo-env.d.ts
+.kotlin/
+*.orig.*
+
+# tooling / os
+.idea/
+.DS_Store
+.vercel
+.serena
+*.log
