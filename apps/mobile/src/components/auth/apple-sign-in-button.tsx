@@ -1,10 +1,10 @@
 import React from "react";
 
-import { Alert, Platform, useColorScheme } from "react-native";
+import { Platform, useColorScheme } from "react-native";
 
 import { useSignInWithApple } from "@clerk/expo/apple";
 import { Ionicons } from "@expo/vector-icons";
-import { PressableFeedback } from "heroui-native";
+import { PressableFeedback, useToast } from "heroui-native";
 
 import { Text } from "../ui";
 
@@ -18,6 +18,7 @@ export default function AppleSignInButton({
   const [isAttempting, setIsAttempting] = React.useState(false);
 
   const { startAppleAuthenticationFlow } = useSignInWithApple();
+  const { toast } = useToast();
   const colorScheme = useColorScheme();
 
   async function handleAppleSignIn() {
@@ -38,12 +39,11 @@ export default function AppleSignInButton({
       if (isAppleSignInCancellation(error)) return;
 
       console.error("[auth] Apple sign-in failed", getErrorDetails(error));
-      Alert.alert(
-        "Error",
-        error instanceof Error
-          ? error.message
-          : "An error occurred during Apple Sign-In"
-      );
+      toast.show({
+        label: "Couldn't sign in with Apple",
+        description: getErrorMessage(error, "Please try again."),
+        variant: "danger",
+      });
     } finally {
       setIsAttempting(false);
     }
@@ -79,6 +79,10 @@ function getErrorDetails(error: unknown) {
   }
 
   return { message: String(error) };
+}
+
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error && error.message ? error.message : fallback;
 }
 
 function isAppleSignInCancellation(error: unknown) {

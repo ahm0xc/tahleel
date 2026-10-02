@@ -1,9 +1,9 @@
 import React from "react";
 
-import { Alert, Platform } from "react-native";
+import { Platform } from "react-native";
 
 import { useSignInWithGoogle } from "@clerk/expo/google";
-import { PressableFeedback } from "heroui-native";
+import { PressableFeedback, useToast } from "heroui-native";
 import Svg, { Path } from "react-native-svg";
 
 import { Text } from "../ui";
@@ -17,6 +17,7 @@ export default function GoogleSignInButton({
 }: GoogleSignInButtonProps) {
   const [isAttempting, setIsAttempting] = React.useState(false);
   const { startGoogleAuthenticationFlow } = useSignInWithGoogle();
+  const { toast } = useToast();
 
   async function handleGoogleSignIn() {
     try {
@@ -31,12 +32,15 @@ export default function GoogleSignInButton({
     } catch (error) {
       if (isGoogleSignInCancellation(error)) return;
 
-      Alert.alert(
-        "Error",
-        error instanceof Error
-          ? error.message
-          : "An error occurred during Google Sign-In"
-      );
+      console.error("[auth] Google sign-in failed", error);
+      toast.show({
+        label: "Couldn't sign in with Google",
+        description:
+          error instanceof Error && error.message
+            ? error.message
+            : "Please try again.",
+        variant: "danger",
+      });
     } finally {
       setIsAttempting(false);
     }
