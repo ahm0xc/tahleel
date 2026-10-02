@@ -9,15 +9,24 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import Feather from "@expo/vector-icons/Feather";
 import { useRouter } from "expo-router";
-import { Menu } from "heroui-native";
+import { Menu, Skeleton } from "heroui-native";
 import { useCSSVariable } from "uniwind";
 
 import { Icon } from "~/components/icon";
 import { Button, Image, Text, View } from "~/components/ui";
 import { api } from "~/trpc/client";
 
+const SKELETON_NAME_WIDTHS = [
+  "w-1/2",
+  "w-2/5",
+  "w-3/5",
+  "w-1/3",
+  "w-2/5",
+  "w-1/2",
+];
+
 export default function FriendsScreen() {
-  const { data: friends } = api.friends.list.useQuery();
+  const { data: friends, isLoading } = api.friends.list.useQuery();
   const removeFriend = api.friends.remove.useMutation();
   const utils = api.useUtils();
 
@@ -36,7 +45,19 @@ export default function FriendsScreen() {
     <View className="bg-background flex-1">
       <Header />
 
-      {!friends || friends.length === 0 ? (
+      {isLoading ? (
+        <View className="px-safe-offset-4 pt-6">
+          <View className="border-border bg-surface overflow-hidden rounded-3xl border">
+            {SKELETON_NAME_WIDTHS.map((nameWidth, index) => (
+              <FriendRowSkeleton
+                key={index}
+                nameWidth={nameWidth}
+                showDivider={index < SKELETON_NAME_WIDTHS.length - 1}
+              />
+            ))}
+          </View>
+        </View>
+      ) : !friends || friends.length === 0 ? (
         <View className="px-safe-offset-4 items-center gap-2 pt-16">
           <Text className="text-muted text-sm">
             No friends yet. Add someone from the leaderboard to get started.
@@ -165,6 +186,32 @@ function FriendRow({
           </Menu.Content>
         </Menu.Portal>
       </Menu>
+    </View>
+  );
+}
+
+function FriendRowSkeleton({
+  nameWidth,
+  showDivider,
+}: {
+  nameWidth: string;
+  showDivider: boolean;
+}) {
+  return (
+    <View
+      className={
+        showDivider
+          ? "border-border flex-row items-center border-b px-4 py-3"
+          : "flex-row items-center px-4 py-3"
+      }
+    >
+      <View className="bg-accent size-11 items-center justify-center overflow-hidden rounded-full">
+        <Skeleton className="size-11 rounded-full" />
+      </View>
+      <View className="ml-3 min-w-0 flex-1 flex-row">
+        <Skeleton className={`h-4 rounded-full ${nameWidth}`} />
+      </View>
+      <Skeleton className="ml-2 size-10 rounded-full" />
     </View>
   );
 }
