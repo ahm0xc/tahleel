@@ -6,6 +6,12 @@ export function SiteFooter() {
       <span>© {new Date().getFullYear()} Tahleel</span>
       <div className="flex items-center gap-5">
         <Link
+          href="/feedback"
+          className="hover:text-foreground transition-colors"
+        >
+          Feedback
+        </Link>
+        <Link
           href="/privacy"
           className="hover:text-foreground transition-colors"
         >

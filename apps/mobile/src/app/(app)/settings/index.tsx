@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import { router } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 import { useCSSVariable } from "uniwind";
 
 import {
@@ -16,7 +17,7 @@ import { Image, Text, View } from "~/components/ui";
 import { getArabicScript } from "~/constants/scripts";
 import { TRANSLATION_LANGUAGES } from "~/constants/translations";
 import { openAccountDeletionRequest } from "~/lib/account-deletion";
-import { openFeedback } from "~/lib/feedback";
+import { createFeedbackUrl } from "~/lib/feedback";
 import { cacheStorage } from "~/lib/storage";
 import { isDev } from "~/lib/utils";
 import { useOnboarding } from "~/store/onboarding-store";
@@ -109,7 +110,9 @@ export default function SettingsScreen() {
         <SettingsListItem
           icon="chatbubble-ellipses-outline"
           label="Send Feedback"
-          onPress={() => void openFeedback()}
+          onPress={() =>
+            void WebBrowser.openBrowserAsync(createFeedbackUrl(user))
+          }
         />
         <SettingsListItem
           icon="hand-left-outline"

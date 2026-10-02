@@ -3,32 +3,39 @@ import { Platform } from "react-native";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 
-import { MailConfig, openMail } from "./mail";
-
-export interface FeedbackConfig {
-  mail: MailConfig;
+interface FeedbackUser {
+  id?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  primaryEmailAddress?: { emailAddress: string } | null;
 }
 
-export const DEFAULT_FEEDBACK_CONFIG: FeedbackConfig = {
-  mail: {
-    to: "tahleelapp@gmail.com",
-    subject: "Feedback on Tahleel",
-    body: `
-Please describe the issue or feedback here 👇
+export function createFeedbackUrl(user: FeedbackUser | null | undefined) {
+  const entries: [string, string][] = [];
 
+  if (user?.id) entries.push(["userId", user.id]);
+  if (user?.firstName || user?.lastName) {
+    entries.push([
+      "name",
+      [user.firstName, user.lastName].filter(Boolean).join(" "),
+    ]);
+  }
+  if (user?.primaryEmailAddress?.emailAddress) {
+    entries.push(["email", user.primaryEmailAddress.emailAddress]);
+  }
+  if (Platform.OS) entries.push(["platform", Platform.OS]);
+  if (Device.osVersion) entries.push(["osVersion", Device.osVersion]);
+  if (Device.modelName) entries.push(["deviceModel", Device.modelName]);
+  if (Constants.expoConfig?.version) {
+    entries.push(["appVersion", Constants.expoConfig.version]);
+  }
 
+  const query = entries
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+    )
+    .join("&");
 
------------------------------
-Additional Information
------------------------------
-App Version: ${Constants.expoConfig?.version ?? "unknown"}
-Platform: ${Platform.OS}
-OS Version: ${Device.osVersion ?? "unknown"}
-Device: ${Device.modelName ?? "unknown"}
-`,
-  },
-};
-
-export async function openFeedback(config = DEFAULT_FEEDBACK_CONFIG) {
-  await openMail(config.mail);
+  return `${process.env.EXPO_PUBLIC_APP_URL}/feedback?${query}`;
 }

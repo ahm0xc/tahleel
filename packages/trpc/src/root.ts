@@ -1,4 +1,5 @@
 import { exampleRouter } from "./routers/example.js";
+import { feedbackRouter } from "./routers/feedback.js";
 import { friendsRouter } from "./routers/friends.js";
 import { notificationsRouter } from "./routers/notifications.js";
 import { streaksRouter } from "./routers/streaks.js";
@@ -12,6 +13,7 @@ import { createCallerFactory, createTRPCRouter } from "./trpc.js";
  */
 export const appRouter = createTRPCRouter({
   example: exampleRouter,
+  feedback: feedbackRouter,
   streaks: streaksRouter,
   friends: friendsRouter,
   users: usersRouter,
