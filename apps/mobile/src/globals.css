@@ -69,8 +69,8 @@
       --default: oklch(0.22 0 0);
       --default-foreground: oklch(0.96 0 0);
 
-      --accent: oklch(0.7 0.17 258);
-      --accent-foreground: oklch(0.14 0 0);
+      --accent: oklch(0.6 0.17 258);
+      --accent-foreground: oklch(1 0 0);
 
       --field-background: oklch(0.22 0 0);
       --field-foreground: oklch(0.96 0 0);
