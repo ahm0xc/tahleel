@@ -11,9 +11,8 @@ export interface FeedbackConfig {
 
 export const DEFAULT_FEEDBACK_CONFIG: FeedbackConfig = {
   mail: {
-    // TODO: create the email
-    to: "swipegoapp@gmail.com",
-    subject: "Feedback on Swipe Go",
+    to: "tahleelapp@gmail.com",
+    subject: "Feedback on Tahleel",
     body: `
 Please describe the issue or feedback here 👇
 

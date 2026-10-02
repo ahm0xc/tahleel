@@ -12,7 +12,7 @@ interface AccountDetails {
   email: string | null;
 }
 
-const ACCOUNT_DELETION_RECIPIENT = "swipegoapp@gmail.com";
+const ACCOUNT_DELETION_RECIPIENT = "tahleelapp@gmail.com";
 
 export function createAccountDeletionRequest(user: AccountDetails): MailConfig {
   const name = [user.firstName, user.lastName].filter(Boolean).join(" ");
@@ -20,9 +20,9 @@ export function createAccountDeletionRequest(user: AccountDetails): MailConfig {
   return {
     to: ACCOUNT_DELETION_RECIPIENT,
     subject: "Account deletion request",
-    body: `Hello Swipe Go team,
+    body: `Hello Tahleel team,
 
-Please delete my Swipe Go account and associated data.
+Please delete my Tahleel account and associated data.
 
 Account details:
 Name: ${name || "Not provided"}
