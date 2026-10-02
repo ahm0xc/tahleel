@@ -43,7 +43,8 @@ export function ScriptStep({ onContinue }: ScriptStepProps) {
             Choose your script
           </Text>
           <Text className="text-foreground/70 mt-5 text-lg leading-7">
-            Both are the Quran in full. Pick the one you&apos;re used to reading.
+            Both are the Quran in full. Pick the one you&apos;re used to
+            reading.
           </Text>
 
           <View className="border-border bg-surface mt-7 rounded-3xl border px-5 py-7">

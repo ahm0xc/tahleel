@@ -18,7 +18,7 @@ export function useQueryWithCallbacks<
   TQueryKey extends QueryKey = QueryKey,
 >(
   options: UseQueryOptions<TData, TError, TData, TQueryKey> &
-    Callbacks<TData, TError>,
+    Callbacks<TData, TError>
 ) {
   const { onSuccess, onError, onSettled, ...queryOptions } = options;
   const query = useQuery<TData, TError, TData, TQueryKey>(queryOptions);

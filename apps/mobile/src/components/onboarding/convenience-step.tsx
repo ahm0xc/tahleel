@@ -31,9 +31,7 @@ export function ConvenienceStep({ onContinue }: ConvenienceStepProps) {
             <Text className="text-foreground text-xl leading-8 font-medium">
               &ldquo;Indeed, He is with those who are mindful of Him.&rdquo;
             </Text>
-            <Text className="text-muted mt-4 text-sm">
-              Surah Al-Hijr 15:9
-            </Text>
+            <Text className="text-muted mt-4 text-sm">Surah Al-Hijr 15:9</Text>
           </View>
         </View>
 

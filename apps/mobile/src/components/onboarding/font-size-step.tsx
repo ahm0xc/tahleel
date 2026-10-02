@@ -56,7 +56,10 @@ export function FontSizeStep({ onContinue }: FontSizeStepProps) {
               style={{
                 fontFamily: script.fontFamily,
                 fontSize: arabicFontSize,
-                lineHeight: getLineHeight(arabicFontSize, ARABIC_LINE_HEIGHT_RATIO),
+                lineHeight: getLineHeight(
+                  arabicFontSize,
+                  ARABIC_LINE_HEIGHT_RATIO
+                ),
                 writingDirection: script.direction,
               }}
             >

@@ -4,9 +4,9 @@ import { Pressable, ScrollView } from "react-native";
 
 import { useUser } from "@clerk/expo";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import * as ImagePicker from "expo-image-picker";
 import { File } from "expo-file-system";
+import * as ImagePicker from "expo-image-picker";
+import { router } from "expo-router";
 import { Input, Label, TextField, useToast } from "heroui-native";
 import { useCSSVariable } from "uniwind";
 
@@ -107,7 +107,7 @@ export default function ProfileScreen() {
               </Text>
             )}
 
-            <View className="bg-foreground absolute right-0 bottom-0 h-8 w-8 items-center justify-center rounded-full border-4 border-background">
+            <View className="bg-foreground border-background absolute right-0 bottom-0 h-8 w-8 items-center justify-center rounded-full border-4">
               <Ionicons color={backgroundColor} name="camera" size={14} />
             </View>
           </View>

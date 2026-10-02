@@ -119,7 +119,7 @@ export function NotificationProvider({
     };
   }, [userId]);
 
-React.useEffect(() => {
+  React.useEffect(() => {
     if (!userId || !expoPushToken) return;
 
     const tokenKey = `${userId}:${expoPushToken}`;
