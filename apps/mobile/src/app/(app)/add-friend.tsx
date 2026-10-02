@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import type { LayoutChangeEvent } from "react-native";
-import { ActivityIndicator, ScrollView, Share } from "react-native";
+import { ActivityIndicator, Platform, ScrollView, Share } from "react-native";
 
 import { Host, Button as NativeButton } from "@expo/ui/swift-ui";
 import {
@@ -16,6 +16,7 @@ import { router } from "expo-router";
 import QRCode from "react-native-qrcode-svg";
 import { useCSSVariable } from "uniwind";
 
+import { Icon } from "~/components/icon";
 import { Button, ButtonLabel, Text, View } from "~/components/ui";
 import { INVITE_BASE_URL } from "~/constants/config";
 import { api } from "~/trpc/client";
@@ -50,22 +51,31 @@ function Header() {
   return (
     <View className="pt-safe-offset-2 px-safe-offset-4 pb-5">
       <View className="flex-row items-center gap-3">
-        <Host matchContents>
-          <NativeButton
-            label="Back"
-            systemImage="chevron.backward"
-            modifiers={[
-              buttonStyle("glass"),
-              controlSize("extraLarge"),
-              labelStyle("iconOnly"),
-              buttonBorderShape("circle"),
-            ]}
-            onPress={() => router.back()}
-          />
-        </Host>
-        <View>
-          <Text className="text-2xl font-bold tracking-tight">Add friends</Text>
+        <View className="flex-1 flex-row items-center justify-start">
+          {Platform.OS === "ios" ? (
+            <Host matchContents>
+              <NativeButton
+                label="Back"
+                systemImage="chevron.backward"
+                modifiers={[
+                  buttonStyle("glass"),
+                  controlSize("extraLarge"),
+                  labelStyle("iconOnly"),
+                  buttonBorderShape("circle"),
+                ]}
+                onPress={() => router.back()}
+              />
+            </Host>
+          ) : (
+            <Button isIconOnly variant="ghost" onPress={() => router.back()}>
+              <Icon name="arrow-left" size={24} />
+            </Button>
+          )}
         </View>
+        <View className="flex-1 flex-row items-center justify-center">
+          <Text className="text-lg font-semibold">Add friends</Text>
+        </View>
+        <View className="flex-1 flex-row items-center justify-end"></View>
       </View>
     </View>
   );

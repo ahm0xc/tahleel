@@ -1,4 +1,4 @@
-import { Pressable } from "react-native";
+import { Platform, Pressable } from "react-native";
 
 import { Host, Button as NativeButton } from "@expo/ui/swift-ui";
 import {
@@ -12,11 +12,11 @@ import { useRouter } from "expo-router";
 import { Menu } from "heroui-native";
 import { useCSSVariable } from "uniwind";
 
-import { Image, Text, View } from "~/components/ui";
+import { Icon } from "~/components/icon";
+import { Button, Image, Text, View } from "~/components/ui";
 import { api } from "~/trpc/client";
 
 export default function FriendsScreen() {
-  const router = useRouter();
   const { data: friends } = api.friends.list.useQuery();
   const removeFriend = api.friends.remove.useMutation();
   const utils = api.useUtils();
@@ -34,26 +34,7 @@ export default function FriendsScreen() {
 
   return (
     <View className="bg-background flex-1">
-      <View className="pt-safe-offset-2 px-safe-offset-4 pb-5">
-        <View className="flex-row items-center gap-3">
-          <Host matchContents>
-            <NativeButton
-              label="Back"
-              systemImage="chevron.backward"
-              modifiers={[
-                buttonStyle("glass"),
-                controlSize("extraLarge"),
-                labelStyle("iconOnly"),
-                buttonBorderShape("circle"),
-              ]}
-              onPress={() => router.back()}
-            />
-          </Host>
-          <View>
-            <Text className="text-2xl font-bold tracking-tight">Friends</Text>
-          </View>
-        </View>
-      </View>
+      <Header />
 
       {!friends || friends.length === 0 ? (
         <View className="px-safe-offset-4 items-center gap-2 pt-16">
@@ -62,7 +43,7 @@ export default function FriendsScreen() {
           </Text>
         </View>
       ) : (
-        <View className="px-safe-offset-4">
+        <View className="px-safe-offset-4 pt-6">
           <View className="border-border bg-surface overflow-hidden rounded-3xl border">
             {friends.map((friend, index) => (
               <FriendRow
@@ -75,6 +56,42 @@ export default function FriendsScreen() {
           </View>
         </View>
       )}
+    </View>
+  );
+}
+
+function Header() {
+  const router = useRouter();
+
+  return (
+    <View className="pt-safe-offset-2 px-safe-offset-4">
+      <View className="flex-row items-center gap-3">
+        <View className="flex-1 flex-row items-center justify-start">
+          {Platform.OS === "ios" ? (
+            <Host matchContents>
+              <NativeButton
+                label="Back"
+                systemImage="chevron.backward"
+                modifiers={[
+                  buttonStyle("glass"),
+                  controlSize("extraLarge"),
+                  labelStyle("iconOnly"),
+                  buttonBorderShape("circle"),
+                ]}
+                onPress={() => router.back()}
+              />
+            </Host>
+          ) : (
+            <Button isIconOnly variant="ghost" onPress={() => router.back()}>
+              <Icon name="arrow-left" size={24} />
+            </Button>
+          )}
+        </View>
+        <View className="flex-1 flex-row items-center justify-center">
+          <Text className="text-lg font-semibold">Friends</Text>
+        </View>
+        <View className="flex-1 flex-row items-center justify-end"></View>
+      </View>
     </View>
   );
 }

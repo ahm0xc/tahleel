@@ -1,10 +1,12 @@
 import { SvgProps } from "react-native-svg";
 import { useCSSVariable } from "uniwind";
 
+import ArrowLeftIcon from "../../assets/icons/arrow-left.svg";
 import DonationIcon from "../../assets/icons/donation.svg";
 
 export const ICONS = {
   donation: DonationIcon,
+  "arrow-left": ArrowLeftIcon,
 };
 
 export type IconName = keyof typeof ICONS;
