@@ -33,6 +33,7 @@
       "environment": "production",
       "autoIncrement": true,
       "channel": "production",
+      "bun": "1.4.2",
       "env": {
         "APP_VARIANT": "production"
       }

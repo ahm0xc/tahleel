@@ -15,10 +15,18 @@ node_modules/
 out/
 dist/
 web-build/
-*.tgz
+.next/
 coverage/
 *.lcov
 *.tsbuildinfo
+
+# build artifacts
+build-*
+*.tgz
+*.tar.gz
+*.ipa
+*.apk
+*.aab
 
 # env
 .env
