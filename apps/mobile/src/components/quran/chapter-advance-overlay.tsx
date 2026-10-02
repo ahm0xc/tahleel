@@ -1,6 +1,6 @@
 import React from "react";
 
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 
 import { Portal } from "heroui-native";
 import Animated, {
@@ -56,6 +56,18 @@ interface ChapterAdvanceOverlayProps {
   chapter: Chapter | null;
   isRevealing: boolean;
   onDismissed: () => void;
+}
+
+interface ChapterAdvanceSurfaceProps {
+  children: React.ReactNode;
+}
+
+function ChapterAdvanceSurface({ children }: ChapterAdvanceSurfaceProps) {
+  if (Platform.OS === "ios") {
+    return <FullWindowOverlay>{children}</FullWindowOverlay>;
+  }
+
+  return <View className="absolute inset-0">{children}</View>;
 }
 
 export function ChapterAdvanceOverlay({
@@ -130,7 +142,7 @@ export function ChapterAdvanceOverlay({
 
   return (
     <Portal name="chapter-advance-overlay">
-      <FullWindowOverlay>
+      <ChapterAdvanceSurface>
         <Animated.View style={[StyleSheet.absoluteFill, backdropStyle]}>
           <View className="bg-background flex-1" />
         </Animated.View>
@@ -167,7 +179,7 @@ export function ChapterAdvanceOverlay({
             )}
           </Animated.View>
         </View>
-      </FullWindowOverlay>
+      </ChapterAdvanceSurface>
     </Portal>
   );
 }

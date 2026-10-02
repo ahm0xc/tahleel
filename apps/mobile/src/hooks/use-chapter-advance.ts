@@ -15,18 +15,22 @@ export function useChapterAdvance() {
   const setChapterNumber = useReadingState((state) => state.setChapterNumber);
   const [advance, setAdvance] = React.useState<ChapterAdvance | null>(null);
   const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isPendingRef = React.useRef(false);
 
   const startAdvance = React.useCallback(
     (chapterNumber: number) => {
-      if (timerRef.current !== null) {
+      if (isPendingRef.current) {
         return;
       }
 
       const chapter = getChapter(chapterNumber + 1) ?? null;
 
+      isPendingRef.current = true;
       setAdvance({ chapter, isRevealing: false });
 
       timerRef.current = setTimeout(() => {
+        timerRef.current = null;
+
         if (chapter !== null) {
           triggerHaptic("Light");
           setChapterNumber(chapter.chapterNumber);
@@ -44,11 +48,14 @@ export function useChapterAdvance() {
       timerRef.current = null;
     }
 
+    isPendingRef.current = false;
     setAdvance(null);
   }, []);
 
   React.useEffect(() => {
     return () => {
+      isPendingRef.current = false;
+
       if (timerRef.current !== null) {
         clearTimeout(timerRef.current);
       }
