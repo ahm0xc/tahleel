@@ -117,7 +117,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       EXPO_PUBLIC_CLERK_GOOGLE_IOS_URL_SCHEME:
         process.env.EXPO_PUBLIC_CLERK_GOOGLE_IOS_URL_SCHEME,
     },
-    updates: {},
+    updates: {
+      url: "https://u.expo.dev/700ffcd1-f18b-4b82-8c19-545c19f73966",
+    },
     owner: "somossaxio-org",
     runtimeVersion: isDevClient
       ? "1.0.0"
