@@ -1,11 +1,13 @@
 import React from "react";
 
 import { getArabicScript } from "~/constants/scripts";
+import { useChapterAdvance } from "~/hooks/use-chapter-advance";
 import { getEditionChapter } from "~/lib/quran/edition-data";
 import { usePreferences } from "~/store/preferences-store";
 import { useReadingState } from "~/store/reading-state-store";
 import { useStreaks } from "~/store/streaks-context";
 
+import { ChapterAdvanceOverlay } from "./chapter-advance-overlay";
 import { type PagedVerse, VersePager } from "./verse-pager";
 
 export function ReadingView() {
@@ -16,20 +18,30 @@ export function ReadingView() {
   const fontSize = usePreferences((state) => state.arabicFontSize);
   const script = getArabicScript(scriptId);
   const { recordVerseRead } = useStreaks();
+  const { advance, dismissAdvance, startAdvance } = useChapterAdvance();
 
-  const verses = React.useMemo<PagedVerse[]>(
-    () =>
-      getEditionChapter(script.editionId, chapterNumber).map((verse) => ({
+  const verses = React.useMemo<PagedVerse[]>(() => {
+    const pagedVerses = getEditionChapter(script.editionId, chapterNumber).map(
+      (verse) => ({
         key: `${script.editionId}:${chapterNumber}:${verse.verse}`,
         chapterNumber,
         verse,
-      })),
-    [chapterNumber, script.editionId]
-  );
+      })
+    );
+
+    return [
+      ...pagedVerses,
+      {
+        key: `${script.editionId}:${chapterNumber}:chapter-end`,
+        chapterNumber,
+        verse: null,
+      },
+    ];
+  }, [chapterNumber, script.editionId]);
 
   const initialIndex = React.useMemo(
     () =>
-      Math.min(Math.max(verseNumber - 1, 0), Math.max(verses.length - 1, 0)),
+      Math.min(Math.max(verseNumber - 1, 0), Math.max(verses.length - 2, 0)),
     [verseNumber, verses.length]
   );
 
@@ -51,7 +63,7 @@ export function ReadingView() {
         const now = Date.now();
         const left = versesRef.current[previous];
 
-        if (left) {
+        if (left && left.verse) {
           recordVerseReadRef.current({
             chapterNumber: chapterNumberRef.current,
             verseNumber: left.verse.verse,
@@ -68,7 +80,7 @@ export function ReadingView() {
           skippedIndex++
         ) {
           const skipped = versesRef.current[skippedIndex];
-          if (!skipped) continue;
+          if (!skipped?.verse) continue;
 
           recordVerseReadRef.current({
             chapterNumber: chapterNumberRef.current,
@@ -83,8 +95,12 @@ export function ReadingView() {
       }
 
       setVerseNumber(index + 1);
+
+      if (index === versesRef.current.length - 1) {
+        startAdvance(chapterNumberRef.current);
+      }
     },
-    [setVerseNumber]
+    [setVerseNumber, startAdvance]
   );
 
   // Reset the tracking bookkeeping for a new chapter list.
@@ -94,13 +110,23 @@ export function ReadingView() {
   }, [chapterNumber, initialIndex]);
 
   return (
-    <VersePager
-      fontSize={fontSize}
-      listKey={`${script.editionId}:${chapterNumber}`}
-      initialIndex={initialIndex}
-      onPageChange={handlePageChange}
-      script={script}
-      verses={verses}
-    />
+    <>
+      <VersePager
+        fontSize={fontSize}
+        listKey={`${script.editionId}:${chapterNumber}`}
+        initialIndex={initialIndex}
+        onPageChange={handlePageChange}
+        script={script}
+        verses={verses}
+      />
+
+      {advance !== null && (
+        <ChapterAdvanceOverlay
+          chapter={advance.chapter}
+          isRevealing={advance.isRevealing}
+          onDismissed={dismissAdvance}
+        />
+      )}
+    </>
   );
 }

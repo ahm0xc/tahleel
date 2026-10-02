@@ -1,3 +1,5 @@
+export * from "./chapter-advance-overlay";
+export * from "./chapter-advance-page";
 export * from "./chapter-select";
 export * from "./favorites-view";
 export * from "./reading-header";

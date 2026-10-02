@@ -6,6 +6,7 @@ import { View } from "~/components/ui";
 import { type ArabicScript } from "~/constants/scripts";
 import { type QuranVerse } from "~/lib/quran/edition-data";
 
+import { ChapterAdvancePage } from "./chapter-advance-page";
 import { VersePage } from "./verse-page";
 
 const viewabilityConfig = { itemVisiblePercentThreshold: 50 };
@@ -13,7 +14,7 @@ const viewabilityConfig = { itemVisiblePercentThreshold: 50 };
 export interface PagedVerse {
   key: string;
   chapterNumber: number;
-  verse: QuranVerse;
+  verse: QuranVerse | null;
 }
 
 interface VersePagerProps {
@@ -120,17 +121,21 @@ export function VersePager({
           // `listKey` instead would remount the list and lose the reader's
           // place, so the list is re-rendered rather than rebuilt.
           extraData={`${script.id}:${fontSize}`}
-          renderItem={({ item, index }) => (
-            <VersePage
-              chapterNumber={item.chapterNumber}
-              fontSize={fontSize}
-              isActive={index === activeIndex}
-              script={script}
-              verse={item.verse}
-              height={containerHeight}
-              width={containerWidth}
-            />
-          )}
+          renderItem={({ item, index }) =>
+            item.verse === null ? (
+              <ChapterAdvancePage height={containerHeight} />
+            ) : (
+              <VersePage
+                chapterNumber={item.chapterNumber}
+                fontSize={fontSize}
+                isActive={index === activeIndex}
+                script={script}
+                verse={item.verse}
+                height={containerHeight}
+                width={containerWidth}
+              />
+            )
+          }
           getItemLayout={(_, index) => ({
             length: containerHeight,
             offset: containerHeight * index,
