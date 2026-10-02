@@ -5,6 +5,7 @@ import { Keyboard, KeyboardAvoidingView, Platform } from "react-native";
 import { Input, TextField } from "heroui-native";
 
 import { Button, ButtonLabel, Image, Text, View } from "~/components/ui";
+import { useOnboarding } from "~/store/onboarding-store";
 
 interface NameStepProps {
   onContinue: () => void;
@@ -13,6 +14,8 @@ interface NameStepProps {
 export function NameStep({ onContinue }: NameStepProps) {
   const [name, setName] = React.useState("");
 
+  const setNameInStore = useOnboarding((state) => state.setName);
+
   React.useEffect(() => Keyboard.dismiss, []);
 
   const isValid = name.trim().length >= 4;
@@ -20,6 +23,7 @@ export function NameStep({ onContinue }: NameStepProps) {
   function handleContinue() {
     if (!isValid) return;
 
+    setNameInStore(name.trim());
     onContinue();
   }
 

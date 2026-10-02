@@ -64,6 +64,20 @@ function InitialLayout() {
   useInviteDeepLink();
 
   React.useEffect(() => {
+    if (!user) return;
+
+    const { name, setName } = useOnboarding.getState();
+    if (!name) return;
+
+    user
+      .update({ firstName: name })
+      .then(() => setName(null))
+      .catch((error) => {
+        console.error("[Onboarding] Failed to apply name to Clerk user", error);
+      });
+  }, [user]);
+
+  React.useEffect(() => {
     if (fontsError) {
       console.warn("[Fonts] Failed to load:", fontsError.message);
     }
