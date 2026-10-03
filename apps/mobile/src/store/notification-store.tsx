@@ -73,6 +73,11 @@ export function NotificationProvider({
         return;
       }
 
+      const { status } = await Notifications.getPermissionsAsync();
+      if (status !== "granted") {
+        return;
+      }
+
       const { data: token } = await Notifications.getExpoPushTokenAsync({
         projectId,
       });

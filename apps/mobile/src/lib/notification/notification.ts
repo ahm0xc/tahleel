@@ -90,10 +90,7 @@ export async function registerForPushNotificationsAsync() {
       finalStatus = status;
     }
     if (finalStatus !== "granted") {
-      handleRegistrationError(
-        "Permission not granted to get push token for push notification!"
-      );
-      return;
+      return null;
     }
     const projectId =
       Constants?.expoConfig?.extra?.eas?.projectId ??
