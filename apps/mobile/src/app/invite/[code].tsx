@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
 
-import { ActivityIndicator, ScrollView } from "react-native";
+import { ActivityIndicator, Platform, ScrollView } from "react-native";
 
 import { useAuth } from "@clerk/expo";
 import { Host, Button as NativeButton } from "@expo/ui/swift-ui";
@@ -14,6 +14,7 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCSSVariable } from "uniwind";
 
+import { Icon } from "~/components/icon";
 import { Button, ButtonLabel, Image, Text, View } from "~/components/ui";
 import { useInviteStore } from "~/store/invite-store";
 import { api } from "~/trpc/client";
@@ -143,22 +144,32 @@ export default function InviteScreen() {
 
 function Header({ onClose }: { onClose: () => void }) {
   return (
-    <View className="pt-safe-offset-2 px-safe-offset-4 pb-5">
-      <View className="flex-row items-center gap-3">
-        <Host matchContents>
-          <NativeButton
-            label="Close"
-            systemImage="xmark"
-            modifiers={[
-              buttonStyle("glass"),
-              controlSize("extraLarge"),
-              labelStyle("iconOnly"),
-              buttonBorderShape("circle"),
-            ]}
-            onPress={onClose}
-          />
-        </Host>
+    <View className="pt-safe-offset-0 px-safe-offset-4 flex-row">
+      <View className="h-14 flex-1 flex-row items-center justify-start">
+        {Platform.OS === "ios" ? (
+          <Host matchContents>
+            <NativeButton
+              label="Back"
+              systemImage="chevron.backward"
+              modifiers={[
+                buttonStyle("glass"),
+                controlSize("extraLarge"),
+                labelStyle("iconOnly"),
+                buttonBorderShape("circle"),
+              ]}
+              onPress={onClose}
+            />
+          </Host>
+        ) : (
+          <Button isIconOnly variant="ghost" onPress={onClose}>
+            <Icon name="arrow-left" size={24} />
+          </Button>
+        )}
       </View>
+      <View className="flex-1 flex-row items-center justify-center">
+        <Text className="text-lg font-semibold">Invite</Text>
+      </View>
+      <View className="flex-1 flex-row items-center justify-end"></View>
     </View>
   );
 }
