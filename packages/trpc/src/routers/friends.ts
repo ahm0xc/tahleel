@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { getUserProfile, getUsersProfiles } from "../lib/clerk-users.js";
 import { todayInUTC } from "../lib/days.js";
+import { notifyUser } from "../lib/notification.js";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -125,6 +126,15 @@ export const friendsRouter = createTRPCRouter({
       if (!existing) {
         const [user1Id, user2Id] = sortPair(ctx.auth.userId, invite.userId);
         await db.insert(friendships).values({ user1Id, user2Id });
+
+        const friendProfile = await getUserProfile(ctx.auth.userId);
+        if (friendProfile) {
+          void notifyUser(invite.userId, {
+            title: "New connection",
+            body: `You and ${friendProfile.displayName} are now connected`,
+            data: { deepLink: "/friends" },
+          });
+        }
       }
 
       const profile = await getUserProfile(invite.userId);
