@@ -126,9 +126,7 @@ export async function resolveAuth(headers: Headers): Promise<TRPCAuth> {
       claims,
     };
   } catch (error) {
-    if (process.env.NODE_ENV !== "production") {
-      console.warn("[trpc] Clerk session token was rejected:", error);
-    }
+    console.warn("[trpc] Clerk session token was rejected:", error);
     return SIGNED_OUT;
   }
 }
