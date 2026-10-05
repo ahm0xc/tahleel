@@ -1,6 +1,7 @@
 import React from "react";
 
 import { ClerkProvider, useAuth, useUser } from "@clerk/expo";
+import { resourceCache } from "@clerk/expo/resource-cache";
 import { tokenCache } from "@clerk/expo/token-cache";
 import { useFonts } from "expo-font";
 import * as Notifications from "expo-notifications";
@@ -141,6 +142,7 @@ export default function RootLayout() {
     <ClerkProvider
       publishableKey={CLERK_PUBLISHABLE_KEY}
       tokenCache={tokenCache}
+      __experimental_resourceCache={resourceCache}
       telemetry={false}
     >
       <TRPCProvider>

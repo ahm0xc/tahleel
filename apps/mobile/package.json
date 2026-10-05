@@ -4,8 +4,10 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "APP_VARIANT=development npx expo start --dev-client",
-    "ios": "APP_VARIANT=development npx expo run:ios",
-    "android": "APP_VARIANT=development npx expo run:android",
+    "ios": "APP_VARIANT=development npx expo run:ios --device",
+    "android": "APP_VARIANT=development npx expo run:android --device",
+    "ios:release": "APP_VARIANT=development npx expo run:ios --configuration Release --device",
+    "android:release": "APP_VARIANT=development npx expo run:android --variant release --device",
     "tunnel": "expo start --tunnel",
     "check-types": "tsc --noEmit"
   },
