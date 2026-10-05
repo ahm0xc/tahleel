@@ -24,7 +24,7 @@ export const ARABIC_SCRIPTS: ArabicScript[] = [
     id: "indopak",
     name: "Indo-Pak",
     arabicName: "الخط الهندي",
-    editionId: "ara-quranindopak",
+    editionId: "ara-qurannastaleeqn",
     fontFamily: "KFGQPCNastaleeq",
     direction: "rtl",
   },
