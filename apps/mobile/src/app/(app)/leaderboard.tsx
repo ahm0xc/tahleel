@@ -10,18 +10,21 @@ import { Skeleton, Tabs } from "heroui-native";
 import { useCSSVariable } from "uniwind";
 
 import { Icon } from "~/components/icon";
+import { OfflineAlert } from "~/components/offline-alert";
 import { Button, Image, Text, View } from "~/components/ui";
+import { useOffline } from "~/hooks/use-offline";
 import { cn } from "~/lib/utils";
 import { useStreaks } from "~/store/streaks-context";
 import { api } from "~/trpc/client";
 
 export default function LeaderboardScreen() {
   const [scope, setScope] = useState("friends");
+  const isOffline = useOffline();
 
   const { user } = useUser();
   const { todayProgress } = useStreaks();
   const { data: friendLeaderboard, isLoading: isFriendsLoading } =
-    api.friends.leaderboard.useQuery();
+    api.friends.leaderboard.useQuery(undefined, { enabled: !isOffline });
   const currentUserEntry: LeaderboardEntry | null = user
     ? {
         id: user.id,
@@ -54,6 +57,11 @@ export default function LeaderboardScreen() {
   return (
     <View className="bg-background flex-1">
       <Header />
+      {isOffline && (
+        <View className="px-safe-offset-4 pb-4">
+          <OfflineAlert description="Friend rankings can't be loaded while you're offline." />
+        </View>
+      )}
       <Tabs className="px-safe-offset-4" value={scope} onValueChange={setScope}>
         <Tabs.List className="w-full">
           <Tabs.Indicator />

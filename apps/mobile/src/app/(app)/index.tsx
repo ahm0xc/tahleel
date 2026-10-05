@@ -3,14 +3,17 @@ import { ScrollView } from "react-native";
 import { router } from "expo-router";
 import { Card } from "heroui-native";
 
+import { OfflineAlert } from "~/components/offline-alert";
 import { StatsGrid } from "~/components/stats-grid";
 import { StreaksBadge } from "~/components/streaks-badge";
 import { StreaksWeekCalendar } from "~/components/streaks-week-calendar";
 import { Button, ButtonLabel, Image, Text, View } from "~/components/ui";
+import { useOffline } from "~/hooks/use-offline";
 import { useStreaks } from "~/store/streaks-context";
 
 export default function HomeScreen() {
   const { todayProgress, userStreaksPending } = useStreaks();
+  const isOffline = useOffline();
 
   return (
     <View className="bg-background flex-1">
@@ -20,6 +23,11 @@ export default function HomeScreen() {
         className="flex-1"
         contentContainerClassName="px-safe-offset-4 pb-8"
       >
+        {isOffline && (
+          <View className="mt-6">
+            <OfflineAlert description="Your goals won't be tracked and your streak history won't be shown while you're offline. But you can still read quran, Allah knows all of your deeds." />
+          </View>
+        )}
         <View className="mt-6">
           <StreaksWeekCalendar />
         </View>

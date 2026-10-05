@@ -14,6 +14,7 @@ import { useAppState } from "@react-native-community/hooks";
 import type { AppRouter } from "@repo/trpc";
 import type { inferRouterOutputs } from "@trpc/server";
 
+import { useOffline } from "~/hooks/use-offline";
 import { useQueryWithCallbacks } from "~/hooks/use-query-with-callbacks";
 import { diffInDays, getWeekStart, todayInUTC } from "~/lib/days";
 import { calculateHasanat } from "~/lib/quran/hasanat";
@@ -198,6 +199,7 @@ export function StreaksProvider({ children }: StreaksProviderProps) {
   const utils = api.useUtils();
   const { userId } = useAuth();
   const appState = useAppState();
+  const isOffline = useOffline();
   const dailyVerseGoal = usePreferences((state) => state.dailyVerseGoal);
 
   const updateMutation = api.streaks.update.useMutation();
@@ -230,7 +232,7 @@ export function StreaksProvider({ children }: StreaksProviderProps) {
   const { data: userStreaks, isPending: userStreaksPending } =
     useQueryWithCallbacks({
       ...utils.streaks.get.queryOptions(),
-      enabled: Boolean(userId),
+      enabled: Boolean(userId) && !isOffline,
       staleTime: 0,
       initialData: snapshot,
       onSuccess(data) {
@@ -253,7 +255,7 @@ export function StreaksProvider({ children }: StreaksProviderProps) {
   const { data: streaksHistory, isPending: streaksHistoryPending } =
     useQueryWithCallbacks({
       ...utils.streaks.history.queryOptions({ from: weekStart, to: today }),
-      enabled: Boolean(userId),
+      enabled: Boolean(userId) && !isOffline,
       staleTime: 0,
       initialData: historySnapshot,
       onSuccess(data) {
@@ -294,7 +296,7 @@ export function StreaksProvider({ children }: StreaksProviderProps) {
   }, [dailyVerseGoal, sessionVersion, userStreaks?.todayProgress]);
 
   const flush = useCallback(async () => {
-    if (!userId || syncInFlightRef.current) return;
+    if (!userId || isOffline || syncInFlightRef.current) return;
 
     if (userStreaksRef.current === undefined) return;
 
@@ -353,10 +355,10 @@ export function StreaksProvider({ children }: StreaksProviderProps) {
         scheduleSyncRef.current();
       }
     }
-  }, [dailyVerseGoal, mutateSession, userId, utils]);
+  }, [dailyVerseGoal, isOffline, mutateSession, userId, utils]);
 
   const scheduleSync = useCallback(() => {
-    if (!userId) return;
+    if (!userId || isOffline) return;
 
     if (syncTimerRef.current) {
       clearTimeout(syncTimerRef.current);
@@ -366,7 +368,7 @@ export function StreaksProvider({ children }: StreaksProviderProps) {
       syncTimerRef.current = null;
       void flushRef.current();
     }, SYNC_DEBOUNCE_MS);
-  }, [userId]);
+  }, [isOffline, userId]);
 
   const flushRef = useRef(flush);
   const scheduleSyncRef = useRef(scheduleSync);
@@ -386,7 +388,7 @@ export function StreaksProvider({ children }: StreaksProviderProps) {
       text,
       timeSpentMs,
     }: RecordVerseReadInput) => {
-      if (!userId) return;
+      if (!userId || isOffline) return;
 
       const verseKey = `${chapterNumber}:${verseNumber}`;
       const hasanat = calculateHasanat(text);
@@ -407,7 +409,7 @@ export function StreaksProvider({ children }: StreaksProviderProps) {
 
       scheduleSyncRef.current();
     },
-    [mutateSession, userId]
+    [isOffline, mutateSession, userId]
   );
 
   useEffect(() => {

@@ -10,12 +10,15 @@ import { router } from "expo-router";
 import { Input, Label, TextField, useToast } from "heroui-native";
 import { useCSSVariable } from "uniwind";
 
+import { OfflineAlert } from "~/components/offline-alert";
 import { SettingsCard } from "~/components/settings";
 import { Button, ButtonLabel, Image, Text, View } from "~/components/ui";
+import { useOffline } from "~/hooks/use-offline";
 
 export default function ProfileScreen() {
   const { user } = useUser();
   const { toast } = useToast();
+  const isOffline = useOffline();
   const backgroundColor = useCSSVariable("--background") as string;
 
   const [firstName, setFirstName] = useState(user?.firstName ?? "");
@@ -34,7 +37,8 @@ export default function ProfileScreen() {
     firstName.trim() !== (user?.firstName ?? "") ||
     lastName.trim() !== (user?.lastName ?? "");
 
-  const canSave = firstName.trim().length > 0 && hasNameChanged && !isSaving;
+  const canSave =
+    firstName.trim().length > 0 && hasNameChanged && !isSaving && !isOffline;
 
   async function handleSave() {
     if (!user || !canSave) return;
@@ -55,6 +59,15 @@ export default function ProfileScreen() {
   }
 
   async function handlePickImage() {
+    if (isOffline) {
+      toast.show({
+        label: "You're offline",
+        description: "Connect to the internet to update your profile picture.",
+        variant: "warning",
+      });
+      return;
+    }
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsEditing: true,
@@ -88,6 +101,12 @@ export default function ProfileScreen() {
       className="bg-background flex-1"
       contentContainerClassName="px-safe-offset-4 pb-safe-offset-6 pt-4"
     >
+      {isOffline && (
+        <View className="mb-4">
+          <OfflineAlert description="Your name and profile picture can't be updated while you're offline." />
+        </View>
+      )}
+
       <View className="items-center py-2">
         <Pressable
           accessibilityRole="button"

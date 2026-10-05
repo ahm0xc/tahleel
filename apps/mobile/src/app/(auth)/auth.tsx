@@ -3,11 +3,14 @@ import { useCSSVariable } from "uniwind";
 
 import AppleSignInButton from "~/components/auth/apple-sign-in-button";
 import GoogleSignInButton from "~/components/auth/google-sign-in-button";
+import { OfflineAlert } from "~/components/offline-alert";
 import { Image, Text, View } from "~/components/ui";
+import { useOffline } from "~/hooks/use-offline";
 import { withOpacity } from "~/lib/utils";
 
 export default function AuthScreen() {
   const backgroundColor = useCSSVariable("--background") as string;
+  const isOffline = useOffline();
 
   return (
     <View className="pb-safe-offset-4 bg-background flex-1">
@@ -49,6 +52,11 @@ export default function AuthScreen() {
         <View className="mt-10 gap-2">
           <AppleSignInButton />
           <GoogleSignInButton />
+          {isOffline && (
+            <View className="mt-2">
+              <OfflineAlert description="Connect to the internet to sign in." />
+            </View>
+          )}
         </View>
       </View>
     </View>

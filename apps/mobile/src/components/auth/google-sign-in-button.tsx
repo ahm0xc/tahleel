@@ -6,6 +6,8 @@ import { useSignInWithGoogle } from "@clerk/expo/google";
 import { PressableFeedback, useToast } from "heroui-native";
 import Svg, { Path } from "react-native-svg";
 
+import { useOffline } from "~/hooks/use-offline";
+
 import { Text } from "../ui";
 
 type GoogleSignInButtonProps = {
@@ -18,8 +20,11 @@ export default function GoogleSignInButton({
   const [isAttempting, setIsAttempting] = React.useState(false);
   const { startGoogleAuthenticationFlow } = useSignInWithGoogle();
   const { toast } = useToast();
+  const isOffline = useOffline();
 
   async function handleGoogleSignIn() {
+    if (isOffline) return;
+
     try {
       setIsAttempting(true);
       const { createdSessionId, setActive } =
@@ -52,7 +57,7 @@ export default function GoogleSignInButton({
     <PressableFeedback
       className="h-13 flex-row items-center justify-center gap-2 rounded-full border border-black/5 bg-white"
       onPress={handleGoogleSignIn}
-      isDisabled={isAttempting}
+      isDisabled={isAttempting || isOffline}
     >
       <GoogleIcon />
       <Text className="font-medium text-black">Sign in with Google</Text>

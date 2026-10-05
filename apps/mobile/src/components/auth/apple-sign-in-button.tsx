@@ -6,6 +6,8 @@ import { useSignInWithApple } from "@clerk/expo/apple";
 import { Ionicons } from "@expo/vector-icons";
 import { PressableFeedback, useToast } from "heroui-native";
 
+import { useOffline } from "~/hooks/use-offline";
+
 import { Text } from "../ui";
 
 type AppleSignInButtonProps = {
@@ -19,9 +21,12 @@ export default function AppleSignInButton({
 
   const { startAppleAuthenticationFlow } = useSignInWithApple();
   const { toast } = useToast();
+  const isOffline = useOffline();
   const colorScheme = useColorScheme();
 
   async function handleAppleSignIn() {
+    if (isOffline) return;
+
     try {
       setIsAttempting(true);
       const result = await startAppleAuthenticationFlow();
@@ -55,7 +60,7 @@ export default function AppleSignInButton({
     <PressableFeedback
       className="h-13 flex-row items-center justify-center gap-2 rounded-full border border-black bg-black dark:border-white dark:bg-white"
       onPress={handleAppleSignIn}
-      isDisabled={isAttempting}
+      isDisabled={isAttempting || isOffline}
     >
       <Ionicons
         name="logo-apple"

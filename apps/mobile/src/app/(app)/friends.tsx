@@ -13,7 +13,9 @@ import { Menu, Skeleton } from "heroui-native";
 import { useCSSVariable } from "uniwind";
 
 import { Icon } from "~/components/icon";
+import { OfflineAlert } from "~/components/offline-alert";
 import { Button, Image, Text, View } from "~/components/ui";
+import { useOffline } from "~/hooks/use-offline";
 import { api } from "~/trpc/client";
 
 const SKELETON_NAME_WIDTHS = [
@@ -26,11 +28,16 @@ const SKELETON_NAME_WIDTHS = [
 ];
 
 export default function FriendsScreen() {
-  const { data: friends, isLoading } = api.friends.list.useQuery();
+  const isOffline = useOffline();
+  const { data: friends, isLoading } = api.friends.list.useQuery(undefined, {
+    enabled: !isOffline,
+  });
   const removeFriend = api.friends.remove.useMutation();
   const utils = api.useUtils();
 
   function handleRemove(userId: string) {
+    if (isOffline) return;
+
     removeFriend.mutate(
       { friendUserId: userId },
       {
@@ -45,6 +52,12 @@ export default function FriendsScreen() {
     <View className="bg-background flex-1">
       <Header />
 
+      {isOffline && (
+        <View className="px-safe-offset-4 pt-6">
+          <OfflineAlert description="Your friends list can't be loaded while you're offline." />
+        </View>
+      )}
+
       {isLoading ? (
         <View className="px-safe-offset-4 pt-6">
           <View className="border-border bg-surface overflow-hidden rounded-3xl border">
@@ -58,11 +71,13 @@ export default function FriendsScreen() {
           </View>
         </View>
       ) : !friends || friends.length === 0 ? (
-        <View className="px-safe-offset-4 items-center gap-2 pt-16">
-          <Text className="text-muted text-sm">
-            No friends yet. Add someone from the leaderboard to get started.
-          </Text>
-        </View>
+        isOffline ? null : (
+          <View className="px-safe-offset-4 items-center gap-2 pt-16">
+            <Text className="text-muted text-sm">
+              No friends yet. Add someone from the leaderboard to get started.
+            </Text>
+          </View>
+        )
       ) : (
         <View className="px-safe-offset-4 pt-6">
           <View className="border-border bg-surface overflow-hidden rounded-3xl border">

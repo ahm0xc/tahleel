@@ -17,14 +17,20 @@ import QRCode from "react-native-qrcode-svg";
 import { useCSSVariable } from "uniwind";
 
 import { Icon } from "~/components/icon";
+import { OfflineAlert } from "~/components/offline-alert";
 import { Button, ButtonLabel, Text, View } from "~/components/ui";
 import { INVITE_BASE_URL } from "~/constants/config";
+import { useOffline } from "~/hooks/use-offline";
 import { api } from "~/trpc/client";
 
 const COPIED_RESET_DELAY = 2000;
 
 export default function AddFriendScreen() {
-  const { data: myInvite, isLoading } = api.friends.getMyInvite.useQuery();
+  const isOffline = useOffline();
+  const { data: myInvite, isLoading } = api.friends.getMyInvite.useQuery(
+    undefined,
+    { enabled: !isOffline }
+  );
   const inviteLink = myInvite
     ? `${INVITE_BASE_URL}/invite/${myInvite.code}`
     : null;
@@ -38,9 +44,19 @@ export default function AddFriendScreen() {
         contentContainerClassName="grow px-safe-offset-4 pb-6"
         showsVerticalScrollIndicator={false}
       >
+        {isOffline && (
+          <View className="mb-8">
+            <OfflineAlert description="Your invite link can't be loaded while you're offline." />
+          </View>
+        )}
+
         <View className="w-full items-center gap-8">
-          <Invite inviteLink={inviteLink} isLoading={isLoading} />
-          <Actions inviteLink={inviteLink} />
+          <Invite
+            inviteLink={inviteLink}
+            isLoading={isLoading}
+            isOffline={isOffline}
+          />
+          <Actions inviteLink={inviteLink} isOffline={isOffline} />
         </View>
       </ScrollView>
     </View>
@@ -84,9 +100,11 @@ function Header() {
 function Invite({
   inviteLink,
   isLoading,
+  isOffline,
 }: {
   inviteLink: string | null;
   isLoading: boolean;
+  isOffline: boolean;
 }) {
   const [qrSize, setQrSize] = useState(0);
 
@@ -103,7 +121,13 @@ function Invite({
               style={{ height: qrSize > 0 ? qrSize : 260 }}
               className="items-center justify-center"
             >
-              <ActivityIndicator />
+              {isOffline ? (
+                <Text className="text-muted px-4 text-center text-sm">
+                  Connect to the internet to load your invite QR code.
+                </Text>
+              ) : (
+                <ActivityIndicator />
+              )}
             </View>
           ) : qrSize > 0 ? (
             <QRCode
@@ -125,7 +149,13 @@ function Invite({
   );
 }
 
-function Actions({ inviteLink }: { inviteLink: string | null }) {
+function Actions({
+  inviteLink,
+  isOffline,
+}: {
+  inviteLink: string | null;
+  isOffline: boolean;
+}) {
   const [isCopied, setIsCopied] = useState(false);
   const accentForegroundColor = useCSSVariable("--accent-foreground") as string;
   const foregroundColor = useCSSVariable("--foreground") as string;
@@ -164,7 +194,7 @@ function Actions({ inviteLink }: { inviteLink: string | null }) {
       <Button
         className="flex-1"
         haptics="Light"
-        isDisabled={!inviteLink}
+        isDisabled={!inviteLink || isOffline}
         onPress={() => void handleCopy()}
         variant="secondary"
       >
@@ -184,7 +214,7 @@ function Actions({ inviteLink }: { inviteLink: string | null }) {
       <Button
         className="flex-1"
         haptics="Light"
-        isDisabled={!inviteLink}
+        isDisabled={!inviteLink || isOffline}
         onPress={() => void handleShare()}
       >
         <Feather color={accentForegroundColor} name="share-2" size={18} />
