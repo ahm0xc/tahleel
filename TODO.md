@@ -1,3 +1,0 @@
-- add credits for font authors
-- add different weights for noto sans
-- do not start streaks tracking unless authenticated
