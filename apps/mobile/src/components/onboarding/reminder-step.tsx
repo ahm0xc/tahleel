@@ -8,9 +8,17 @@ import {
   type ReminderTimeId,
   getReminderTime,
 } from "~/constants/reminders";
+import {
+  DEFAULT_DAILY_DOSE_TIME_ID,
+  getDailyDoseTime,
+} from "~/constants/daily-dose-times";
+import {
+  DEFAULT_TRANSLATION_LANGUAGE,
+} from "~/constants/translations";
 import { triggerHaptic } from "~/lib/haptics";
 import {
   requestNotificationPermission,
+  scheduleDailyDose,
   scheduleDailyReminder,
 } from "~/lib/notification";
 import { cn } from "~/lib/utils";
@@ -25,6 +33,10 @@ export function ReminderStep({ onContinue, onSkip }: ReminderStepProps) {
   const [selected, setSelected] = React.useState<ReminderTimeId | null>(null);
   const setReminderTimeId = usePreferences((state) => state.setReminderTimeId);
 
+  const setDailyDoseEnabled = usePreferences(
+    (state) => state.setDailyDoseEnabled
+  );
+
   async function handleContinue() {
     if (!selected) return;
 
@@ -37,6 +49,13 @@ export function ReminderStep({ onContinue, onSkip }: ReminderStepProps) {
 
     setReminderTimeId(selected);
     void scheduleDailyReminder(getReminderTime(selected));
+
+    setDailyDoseEnabled(true);
+    void scheduleDailyDose({
+      time: getDailyDoseTime(DEFAULT_DAILY_DOSE_TIME_ID),
+      translationLanguageId: DEFAULT_TRANSLATION_LANGUAGE,
+    });
+
     onContinue();
   }
 

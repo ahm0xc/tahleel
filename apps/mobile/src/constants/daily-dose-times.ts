@@ -10,7 +10,7 @@ export const DAILY_DOSE_TIMES = [
 export type DailyDoseTime = (typeof DAILY_DOSE_TIMES)[number];
 export type DailyDoseTimeId = DailyDoseTime["id"];
 
-export const DEFAULT_DAILY_DOSE_TIME_ID: DailyDoseTimeId = "20:00";
+export const DEFAULT_DAILY_DOSE_TIME_ID: DailyDoseTimeId = "15:00";
 
 export function getDailyDoseTime(id: DailyDoseTimeId): DailyDoseTime {
   return DAILY_DOSE_TIMES.find((time) => time.id === id) ?? DAILY_DOSE_TIMES[5];

@@ -113,6 +113,14 @@ export default function NotificationsSettingsScreen() {
   async function handleAllowNotifications() {
     const granted = await requestNotificationPermission();
     setPermissionStatus(granted ? "granted" : "denied");
+
+    if (granted && !dailyDoseEnabled) {
+      setDailyDoseEnabled(true);
+      void scheduleDailyDose({
+        time: getDailyDoseTime(dailyDoseTimeId),
+        translationLanguageId: dailyDoseTranslationId,
+      });
+    }
   }
 
   return (
