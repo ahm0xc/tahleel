@@ -3,6 +3,7 @@ export {
   SettingsOptionGrid,
   type SettingsOptionGridOption,
 } from "./option-grid";
+export { SettingsDailyDoseTimePicker } from "./daily-dose-time-picker";
 export { SettingsReminderPicker } from "./reminder-picker";
 export {
   SettingsCard,

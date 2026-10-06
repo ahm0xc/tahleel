@@ -6,6 +6,11 @@ import {
   type DailyVerseGoal,
   isDailyVerseGoal,
 } from "~/constants/goals";
+import {
+  DEFAULT_DAILY_DOSE_TIME_ID,
+  type DailyDoseTimeId,
+  isDailyDoseTimeId,
+} from "~/constants/daily-dose-times";
 import { type ReminderTimeId, isReminderTimeId } from "~/constants/reminders";
 import {
   type ArabicScriptId,
@@ -30,6 +35,8 @@ interface PreferencesStore {
   dailyVerseGoal: DailyVerseGoal;
   reminderTimeId: ReminderTimeId | null;
   dailyDoseEnabled: boolean;
+  dailyDoseTimeId: DailyDoseTimeId;
+  dailyDoseTranslationId: TranslationLanguageId;
   setScriptId: (scriptId: ArabicScriptId) => void;
   setTranslationLanguageId: (id: TranslationLanguageId) => void;
   setArabicFontSize: (fontSize: number) => void;
@@ -37,6 +44,8 @@ interface PreferencesStore {
   setDailyVerseGoal: (goal: DailyVerseGoal) => void;
   setReminderTimeId: (id: ReminderTimeId | null) => void;
   setDailyDoseEnabled: (enabled: boolean) => void;
+  setDailyDoseTimeId: (id: DailyDoseTimeId) => void;
+  setDailyDoseTranslationId: (id: TranslationLanguageId) => void;
 }
 
 export const usePreferences = create<PreferencesStore>()(
@@ -49,6 +58,8 @@ export const usePreferences = create<PreferencesStore>()(
       dailyVerseGoal: DEFAULT_DAILY_VERSE_GOAL,
       reminderTimeId: null,
       dailyDoseEnabled: false,
+      dailyDoseTimeId: DEFAULT_DAILY_DOSE_TIME_ID,
+      dailyDoseTranslationId: DEFAULT_TRANSLATION_LANGUAGE,
       setScriptId(scriptId) {
         set({ scriptId });
       },
@@ -78,6 +89,16 @@ export const usePreferences = create<PreferencesStore>()(
       },
       setDailyDoseEnabled(dailyDoseEnabled) {
         set({ dailyDoseEnabled });
+      },
+      setDailyDoseTimeId(dailyDoseTimeId) {
+        set({
+          dailyDoseTimeId: isDailyDoseTimeId(dailyDoseTimeId)
+            ? dailyDoseTimeId
+            : DEFAULT_DAILY_DOSE_TIME_ID,
+        });
+      },
+      setDailyDoseTranslationId(dailyDoseTranslationId) {
+        set({ dailyDoseTranslationId });
       },
     }),
     {

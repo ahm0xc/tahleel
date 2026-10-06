@@ -28,6 +28,7 @@ interface SettingsListItemProps {
   showDivider?: boolean;
   /** Trailing affordance for rows that open another page. */
   chevron?: boolean;
+  disabled?: boolean;
 }
 
 interface SettingsSwitchRowProps {
@@ -51,6 +52,7 @@ interface SettingsPickerProps<Value extends string> {
   value: Value;
   onChange: (value: Value) => void;
   showDivider?: boolean;
+  disabled?: boolean;
 }
 
 export function SettingsList({ title, children }: SettingsListProps) {
@@ -80,6 +82,7 @@ export function SettingsListItem({
   destructive = false,
   showDivider = true,
   chevron = false,
+  disabled = false,
 }: SettingsListItemProps) {
   const mutedColor = useCSSVariable("--muted") as string;
   const dangerColor = useCSSVariable("--danger") as string;
@@ -88,11 +91,14 @@ export function SettingsListItem({
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityState={{ disabled }}
       accessibilityLabel={label}
       className={cn(
         "active:bg-surface-hover min-h-14 flex-row items-center px-4",
-        showDivider && "border-border border-b"
+        showDivider && "border-border border-b",
+        disabled && "opacity-40"
       )}
+      disabled={disabled}
       onPress={() => {
         triggerHaptic();
         onPress();
@@ -218,6 +224,7 @@ export function SettingsPicker<Value extends string>({
   value,
   onChange,
   showDivider = true,
+  disabled = false,
 }: SettingsPickerProps<Value>) {
   const [isOpen, setIsOpen] = React.useState(false);
   const selected = options.find((option) => option.value === value);
@@ -235,6 +242,7 @@ export function SettingsPicker<Value extends string>({
         label={label}
         showDivider={showDivider}
         value={selected?.label}
+        disabled={disabled}
         onPress={() => setIsOpen(true)}
       />
 

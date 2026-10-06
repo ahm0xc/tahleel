@@ -12,14 +12,19 @@ import { HeroUINativeProvider } from "heroui-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { FONT_ASSETS } from "~/constants/fonts";
+import {
+  getDailyDoseTime,
+} from "~/constants/daily-dose-times";
 import "~/globals.css";
 import { useInviteDeepLink } from "~/hooks/use-invite-deep-link";
+import { refreshDailyDoseIfNeeded } from "~/lib/notification";
 import { useInviteStore } from "~/store/invite-store";
 import {
   NotificationProvider,
   useNotificationObserver,
 } from "~/store/notification-store";
 import { useOnboarding } from "~/store/onboarding-store";
+import { usePreferences } from "~/store/preferences-store";
 import { StreaksProvider } from "~/store/streaks-context";
 import { TRPCProvider } from "~/trpc/provider";
 
@@ -63,6 +68,17 @@ function InitialLayout() {
 
   useNotificationObserver();
   useInviteDeepLink();
+
+  React.useEffect(() => {
+    const { dailyDoseEnabled, dailyDoseTimeId, dailyDoseTranslationId } =
+      usePreferences.getState();
+
+    void refreshDailyDoseIfNeeded({
+      enabled: dailyDoseEnabled,
+      time: getDailyDoseTime(dailyDoseTimeId),
+      translationLanguageId: dailyDoseTranslationId,
+    });
+  }, []);
 
   React.useEffect(() => {
     if (!user) return;

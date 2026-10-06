@@ -5,16 +5,28 @@ import { AppState, Linking, ScrollView } from "react-native";
 import { Alert } from "heroui-native";
 
 import {
+  SettingsDailyDoseTimePicker,
   SettingsList,
+  SettingsPicker,
   SettingsReminderPicker,
   SettingsSwitchRow,
 } from "~/components/settings";
 import { Button, ButtonLabel } from "~/components/ui";
+import {
+  type DailyDoseTimeId,
+  getDailyDoseTime,
+} from "~/constants/daily-dose-times";
 import { type ReminderTimeId, getReminderTime } from "~/constants/reminders";
 import {
+  TRANSLATION_LANGUAGES,
+  type TranslationLanguageId,
+} from "~/constants/translations";
+import {
+  cancelDailyDose,
   cancelDailyReminder,
   getNotificationPermissionStatus,
   requestNotificationPermission,
+  scheduleDailyDose,
   scheduleDailyReminder,
 } from "~/lib/notification";
 import { usePreferences } from "~/store/preferences-store";
@@ -29,6 +41,51 @@ export default function NotificationsSettingsScreen() {
     (state) => state.setDailyDoseEnabled
   );
   const setReminderTimeId = usePreferences((state) => state.setReminderTimeId);
+  const dailyDoseTimeId = usePreferences((state) => state.dailyDoseTimeId);
+  const dailyDoseTranslationId = usePreferences(
+    (state) => state.dailyDoseTranslationId
+  );
+  const setDailyDoseTimeId = usePreferences(
+    (state) => state.setDailyDoseTimeId
+  );
+  const setDailyDoseTranslationId = usePreferences(
+    (state) => state.setDailyDoseTranslationId
+  );
+
+  function handleDailyDoseToggle(enabled: boolean) {
+    setDailyDoseEnabled(enabled);
+
+    if (enabled) {
+      void scheduleDailyDose({
+        time: getDailyDoseTime(dailyDoseTimeId),
+        translationLanguageId: dailyDoseTranslationId,
+      });
+    } else {
+      void cancelDailyDose();
+    }
+  }
+
+  function handleDailyDoseTimeChange(next: DailyDoseTimeId) {
+    setDailyDoseTimeId(next);
+
+    if (dailyDoseEnabled) {
+      void scheduleDailyDose({
+        time: getDailyDoseTime(next),
+        translationLanguageId: dailyDoseTranslationId,
+      });
+    }
+  }
+
+  function handleDailyDoseTranslationChange(next: TranslationLanguageId) {
+    setDailyDoseTranslationId(next);
+
+    if (dailyDoseEnabled) {
+      void scheduleDailyDose({
+        time: getDailyDoseTime(dailyDoseTimeId),
+        translationLanguageId: next,
+      });
+    }
+  }
 
   function handleReminderChange(next: ReminderTimeId | null) {
     setReminderTimeId(next);
@@ -89,7 +146,31 @@ export default function NotificationsSettingsScreen() {
           icon="book-outline"
           label="Daily dose of Quran"
           value={dailyDoseEnabled}
-          onChange={setDailyDoseEnabled}
+          onChange={handleDailyDoseToggle}
+        />
+
+        <SettingsDailyDoseTimePicker
+          icon="time-outline"
+          label="Daily dose time"
+          value={dailyDoseTimeId}
+          onChange={handleDailyDoseTimeChange}
+          disabled={!dailyDoseEnabled}
+        />
+
+        <SettingsPicker
+          icon="language-outline"
+          label="Daily dose translation"
+          options={TRANSLATION_LANGUAGES.map((option) => ({
+            value: option.id,
+            label:
+              option.nativeName === option.name
+                ? option.name
+                : `${option.name} (${option.nativeName})`,
+            description: option.author,
+          }))}
+          value={dailyDoseTranslationId}
+          onChange={handleDailyDoseTranslationChange}
+          disabled={!dailyDoseEnabled}
         />
 
         <SettingsReminderPicker
