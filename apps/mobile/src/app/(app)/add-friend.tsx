@@ -21,9 +21,32 @@ import { OfflineAlert } from "~/components/offline-alert";
 import { Button, ButtonLabel, Text, View } from "~/components/ui";
 import { INVITE_BASE_URL } from "~/constants/config";
 import { useOffline } from "~/hooks/use-offline";
+import { cacheStorage } from "~/lib/storage";
 import { api } from "~/trpc/client";
 
 const COPIED_RESET_DELAY = 2000;
+const INVITE_CACHE_KEY = "my-invite-code";
+
+function readCachedInviteCode(): string | null {
+  const raw = cacheStorage.getString(INVITE_CACHE_KEY);
+  if (!raw) return null;
+
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (
+      typeof parsed === "object" &&
+      parsed !== null &&
+      typeof (parsed as { code?: unknown }).code === "string"
+    ) {
+      return (parsed as { code: string }).code;
+    }
+  } catch (err) {
+    console.error("[Invite] Failed to parse cached invite:", err);
+  }
+
+  cacheStorage.remove(INVITE_CACHE_KEY);
+  return null;
+}
 
 export default function AddFriendScreen() {
   const isOffline = useOffline();
@@ -31,8 +54,20 @@ export default function AddFriendScreen() {
     undefined,
     { enabled: !isOffline }
   );
-  const inviteLink = myInvite
-    ? `${INVITE_BASE_URL}/invite/${myInvite.code}`
+  const [cachedCode, setCachedCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (myInvite?.code) {
+      cacheStorage.set(INVITE_CACHE_KEY, JSON.stringify({ code: myInvite.code }));
+      setCachedCode(myInvite.code);
+    } else if (isOffline) {
+      setCachedCode(readCachedInviteCode());
+    }
+  }, [myInvite?.code, isOffline]);
+
+  const inviteCode = myInvite?.code ?? cachedCode;
+  const inviteLink = inviteCode
+    ? `${INVITE_BASE_URL}/invite/${inviteCode}`
     : null;
 
   return (
@@ -44,7 +79,7 @@ export default function AddFriendScreen() {
         contentContainerClassName="grow px-safe-offset-4 pb-6"
         showsVerticalScrollIndicator={false}
       >
-        {isOffline && (
+        {isOffline && !inviteLink && (
           <View className="mb-8">
             <OfflineAlert description="Your invite link can't be loaded while you're offline." />
           </View>
@@ -194,7 +229,7 @@ function Actions({
       <Button
         className="flex-1"
         haptics="Light"
-        isDisabled={!inviteLink || isOffline}
+        isDisabled={!inviteLink}
         onPress={() => void handleCopy()}
         variant="secondary"
       >
@@ -214,7 +249,7 @@ function Actions({
       <Button
         className="flex-1"
         haptics="Light"
-        isDisabled={!inviteLink || isOffline}
+        isDisabled={!inviteLink}
         onPress={() => void handleShare()}
       >
         <Feather color={accentForegroundColor} name="share-2" size={18} />
