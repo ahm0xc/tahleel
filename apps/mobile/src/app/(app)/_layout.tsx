@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
 
 import { BottomNav } from "~/components/bottom-nav";
+import UpdateAlert from "~/components/update-alert";
 import { View } from "~/components/ui";
 
 export default function Layout() {
@@ -28,6 +29,7 @@ export default function Layout() {
       </Stack>
 
       <BottomNav />
+      <UpdateAlert />
     </View>
   );
 }
