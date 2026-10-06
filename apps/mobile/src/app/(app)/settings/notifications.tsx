@@ -7,6 +7,7 @@ import { Alert } from "heroui-native";
 import {
   SettingsDailyDoseTimePicker,
   SettingsList,
+  SettingsListItem,
   SettingsPicker,
   SettingsReminderPicker,
   SettingsSwitchRow,
@@ -28,7 +29,9 @@ import {
   requestNotificationPermission,
   scheduleDailyDose,
   scheduleDailyReminder,
+  sendTestDailyDose,
 } from "~/lib/notification";
+import { isDev } from "~/lib/utils";
 import { usePreferences } from "~/store/preferences-store";
 
 export default function NotificationsSettingsScreen() {
@@ -184,10 +187,24 @@ export default function NotificationsSettingsScreen() {
         <SettingsReminderPicker
           icon="alarm-outline"
           label="Daily reminder"
-          showDivider={false}
+          showDivider={isDev}
           value={reminderTimeId}
           onChange={handleReminderChange}
         />
+
+        {isDev ? (
+          <SettingsListItem
+            icon="paper-plane-outline"
+            label="Send today's daily dose now"
+            showDivider={false}
+            disabled={!dailyDoseEnabled}
+            onPress={() =>
+              void sendTestDailyDose({
+                translationLanguageId: dailyDoseTranslationId,
+              })
+            }
+          />
+        ) : null}
       </SettingsList>
     </ScrollView>
   );

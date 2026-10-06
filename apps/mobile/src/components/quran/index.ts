@@ -5,6 +5,7 @@ export * from "./favorites-view";
 export * from "./reading-header";
 export * from "./reading-view";
 export * from "./share-image-capture";
+export * from "./translation-image-capture-card";
 export * from "./verse-detail-sheet";
 export * from "./verse-page";
 export * from "./verse-pager";
