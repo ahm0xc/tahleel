@@ -24,6 +24,26 @@ export async function sendPushNotification(expoPushToken: string) {
   });
 }
 
+export async function getNotificationPermissionStatus(): Promise<
+  Awaited<ReturnType<typeof Notifications.getPermissionsAsync>>["status"]
+> {
+  const { status } = await Notifications.getPermissionsAsync();
+  return status;
+}
+
+export async function requestNotificationPermission(): Promise<boolean> {
+  const { status } = await Notifications.getPermissionsAsync();
+
+  if (status === "granted") {
+    return true;
+  }
+
+  const { status: requestedStatus } =
+    await Notifications.requestPermissionsAsync();
+
+  return requestedStatus === "granted";
+}
+
 export async function scheduleNotification({
   title,
   body,
@@ -35,16 +55,9 @@ export async function scheduleNotification({
   trigger: Notifications.NotificationTriggerInput;
   data?: Record<string, any>;
 }): Promise<string | null> {
-  const { status } = await Notifications.getPermissionsAsync();
-  let existingStatus = status;
-  let finalStatus = existingStatus;
+  const granted = await requestNotificationPermission();
 
-  if (existingStatus !== "granted") {
-    const { status } = await Notifications.requestPermissionsAsync();
-    finalStatus = status;
-  }
-
-  if (finalStatus !== "granted") {
+  if (!granted) {
     console.warn(
       "Notification permissions not granted for scheduling notification."
     );

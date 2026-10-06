@@ -15,7 +15,6 @@ import { Button, Text, View } from "~/components/ui";
 
 export default function SettingsLayout() {
   const backgroundColor = useCSSVariable("--background") as string;
-  const foregroundColor = useCSSVariable("--foreground") as string;
 
   return (
     <Stack
@@ -34,6 +33,7 @@ export default function SettingsLayout() {
       />
       <Stack.Screen name="script" options={{ title: "Script" }} />
       <Stack.Screen name="daily-goal" options={{ title: "Daily goal" }} />
+      <Stack.Screen name="notifications" options={{ title: "Notifications" }} />
     </Stack>
   );
 }

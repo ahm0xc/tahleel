@@ -1,4 +1,5 @@
 import React from "react";
+
 import { Alert } from "react-native";
 
 import * as Updates from "expo-updates";
@@ -22,7 +23,10 @@ export default function UpdateAlert() {
     Alert.alert(
       "Update downloaded",
       "Restart the app to apply the latest update.",
-      [{ text: "Cancel", style: "cancel" }, { text: "Update", onPress: handleRestart }],
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Update", onPress: handleRestart },
+      ]
     );
   }, [isUpdatePending]);
 

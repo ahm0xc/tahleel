@@ -42,6 +42,7 @@ export default function SettingsScreen() {
   const setTranslationLanguageId = usePreferences(
     (state) => state.setTranslationLanguageId
   );
+  const reminderTimeId = usePreferences((state) => state.reminderTimeId);
 
   const script = getArabicScript(scriptId);
 
@@ -103,6 +104,16 @@ export default function SettingsScreen() {
           showDivider={false}
           value={String(translationFontSize)}
           onPress={() => router.push("/settings/translation-font-size")}
+        />
+      </SettingsList>
+
+      <SettingsList title="Preferences">
+        <SettingsListItem
+          chevron
+          icon="notifications-outline"
+          label="Notifications"
+          showDivider={false}
+          onPress={() => router.push("/settings/notifications")}
         />
       </SettingsList>
 

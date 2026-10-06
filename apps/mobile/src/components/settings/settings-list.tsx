@@ -4,7 +4,7 @@ import React from "react";
 import { Pressable } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
-import { BottomSheet } from "heroui-native";
+import { BottomSheet, Switch } from "heroui-native";
 import { useCSSVariable } from "uniwind";
 
 import { triggerHaptic } from "~/lib/haptics";
@@ -28,6 +28,14 @@ interface SettingsListItemProps {
   showDivider?: boolean;
   /** Trailing affordance for rows that open another page. */
   chevron?: boolean;
+}
+
+interface SettingsSwitchRowProps {
+  label: string;
+  icon: IconName;
+  value: boolean;
+  onChange: (value: boolean) => void;
+  showDivider?: boolean;
 }
 
 export interface SettingsPickerOption<Value extends string = string> {
@@ -116,6 +124,39 @@ export function SettingsListItem({
         />
       ) : null}
     </Pressable>
+  );
+}
+
+export function SettingsSwitchRow({
+  label,
+  icon,
+  value,
+  onChange,
+  showDivider = true,
+}: SettingsSwitchRowProps) {
+  const mutedColor = useCSSVariable("--muted") as string;
+
+  return (
+    <View
+      className={cn(
+        "min-h-14 flex-row items-center px-4",
+        showDivider && "border-border border-b"
+      )}
+    >
+      <View className="mr-3 w-7 items-center">
+        <Ionicons color={mutedColor} name={icon} size={20} />
+      </View>
+      <Text className="text-foreground flex-1 text-[16px] font-medium">
+        {label}
+      </Text>
+      <Switch
+        isSelected={value}
+        onSelectedChange={(next) => {
+          triggerHaptic();
+          onChange(next);
+        }}
+      />
+    </View>
   );
 }
 

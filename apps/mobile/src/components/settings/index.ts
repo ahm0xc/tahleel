@@ -3,6 +3,7 @@ export {
   SettingsOptionGrid,
   type SettingsOptionGridOption,
 } from "./option-grid";
+export { SettingsReminderPicker } from "./reminder-picker";
 export {
   SettingsCard,
   SettingsList,
@@ -10,5 +11,6 @@ export {
   SettingsPicker,
   type SettingsPickerOption,
   SettingsRadioRow,
+  SettingsSwitchRow,
 } from "./settings-list";
 export { VersePreviewCard } from "./verse-preview-card";
