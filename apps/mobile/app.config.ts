@@ -32,8 +32,14 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       icon: "./assets/images/app-icon.png",
       supportsTablet: false,
       bundleIdentifier: getUniqueIdentifier(),
+      appleTeamId: "PJ3RA8ZXLV",
       usesAppleSignIn: true,
       associatedDomains: [`applinks:${APP_DOMAIN}`],
+      entitlements: {
+        "com.apple.security.application-groups": [
+          `group.${getUniqueIdentifier()}`,
+        ],
+      },
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
         CFBundleAllowMixedLocalizations: true,
@@ -100,6 +106,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           },
         },
       ],
+      "@bacons/apple-targets",
     ],
     experiments: {
       reactCompiler: true,

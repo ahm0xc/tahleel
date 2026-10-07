@@ -19,6 +19,10 @@ import { useQueryWithCallbacks } from "~/hooks/use-query-with-callbacks";
 import { diffInDays, getWeekStart, todayInUTC } from "~/lib/days";
 import { calculateHasanat } from "~/lib/quran/hasanat";
 import { cacheStorage } from "~/lib/storage";
+import {
+  clearStreaksWidget,
+  updateStreaksWidget,
+} from "~/lib/widget/streaks-widget";
 import { usePreferences } from "~/store/preferences-store";
 import { api } from "~/trpc/client";
 
@@ -210,6 +214,7 @@ export function StreaksProvider({ children }: StreaksProviderProps) {
   const syncInFlightRef = useRef(false);
   const userStreaksRef = useRef<UserStreaks | undefined>(undefined);
   const updateMutationRef = useRef(updateMutation);
+  const widgetUserIdRef = useRef<string | null | undefined>(undefined);
 
   useEffect(() => {
     updateMutationRef.current = updateMutation;
@@ -274,6 +279,26 @@ export function StreaksProvider({ children }: StreaksProviderProps) {
 
   useEffect(() => {
     userStreaksRef.current = userStreaks;
+  }, [userStreaks]);
+
+  useEffect(() => {
+    if (
+      widgetUserIdRef.current !== undefined &&
+      widgetUserIdRef.current !== userId
+    ) {
+      clearStreaksWidget();
+    }
+    if (!userId) clearStreaksWidget();
+    widgetUserIdRef.current = userId;
+  }, [userId]);
+
+  useEffect(() => {
+    if (!userStreaks) return;
+
+    updateStreaksWidget(
+      userStreaks.currentStreak,
+      userStreaks.lastCompletedDay
+    );
   }, [userStreaks]);
 
   const todayProgress = useMemo<TodayProgress | null>(() => {

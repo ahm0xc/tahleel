@@ -20,6 +20,7 @@ import { openAccountDeletionRequest } from "~/lib/account-deletion";
 import { createFeedbackUrl } from "~/lib/feedback";
 import { cacheStorage } from "~/lib/storage";
 import { isDev } from "~/lib/utils";
+import { clearStreaksWidget } from "~/lib/widget/streaks-widget";
 import { useOnboarding } from "~/store/onboarding-store";
 import { usePreferences } from "~/store/preferences-store";
 
@@ -48,6 +49,7 @@ export default function SettingsScreen() {
 
   async function handleSignout() {
     cacheStorage.clearAll();
+    clearStreaksWidget();
     await signOut();
   }
 

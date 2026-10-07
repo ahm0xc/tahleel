@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@ahm0xc/utils": "^0.5.5",
+    "@bacons/apple-targets": "^5.0.0",
     "@clerk/expo": "^4.7.1",
     "@clerk/expo-google-signin": "^1.0.4",
     "@expo/ui": "~57.0.21",
