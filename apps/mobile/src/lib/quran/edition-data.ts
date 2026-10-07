@@ -2,7 +2,7 @@ const EDITION_SOURCES = {
   "ara-quranuthmanihaf": require("~/../assets/quran/editions/ara-quranuthmanihaf.json"),
   "ara-qurannastaleeqn": require("~/../assets/quran/editions/ara-qurannastaleeqn.json"),
   "eng-rowwadtranslati": require("~/../assets/quran/editions/eng-rowwadtranslati.json"),
-  "ben-abubakrzakaria": require("~/../assets/quran/editions/ben-abubakrzakaria.json"),
+  "ben-muhiuddinkhan": require("~/../assets/quran/editions/ben-muhiuddinkhan.json"),
 } as const;
 
 export interface QuranVerse {

@@ -27,9 +27,9 @@ export const TRANSLATION_LANGUAGES: TranslationLanguage[] = [
     name: "Bengali",
     nativeName: "বাংলা",
     direction: "ltr",
-    editionId: "ben-abubakrzakaria",
+    editionId: "ben-muhiuddinkhan",
     fontFamily: "HindSiliguri",
-    author: "Abu Bakr Zakaria",
+    author: "Muhiuddin Khan",
   },
 ];
 
