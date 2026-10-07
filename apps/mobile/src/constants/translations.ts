@@ -18,9 +18,9 @@ export const TRANSLATION_LANGUAGES: TranslationLanguage[] = [
     name: "English",
     nativeName: "English",
     direction: "ltr",
-    editionId: "eng-mustafakhattaba",
+    editionId: "eng-rowwadtranslati",
     fontFamily: "NotoSans",
-    author: "Mustafa Khattaba",
+    author: "Rowwad Translation Center",
   },
   {
     id: "bengali",
