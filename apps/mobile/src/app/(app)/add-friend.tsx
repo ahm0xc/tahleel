@@ -58,7 +58,10 @@ export default function AddFriendScreen() {
 
   useEffect(() => {
     if (myInvite?.code) {
-      cacheStorage.set(INVITE_CACHE_KEY, JSON.stringify({ code: myInvite.code }));
+      cacheStorage.set(
+        INVITE_CACHE_KEY,
+        JSON.stringify({ code: myInvite.code })
+      );
       setCachedCode(myInvite.code);
     } else if (isOffline) {
       setCachedCode(readCachedInviteCode());

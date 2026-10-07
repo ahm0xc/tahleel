@@ -2,15 +2,15 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 import {
-  DEFAULT_DAILY_VERSE_GOAL,
-  type DailyVerseGoal,
-  isDailyVerseGoal,
-} from "~/constants/goals";
-import {
   DEFAULT_DAILY_DOSE_TIME_ID,
   type DailyDoseTimeId,
   isDailyDoseTimeId,
 } from "~/constants/daily-dose-times";
+import {
+  DEFAULT_DAILY_VERSE_GOAL,
+  type DailyVerseGoal,
+  isDailyVerseGoal,
+} from "~/constants/goals";
 import { type ReminderTimeId, isReminderTimeId } from "~/constants/reminders";
 import {
   type ArabicScriptId,

@@ -4,8 +4,8 @@ import { SchedulableTriggerInputTypes } from "expo-notifications";
 import { DAILY_DOSE_VERSES } from "~/constants/daily-dose";
 import { type DailyDoseTime } from "~/constants/daily-dose-times";
 import {
-  getTranslationLanguage,
   type TranslationLanguageId,
+  getTranslationLanguage,
 } from "~/constants/translations";
 
 import { getEditionVerse } from "../quran/edition-data";
@@ -63,7 +63,11 @@ export function scheduleDailyDose({
     const editionId = getTranslationLanguage(translationLanguageId).editionId;
     let previousVerseIndex: number | undefined;
 
-    for (let dayOffset = 0; dayOffset < DAILY_DOSE_SCHEDULE_DAYS; dayOffset += 1) {
+    for (
+      let dayOffset = 0;
+      dayOffset < DAILY_DOSE_SCHEDULE_DAYS;
+      dayOffset += 1
+    ) {
       const date = new Date();
       date.setDate(date.getDate() + dayOffset);
       date.setHours(time.hour, time.minute, 0, 0);

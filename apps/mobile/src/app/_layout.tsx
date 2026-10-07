@@ -11,10 +11,8 @@ import { StatusBar } from "expo-status-bar";
 import { HeroUINativeProvider } from "heroui-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+import { getDailyDoseTime } from "~/constants/daily-dose-times";
 import { FONT_ASSETS } from "~/constants/fonts";
-import {
-  getDailyDoseTime,
-} from "~/constants/daily-dose-times";
 import "~/globals.css";
 import { useInviteDeepLink } from "~/hooks/use-invite-deep-link";
 import { refreshDailyDoseIfNeeded } from "~/lib/notification";

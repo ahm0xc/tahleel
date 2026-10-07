@@ -4,17 +4,15 @@ import { Pressable } from "react-native";
 
 import { Button, ButtonLabel, Image, Text, View } from "~/components/ui";
 import {
-  REMINDER_TIMES,
-  type ReminderTimeId,
-  getReminderTime,
-} from "~/constants/reminders";
-import {
   DEFAULT_DAILY_DOSE_TIME_ID,
   getDailyDoseTime,
 } from "~/constants/daily-dose-times";
 import {
-  DEFAULT_TRANSLATION_LANGUAGE,
-} from "~/constants/translations";
+  REMINDER_TIMES,
+  type ReminderTimeId,
+  getReminderTime,
+} from "~/constants/reminders";
+import { DEFAULT_TRANSLATION_LANGUAGE } from "~/constants/translations";
 import { triggerHaptic } from "~/lib/haptics";
 import {
   requestNotificationPermission,
