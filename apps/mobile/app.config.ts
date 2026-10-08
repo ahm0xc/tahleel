@@ -77,6 +77,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           imageWidth: 150,
           resizeMode: "contain",
           backgroundColor: "#FFF",
+          dark: {
+            image: "./assets/images/splash-icon.png",
+            backgroundColor: "#0A0A0A",
+          },
         },
       ],
       "expo-secure-store",
