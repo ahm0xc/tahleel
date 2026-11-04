@@ -7,10 +7,10 @@ import { useAuth } from "@clerk/expo";
 import { useAppState } from "@react-native-community/hooks";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
-import { useRouter } from "expo-router";
 
 import { registerForPushNotificationsAsync } from "~/lib/notification";
 import { localStorage } from "~/lib/storage";
+import { useDeepLinkStore } from "~/store/deep-link-store";
 import { api } from "~/trpc/client";
 
 const LAST_SENT_PUSH_TOKEN_KEY = "last-sent-push-token";
@@ -173,18 +173,19 @@ export function useNotification() {
 }
 
 export function useNotificationObserver() {
-  const router = useRouter();
+  const setPendingDeepLink = useDeepLinkStore(
+    (state) => state.setPendingDeepLink
+  );
 
   React.useEffect(() => {
-    async function handler(notification: Notifications.Notification) {
+    function handler(notification: Notifications.Notification) {
       const url = notification.request.content.data?.url;
       const deepLink = notification.request.content.data?.deepLink;
       if (typeof url === "string") {
-        Linking.openURL(url);
+        void Linking.openURL(url);
       }
       if (typeof deepLink === "string") {
-        await new Promise((r) => setTimeout(() => r(""), 1000));
-        router.push(deepLink);
+        setPendingDeepLink(deepLink);
       }
     }
 
@@ -203,5 +204,5 @@ export function useNotificationObserver() {
     return () => {
       subscription.remove();
     };
-  }, []);
+  }, [setPendingDeepLink]);
 }

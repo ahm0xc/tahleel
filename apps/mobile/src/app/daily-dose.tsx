@@ -51,7 +51,11 @@ export default function DailyDoseScreen() {
           hitSlop={12}
           onPress={() => {
             triggerHaptic();
-            router.push("/");
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace("/");
+            }
           }}
         >
           <Feather color={foregroundColor} name="x" size={26} />

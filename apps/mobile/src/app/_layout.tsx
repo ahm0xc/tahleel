@@ -16,6 +16,7 @@ import { FONT_ASSETS } from "~/constants/fonts";
 import "~/globals.css";
 import { useInviteDeepLink } from "~/hooks/use-invite-deep-link";
 import { refreshDailyDoseIfNeeded } from "~/lib/notification";
+import { useDeepLinkStore } from "~/store/deep-link-store";
 import { useInviteStore } from "~/store/invite-store";
 import {
   NotificationProvider,
@@ -63,6 +64,7 @@ function InitialLayout() {
   const inAuthGroup = pathname === "/auth" || pathname.startsWith("/auth/");
   const inOnboarding = pathname === "/onboarding";
   const areFontsReady = fontsLoaded || fontsError != null;
+  const pendingDeepLink = useDeepLinkStore((state) => state.pendingDeepLink);
 
   useNotificationObserver();
   useInviteDeepLink();
@@ -106,8 +108,13 @@ function InitialLayout() {
     } else if (!isAuthenticated) {
       if (!inAuthGroup) router.replace("/auth");
     } else if (inOnboarding || inAuthGroup) {
+      const queuedDeepLink = useDeepLinkStore.getState().pendingDeepLink;
       const pendingCode = useInviteStore.getState().pendingCode;
-      if (pendingCode) {
+
+      if (queuedDeepLink) {
+        useDeepLinkStore.getState().setPendingDeepLink(null);
+        router.replace(queuedDeepLink);
+      } else if (pendingCode) {
         useInviteStore.getState().setPendingCode(null);
         router.replace(`/invite/${pendingCode}`);
       } else {
@@ -123,6 +130,30 @@ function InitialLayout() {
     isAuthenticated,
     isUserLoaded,
     pathname,
+    router,
+  ]);
+
+  React.useEffect(() => {
+    if (
+      !isAppReady ||
+      !isAuthenticated ||
+      !isOnboardingCompleted ||
+      !pendingDeepLink ||
+      inAuthGroup ||
+      inOnboarding
+    ) {
+      return;
+    }
+
+    useDeepLinkStore.getState().setPendingDeepLink(null);
+    router.push(pendingDeepLink);
+  }, [
+    inAuthGroup,
+    inOnboarding,
+    isAppReady,
+    isAuthenticated,
+    isOnboardingCompleted,
+    pendingDeepLink,
     router,
   ]);
 
