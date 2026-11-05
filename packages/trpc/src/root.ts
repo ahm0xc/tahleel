@@ -1,3 +1,4 @@
+import { authRouter } from "./routers/auth.js";
 import { exampleRouter } from "./routers/example.js";
 import { feedbackRouter } from "./routers/feedback.js";
 import { friendsRouter } from "./routers/friends.js";
@@ -12,6 +13,7 @@ import { createCallerFactory, createTRPCRouter } from "./trpc.js";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  auth: authRouter,
   example: exampleRouter,
   feedback: feedbackRouter,
   streaks: streaksRouter,

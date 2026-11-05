@@ -17,12 +17,14 @@ import { Image, Text, View } from "~/components/ui";
 import { getArabicScript } from "~/constants/scripts";
 import { TRANSLATION_LANGUAGES } from "~/constants/translations";
 import { openAccountDeletionRequest } from "~/lib/account-deletion";
+import { clearDeviceSession, readDeviceSession } from "~/lib/device-session";
 import { createFeedbackUrl } from "~/lib/feedback";
 import { cacheStorage } from "~/lib/storage";
 import { isDev } from "~/lib/utils";
 import { clearStreaksWidget } from "~/lib/widget/streaks-widget";
 import { useOnboarding } from "~/store/onboarding-store";
 import { usePreferences } from "~/store/preferences-store";
+import { api } from "~/trpc/client";
 
 const PRIVACY_POLICY_URL = `${process.env.EXPO_PUBLIC_APP_URL}/privacy`;
 const TERMS_URL = `${process.env.EXPO_PUBLIC_APP_URL}/terms`;
@@ -30,6 +32,7 @@ const TERMS_URL = `${process.env.EXPO_PUBLIC_APP_URL}/terms`;
 export default function SettingsScreen() {
   const { signOut } = useAuth();
   const { user } = useUser();
+  const utils = api.useUtils();
   const { setCompleted: setOnboardingCompleted } = useOnboarding();
   const scriptId = usePreferences((state) => state.scriptId);
   const dailyVerseGoal = usePreferences((state) => state.dailyVerseGoal);
@@ -48,9 +51,20 @@ export default function SettingsScreen() {
   const script = getArabicScript(scriptId);
 
   async function handleSignout() {
+    const stored = await readDeviceSession();
+    if (stored) {
+      void utils.client.auth.revokeDevice
+        .mutate({ deviceToken: stored.token })
+        .catch((error) =>
+          console.warn("[auth] Failed to revoke this device", error)
+        );
+      await clearDeviceSession();
+    }
+
     cacheStorage.clearAll();
     clearStreaksWidget();
     await signOut();
+    await clearDeviceSession();
   }
 
   return (

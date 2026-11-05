@@ -14,6 +14,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { getDailyDoseTime } from "~/constants/daily-dose-times";
 import { FONT_ASSETS } from "~/constants/fonts";
 import "~/globals.css";
+import { useDeviceSession } from "~/hooks/use-device-session";
 import { useInviteDeepLink } from "~/hooks/use-invite-deep-link";
 import { refreshDailyDoseIfNeeded } from "~/lib/notification";
 import { useDeepLinkStore } from "~/store/deep-link-store";
@@ -54,6 +55,7 @@ function InitialLayout() {
   });
   const { isLoaded: isUserLoaded, user } = useUser();
   const isAuthenticated = isSignedIn === true && user != null;
+  const { isRestoring } = useDeviceSession();
   const {
     hasHydrated: hasOnboardingHydrated,
     isCompleted: isOnboardingCompleted,
@@ -102,6 +104,7 @@ function InitialLayout() {
 
   React.useEffect(() => {
     if (!isAuthLoaded || !isUserLoaded || !hasOnboardingHydrated) return;
+    if (isRestoring) return;
 
     if (!isOnboardingCompleted) {
       if (!inOnboarding) router.replace("/onboarding");
@@ -128,6 +131,7 @@ function InitialLayout() {
     isAuthLoaded,
     isOnboardingCompleted,
     isAuthenticated,
+    isRestoring,
     isUserLoaded,
     pathname,
     router,
@@ -174,6 +178,7 @@ function InitialLayout() {
     !isAuthLoaded ||
     !isUserLoaded ||
     !hasOnboardingHydrated ||
+    isRestoring ||
     isRedirecting
   ) {
     return null;

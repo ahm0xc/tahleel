@@ -1,6 +1,7 @@
 import {
   boolean,
   date,
+  index,
   integer,
   pgTable,
   primaryKey,
@@ -58,3 +59,18 @@ export const pushTokens = pgTable("push_tokens", {
   platform: text().notNull(),
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
+
+export const deviceTokens = pgTable(
+  "device_tokens",
+  {
+    id: text().primaryKey(),
+    userId: text().notNull(),
+    tokenHash: text().notNull().unique(),
+    platform: text(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    expiresAt: timestamp({ withTimezone: true }).notNull(),
+    lastUsedAt: timestamp({ withTimezone: true }),
+    revokedAt: timestamp({ withTimezone: true }),
+  },
+  (t) => [index("device_tokens_user_id_idx").on(t.userId)]
+);
