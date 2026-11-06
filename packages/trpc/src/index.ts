@@ -6,3 +6,9 @@ export {
   protectedProcedure,
   publicProcedure,
 } from "./trpc.js";
+export {
+  getDailyEngagementSummary,
+  type DailyEngagementSummary,
+  type DailyReaderLeaderboardEntry,
+} from "./lib/analytics.js";
+export { daySchema } from "./lib/days.js";
