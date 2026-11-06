@@ -9,7 +9,45 @@ export const metadata: Metadata = {
     "A record of what shipped in Tahleel, the daily Quran reading app, and when.",
 };
 
-const release = {
+const releases = [
+  {
+    version: "1.1.0",
+    date: "November 7, 2026",
+    sections: [
+      {
+        title: "Reading & Recitation",
+        items: [
+          "Listen to Quran recitation verse by verse.",
+          "Open the daily dose chapter directly from its notification.",
+          "Explore a dark reading experience and improved Quran edition text.",
+        ],
+      },
+      {
+        title: "Streaks & Progress",
+        items: [
+          "Build a reading streak with a weekly calendar and home screen widget.",
+          "Track reading progress and time spent reading.",
+          "Set a daily verse goal and view your engagement statistics.",
+        ],
+      },
+      {
+        title: "Account & Notifications",
+        items: [
+          "Restore your session silently with a device token.",
+          "Notification links now wait until you are signed in before opening.",
+          "Daily Quran reading reminders help you keep your routine.",
+        ],
+      },
+      {
+        title: "Admin & Polish",
+        items: [
+          "Admins can view a daily engagement summary.",
+          "Enjoy smoother navigation and cleaner screens across the app.",
+        ],
+      },
+    ],
+  },
+  {
   version: "1.0.0",
   date: "September 30, 2026",
   sections: [
@@ -62,7 +100,8 @@ const release = {
       ],
     },
   ],
-};
+  },
+];
 
 export default function ChangelogPage() {
   return (
@@ -77,7 +116,8 @@ export default function ChangelogPage() {
             A record of what shipped and when.
           </p>
         </header>
-        <article className="pt-12 sm:pt-14">
+        {releases.map((release) => (
+        <article key={release.version} className="pt-12 sm:pt-14">
           <div className="border-border mb-10 flex items-baseline justify-between border-b pb-6">
             <h2 className="font-heading text-[28px] font-semibold tracking-[-0.04em] sm:text-[32px]">
               {release.version}
@@ -102,6 +142,7 @@ export default function ChangelogPage() {
             ))}
           </div>
         </article>
+        ))}
         <SiteFooter />
       </div>
     </main>
