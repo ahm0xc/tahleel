@@ -76,6 +76,7 @@ export default function LeaderboardScreen() {
       <ScrollView
         className="flex-1"
         contentContainerClassName="gap-2 px-safe-offset-4 pb-6 pt-4"
+        showsVerticalScrollIndicator={false}
       >
         {isLoading
           ? SKELETON_NAME_WIDTHS.map((nameWidth, index) => (

@@ -25,6 +25,7 @@ export default function FontSizeScreen() {
     <ScrollView
       className="bg-background flex-1"
       contentContainerClassName="pb-safe-offset-6"
+      showsVerticalScrollIndicator={false}
     >
       <View className="px-safe-offset-4 pt-4">
         <VersePreviewCard

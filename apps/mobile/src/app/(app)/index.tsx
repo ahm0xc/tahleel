@@ -22,6 +22,7 @@ export default function HomeScreen() {
       <ScrollView
         className="flex-1"
         contentContainerClassName="px-safe-offset-4 pb-8"
+        showsVerticalScrollIndicator={false}
       >
         {isOffline && (
           <View className="mt-6">

@@ -71,7 +71,10 @@ export default function SettingsScreen() {
   }
 
   return (
-    <ScrollView className="pb-safe-offset-4 pt-safe-offset-2 bg-background flex-1">
+    <ScrollView
+      className="pb-safe-offset-4 pt-safe-offset-2 bg-background flex-1"
+      showsVerticalScrollIndicator={false}
+    >
       <Header />
 
       <ProfileCard />

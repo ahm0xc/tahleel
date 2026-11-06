@@ -130,6 +130,7 @@ export default function NotificationsSettingsScreen() {
     <ScrollView
       className="bg-background flex-1"
       contentContainerClassName="pb-safe-offset-6"
+      showsVerticalScrollIndicator={false}
     >
       {permissionStatus !== null && permissionStatus !== "granted" && (
         <Alert status="warning" className="mx-4 mt-4">

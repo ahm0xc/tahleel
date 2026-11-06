@@ -27,6 +27,7 @@ export default function ScriptScreen() {
     <ScrollView
       className="bg-background flex-1"
       contentContainerClassName="pb-safe-offset-6"
+      showsVerticalScrollIndicator={false}
     >
       {/* Shows the choice at the size it will actually be read at, so picking a
           script is a comparison rather than a guess. */}

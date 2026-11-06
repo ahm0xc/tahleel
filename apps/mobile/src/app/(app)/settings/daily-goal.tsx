@@ -12,6 +12,7 @@ export default function DailyGoalScreen() {
     <ScrollView
       className="bg-background flex-1"
       contentContainerClassName="pb-safe-offset-6"
+      showsVerticalScrollIndicator={false}
     >
       <SettingsOptionGrid
         title="Verses per day"

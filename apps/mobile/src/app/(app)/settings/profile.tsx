@@ -100,6 +100,7 @@ export default function ProfileScreen() {
     <ScrollView
       className="bg-background flex-1"
       contentContainerClassName="px-safe-offset-4 pb-safe-offset-6 pt-4"
+      showsVerticalScrollIndicator={false}
     >
       {isOffline && (
         <View className="mb-4">
