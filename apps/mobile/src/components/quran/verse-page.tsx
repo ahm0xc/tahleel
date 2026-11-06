@@ -2,6 +2,7 @@ import React from "react";
 
 import {
   type AccessibilityState,
+  ActivityIndicator,
   FlatList,
   type NativeSyntheticEvent,
   Pressable,
@@ -22,6 +23,7 @@ import {
 } from "~/constants/typography";
 import { triggerHaptic } from "~/lib/haptics";
 import { type QuranVerse, getEditionVerse } from "~/lib/quran/edition-data";
+import { toggleRecitation } from "~/lib/quran/recitation-player";
 import { shareVerse } from "~/lib/quran/share";
 import {
   CHUNKING_VERSION,
@@ -31,6 +33,7 @@ import {
 import { cn } from "~/lib/utils";
 import { useFavorite } from "~/store/favorite-store";
 import { usePreferences } from "~/store/preferences-store";
+import { isSameTarget, useRecitation } from "~/store/recitation-store";
 
 import { ShareImageCapture } from "./share-image-capture";
 import { TranslationImageCaptureCard } from "./translation-image-capture-card";
@@ -504,7 +507,18 @@ function VerseActions({
 }) {
   const foregroundColor = useCSSVariable("--foreground") as string;
   const dangerColor = useCSSVariable("--danger") as string;
+  const accentColor = useCSSVariable("--accent") as string;
   const [isDetailsOpen, setIsDetailsOpen] = React.useState(false);
+  const recitationTarget = {
+    chapterNumber: chapter.chapterNumber,
+    verseNumber: verse.verse,
+  };
+  const isReciting = useRecitation((state) =>
+    isSameTarget(state.current, recitationTarget)
+  );
+  const isRecitationLoading = useRecitation(
+    (state) => isSameTarget(state.current, recitationTarget) && state.isLoading
+  );
   const { isFavorite, toggleFavorite } = useFavorite({
     chapterNumber: chapter.chapterNumber,
     verseNumber: verse.verse,
@@ -526,6 +540,22 @@ function VerseActions({
         className="pr-safe-offset-4 pb-safe-offset-4 items-end gap-2"
         pointerEvents="box-none"
       >
+        <VerseAction
+          accessibilityState={{ selected: isReciting }}
+          label={isReciting ? "Stop recitation" : "Play recitation"}
+          onPress={() => toggleRecitation(recitationTarget)}
+        >
+          {isRecitationLoading ? (
+            <ActivityIndicator color={accentColor} size="small" />
+          ) : (
+            <Feather
+              color={isReciting ? accentColor : foregroundColor}
+              name={isReciting ? "pause" : "play"}
+              size={20}
+            />
+          )}
+        </VerseAction>
+
         <VerseAction
           accessibilityState={{ selected: isFavorite }}
           label="Favorites"

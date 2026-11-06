@@ -32,6 +32,8 @@ export default function SettingsLayout() {
         options={{ title: "Translation font size" }}
       />
       <Stack.Screen name="script" options={{ title: "Script" }} />
+      <Stack.Screen name="recitation/index" options={{ title: "Recitation" }} />
+      <Stack.Screen name="recitation/reciter" options={{ title: "Reciter" }} />
       <Stack.Screen name="daily-goal" options={{ title: "Daily goal" }} />
       <Stack.Screen name="notifications" options={{ title: "Notifications" }} />
     </Stack>

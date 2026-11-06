@@ -5,6 +5,7 @@ import { FlatList, type ViewToken } from "react-native";
 import { View } from "~/components/ui";
 import { type ArabicScript } from "~/constants/scripts";
 import { type QuranVerse } from "~/lib/quran/edition-data";
+import { useRecitation } from "~/store/recitation-store";
 
 import { ChapterAdvancePage } from "./chapter-advance-page";
 import { VersePage } from "./verse-page";
@@ -24,6 +25,7 @@ interface VersePagerProps {
   listKey: string;
   initialIndex: number;
   onPageChange?: (index: number) => void;
+  onUserScroll?: () => void;
 }
 
 export function VersePager({
@@ -33,6 +35,7 @@ export function VersePager({
   listKey,
   initialIndex,
   onPageChange,
+  onUserScroll,
 }: VersePagerProps) {
   const listRef = React.useRef<FlatList<PagedVerse>>(null);
   const activeIndexRef = React.useRef(initialIndex);
@@ -40,9 +43,44 @@ export function VersePager({
   const listKeyRef = React.useRef(listKey);
   const pageCountRef = React.useRef(verses.length);
   const onPageChangeRef = React.useRef(onPageChange);
+  const followToken = useRecitation((state) => state.followToken);
+  const followTarget = useRecitation((state) => state.followTarget);
+  const handledFollowTokenRef = React.useRef(followToken);
   const [containerHeight, setContainerHeight] = React.useState(0);
   const [containerWidth, setContainerWidth] = React.useState(0);
   const [activeIndex, setActiveIndex] = React.useState(initialIndex);
+
+  React.useLayoutEffect(() => {
+    if (handledFollowTokenRef.current === followToken) {
+      return;
+    }
+
+    if (followTarget === null) {
+      handledFollowTokenRef.current = followToken;
+      return;
+    }
+
+    if (containerHeight === 0) {
+      return;
+    }
+
+    handledFollowTokenRef.current = followToken;
+
+    const index = verses.findIndex(
+      (page) =>
+        page.chapterNumber === followTarget.chapterNumber &&
+        page.verse?.verse === followTarget.verseNumber
+    );
+
+    if (index < 0) {
+      return;
+    }
+
+    listRef.current?.scrollToOffset({
+      offset: index * containerHeight,
+      animated: true,
+    });
+  }, [containerHeight, followTarget, followToken, verses]);
 
   React.useEffect(() => {
     setActiveIndex(initialIndex);
@@ -142,6 +180,7 @@ export function VersePager({
             index,
           })}
           onViewableItemsChanged={onViewableItemsChanged}
+          onScrollBeginDrag={onUserScroll}
           viewabilityConfig={viewabilityConfig}
           pagingEnabled={true}
           snapToInterval={containerHeight}

@@ -14,6 +14,7 @@ import {
   SettingsPicker,
 } from "~/components/settings";
 import { Image, Text, View } from "~/components/ui";
+import { getReciter } from "~/constants/reciters";
 import { getArabicScript } from "~/constants/scripts";
 import { TRANSLATION_LANGUAGES } from "~/constants/translations";
 import { openAccountDeletionRequest } from "~/lib/account-deletion";
@@ -47,8 +48,10 @@ export default function SettingsScreen() {
     (state) => state.setTranslationLanguageId
   );
   const reminderTimeId = usePreferences((state) => state.reminderTimeId);
+  const reciterId = usePreferences((state) => state.reciterId);
 
   const script = getArabicScript(scriptId);
+  const reciter = getReciter(reciterId);
 
   async function handleSignout() {
     const stored = await readDeviceSession();
@@ -117,9 +120,17 @@ export default function SettingsScreen() {
           chevron
           icon="book-outline"
           label="Translation font size"
-          showDivider={false}
           value={String(translationFontSize)}
           onPress={() => router.push("/settings/translation-font-size")}
+        />
+
+        <SettingsListItem
+          chevron
+          icon="mic-outline"
+          label="Recitation"
+          showDivider={false}
+          value={reciter.name}
+          onPress={() => router.push("/settings/recitation")}
         />
       </SettingsList>
 

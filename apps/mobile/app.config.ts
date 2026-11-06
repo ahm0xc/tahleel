@@ -88,7 +88,14 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       "@clerk/expo-google-signin",
       "expo-localization",
       "expo-apple-authentication",
-      "expo-video",
+      [
+        "expo-audio",
+        {
+          microphonePermission: false,
+          recordAudioAndroid: false,
+          enableBackgroundPlayback: false,
+        },
+      ],
       "expo-image",
       "expo-sharing",
       "expo-mail-composer",

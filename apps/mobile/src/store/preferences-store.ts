@@ -11,6 +11,16 @@ import {
   type DailyVerseGoal,
   isDailyVerseGoal,
 } from "~/constants/goals";
+import {
+  DEFAULT_RECITATION_MODE,
+  type RecitationMode,
+  isRecitationMode,
+} from "~/constants/recitation";
+import {
+  DEFAULT_RECITER,
+  type ReciterId,
+  isReciterId,
+} from "~/constants/reciters";
 import { type ReminderTimeId, isReminderTimeId } from "~/constants/reminders";
 import {
   type ArabicScriptId,
@@ -37,6 +47,8 @@ interface PreferencesStore {
   dailyDoseEnabled: boolean;
   dailyDoseTimeId: DailyDoseTimeId;
   dailyDoseTranslationId: TranslationLanguageId;
+  reciterId: ReciterId;
+  recitationMode: RecitationMode;
   setScriptId: (scriptId: ArabicScriptId) => void;
   setTranslationLanguageId: (id: TranslationLanguageId) => void;
   setArabicFontSize: (fontSize: number) => void;
@@ -46,6 +58,8 @@ interface PreferencesStore {
   setDailyDoseEnabled: (enabled: boolean) => void;
   setDailyDoseTimeId: (id: DailyDoseTimeId) => void;
   setDailyDoseTranslationId: (id: TranslationLanguageId) => void;
+  setReciterId: (id: ReciterId) => void;
+  setRecitationMode: (mode: RecitationMode) => void;
 }
 
 export const usePreferences = create<PreferencesStore>()(
@@ -60,6 +74,8 @@ export const usePreferences = create<PreferencesStore>()(
       dailyDoseEnabled: false,
       dailyDoseTimeId: DEFAULT_DAILY_DOSE_TIME_ID,
       dailyDoseTranslationId: DEFAULT_TRANSLATION_LANGUAGE,
+      reciterId: DEFAULT_RECITER,
+      recitationMode: DEFAULT_RECITATION_MODE,
       setScriptId(scriptId) {
         set({ scriptId });
       },
@@ -99,6 +115,18 @@ export const usePreferences = create<PreferencesStore>()(
       },
       setDailyDoseTranslationId(dailyDoseTranslationId) {
         set({ dailyDoseTranslationId });
+      },
+      setReciterId(reciterId) {
+        set({
+          reciterId: isReciterId(reciterId) ? reciterId : DEFAULT_RECITER,
+        });
+      },
+      setRecitationMode(recitationMode) {
+        set({
+          recitationMode: isRecitationMode(recitationMode)
+            ? recitationMode
+            : DEFAULT_RECITATION_MODE,
+        });
       },
     }),
     {

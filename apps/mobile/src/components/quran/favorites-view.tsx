@@ -5,6 +5,7 @@ import { useCSSVariable } from "uniwind";
 
 import { Text, View } from "~/components/ui";
 import { getArabicScript } from "~/constants/scripts";
+import { stopRecitation } from "~/lib/quran/recitation-player";
 import { useFavoriteVerses } from "~/store/favorite-store";
 import { usePreferences } from "~/store/preferences-store";
 
@@ -17,6 +18,8 @@ export function FavoritesView() {
   const scriptId = usePreferences((state) => state.scriptId);
   const fontSize = usePreferences((state) => state.arabicFontSize);
   const script = getArabicScript(scriptId);
+
+  React.useEffect(() => () => stopRecitation(), []);
 
   const verses = React.useMemo<PagedVerse[]>(
     () =>
@@ -37,6 +40,7 @@ export function FavoritesView() {
       fontSize={fontSize}
       listKey={FAVORITES_LIST_KEY}
       initialIndex={0}
+      onUserScroll={() => stopRecitation()}
       script={script}
       verses={verses}
     />
