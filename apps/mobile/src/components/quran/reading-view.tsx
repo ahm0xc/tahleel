@@ -3,8 +3,10 @@ import React from "react";
 import { getArabicScript } from "~/constants/scripts";
 import { useChapterAdvance } from "~/hooks/use-chapter-advance";
 import { getEditionChapter } from "~/lib/quran/edition-data";
+import { stopRecitation } from "~/lib/quran/recitation-player";
 import { usePreferences } from "~/store/preferences-store";
 import { useReadingState } from "~/store/reading-state-store";
+import { useRecitation } from "~/store/recitation-store";
 import { useStreaks } from "~/store/streaks-context";
 
 import { ChapterAdvanceOverlay } from "./chapter-advance-overlay";
@@ -57,6 +59,20 @@ export function ReadingView() {
 
   const handlePageChange = React.useCallback(
     (index: number) => {
+      const recitation = useRecitation.getState();
+
+      // A page change while reciting is the pager following the audio, which
+      // can pass over pages on its way. Only the verse being recited is a real
+      // change; a reader-driven scroll stops the recitation before it gets
+      // here. The verse being recited still counts as read.
+      if (
+        recitation.current !== null &&
+        (recitation.current.chapterNumber !== chapterNumberRef.current ||
+          recitation.current.verseNumber !== index + 1)
+      ) {
+        return;
+      }
+
       const previous = activeIndexRef.current;
 
       if (index !== previous) {
@@ -109,6 +125,16 @@ export function ReadingView() {
     activeSinceRef.current = Date.now();
   }, [chapterNumber, initialIndex]);
 
+  React.useEffect(() => () => stopRecitation(), []);
+
+  React.useEffect(() => {
+    stopRecitation();
+  }, [chapterNumber]);
+
+  const handleUserScroll = React.useCallback(() => {
+    stopRecitation();
+  }, []);
+
   return (
     <>
       <VersePager
@@ -116,6 +142,7 @@ export function ReadingView() {
         listKey={`${script.editionId}:${chapterNumber}`}
         initialIndex={initialIndex}
         onPageChange={handlePageChange}
+        onUserScroll={handleUserScroll}
         script={script}
         verses={verses}
       />
