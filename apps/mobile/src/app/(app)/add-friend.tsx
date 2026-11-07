@@ -16,6 +16,7 @@ import { router } from "expo-router";
 import QRCode from "react-native-qrcode-svg";
 import { useCSSVariable } from "uniwind";
 
+import { HeaderBackdrop } from "~/components/header-backdrop";
 import { Icon } from "~/components/icon";
 import { OfflineAlert } from "~/components/offline-alert";
 import { Button, ButtonLabel, Text, View } from "~/components/ui";
@@ -103,7 +104,11 @@ export default function AddFriendScreen() {
 
 function Header() {
   return (
-    <View className="pt-safe-offset-2 px-safe-offset-4 pb-5">
+    <View
+      className="pt-safe-offset-2 px-safe-offset-4 pb-5"
+      style={{ position: "relative" }}
+    >
+      <HeaderBackdrop />
       <View className="flex-row items-center gap-3">
         <View className="flex-1 flex-row items-center justify-start">
           {Platform.OS === "ios" ? (

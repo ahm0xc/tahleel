@@ -4,6 +4,7 @@ import Feather from "@expo/vector-icons/Feather";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCSSVariable } from "uniwind";
 
+import { HeaderBackdrop } from "~/components/header-backdrop";
 import { Image, Text, View } from "~/components/ui";
 import { CHAPTERS, getChapter } from "~/constants/chapters";
 import { getTranslationLanguage } from "~/constants/translations";
@@ -35,7 +36,11 @@ export default function DailyDoseScreen() {
 
   return (
     <View className="bg-background pt-safe-offset-4 flex-1">
-      <View className="flex-row items-center justify-center px-6">
+      <View
+        className="flex-row items-center justify-center px-6"
+        style={{ position: "relative" }}
+      >
+        <HeaderBackdrop />
         <Image
           source={{
             light: require("~/../assets/images/logo-long.png"),

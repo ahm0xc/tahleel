@@ -69,10 +69,11 @@ export default function ReciterScreen() {
   return (
     <ScrollView
       className="bg-background flex-1"
+      contentContainerStyle={{ paddingTop: insets.top + 56 + 8 }}
       contentContainerClassName="pb-safe-offset-6"
       showsVerticalScrollIndicator={false}
     >
-      <View className="px-safe-offset-4 mt-6">
+      <View className="px-safe-offset-4">
         <View
           className="flex-row flex-wrap gap-3"
           onLayout={(event) => setRowWidth(event.nativeEvent.layout.width)}

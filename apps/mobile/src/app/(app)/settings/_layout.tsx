@@ -10,6 +10,7 @@ import {
 import { NativeStackHeaderProps, Stack, useRouter } from "expo-router";
 import { useCSSVariable } from "uniwind";
 
+import { HeaderBackdrop } from "~/components/header-backdrop";
 import { Icon } from "~/components/icon";
 import { Button, Text, View } from "~/components/ui";
 
@@ -33,7 +34,10 @@ export default function SettingsLayout() {
       />
       <Stack.Screen name="script" options={{ title: "Script" }} />
       <Stack.Screen name="recitation/index" options={{ title: "Recitation" }} />
-      <Stack.Screen name="recitation/reciter" options={{ title: "Reciter" }} />
+      <Stack.Screen
+        name="recitation/reciter"
+        options={{ title: "Reciter", headerTransparent: true }}
+      />
       <Stack.Screen name="daily-goal" options={{ title: "Daily goal" }} />
       <Stack.Screen name="notifications" options={{ title: "Notifications" }} />
     </Stack>
@@ -44,7 +48,11 @@ function Header({ options }: NativeStackHeaderProps) {
   const router = useRouter();
 
   return (
-    <View className="pt-safe-offset-0 px-safe-offset-4 flex-row">
+    <View
+      className="pt-safe-offset-0 px-safe-offset-4 flex-row"
+      style={{ position: "relative" }}
+    >
+      <HeaderBackdrop />
       <View className="h-14 flex-1 flex-row items-center justify-start">
         {Platform.OS === "ios" ? (
           <Host matchContents>
