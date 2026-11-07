@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { Menu, Skeleton } from "heroui-native";
 import { useCSSVariable } from "uniwind";
 
+import { HeaderBackdrop } from "~/components/header-backdrop";
 import { Icon } from "~/components/icon";
 import { OfflineAlert } from "~/components/offline-alert";
 import { Button, Image, Text, View } from "~/components/ui";
@@ -100,7 +101,11 @@ function Header() {
   const router = useRouter();
 
   return (
-    <View className="pt-safe-offset-2 px-safe-offset-4">
+    <View
+      className="pt-safe-offset-2 px-safe-offset-4"
+      style={{ position: "relative" }}
+    >
+      <HeaderBackdrop />
       <View className="flex-row items-center gap-3">
         <View className="flex-1 flex-row items-center justify-start">
           {Platform.OS === "ios" ? (

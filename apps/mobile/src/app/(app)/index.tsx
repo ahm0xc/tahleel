@@ -3,6 +3,7 @@ import { ScrollView } from "react-native";
 import { router } from "expo-router";
 import { Card } from "heroui-native";
 
+import { HeaderBackdrop } from "~/components/header-backdrop";
 import { OfflineAlert } from "~/components/offline-alert";
 import { StatsGrid } from "~/components/stats-grid";
 import { StreaksBadge } from "~/components/streaks-badge";
@@ -53,7 +54,11 @@ export default function HomeScreen() {
 
 function Header() {
   return (
-    <View className="pt-safe-offset-2 px-safe-offset-4 flex-row items-center justify-between py-3">
+    <View
+      className="pt-safe-offset-2 px-safe-offset-4 flex-row items-center justify-between py-3"
+      style={{ position: "relative" }}
+    >
+      <HeaderBackdrop />
       <Image
         source={{
           light: require("~/../assets/images/logo-long.png"),

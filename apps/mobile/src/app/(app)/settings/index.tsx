@@ -6,8 +6,10 @@ import Constants from "expo-constants";
 import * as Device from "expo-device";
 import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCSSVariable } from "uniwind";
 
+import { HeaderBackdrop } from "~/components/header-backdrop";
 import {
   SettingsList,
   SettingsListItem,
@@ -29,7 +31,6 @@ import { api } from "~/trpc/client";
 
 const PRIVACY_POLICY_URL = `${process.env.EXPO_PUBLIC_APP_URL}/privacy`;
 const TERMS_URL = `${process.env.EXPO_PUBLIC_APP_URL}/terms`;
-
 export default function SettingsScreen() {
   const { signOut } = useAuth();
   const { user } = useUser();
@@ -72,11 +73,11 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView
-      className="pb-safe-offset-4 pt-safe-offset-2 bg-background flex-1"
+      className="bg-background flex-1"
+      contentContainerClassName="pb-safe-offset-4"
       showsVerticalScrollIndicator={false}
     >
       <Header />
-
       <ProfileCard />
 
       <SettingsList title="Quran settings">
@@ -246,8 +247,14 @@ export default function SettingsScreen() {
 }
 
 function Header() {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View className="px-safe-offset-4 items-center pt-4">
+    <View
+      className="px-safe-offset-4 pt-safe-offset-4 w-full items-center"
+      style={{ height: insets.top + 56, position: "relative" }}
+    >
+      <HeaderBackdrop />
       <Image
         source={{
           light: require("~/../assets/images/logo-long.png"),

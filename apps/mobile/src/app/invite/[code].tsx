@@ -14,6 +14,7 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCSSVariable } from "uniwind";
 
+import { HeaderBackdrop } from "~/components/header-backdrop";
 import { Icon } from "~/components/icon";
 import { Button, ButtonLabel, Image, Text, View } from "~/components/ui";
 import { useInviteStore } from "~/store/invite-store";
@@ -144,7 +145,11 @@ export default function InviteScreen() {
 
 function Header({ onClose }: { onClose: () => void }) {
   return (
-    <View className="pt-safe-offset-0 px-safe-offset-4 flex-row">
+    <View
+      className="pt-safe-offset-0 px-safe-offset-4 flex-row"
+      style={{ position: "relative" }}
+    >
+      <HeaderBackdrop />
       <View className="h-14 flex-1 flex-row items-center justify-start">
         {Platform.OS === "ios" ? (
           <Host matchContents>
