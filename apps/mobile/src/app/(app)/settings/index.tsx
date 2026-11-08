@@ -14,6 +14,7 @@ import {
   SettingsList,
   SettingsListItem,
   SettingsPicker,
+  SettingsSwitchRow,
 } from "~/components/settings";
 import { Image, Text, View } from "~/components/ui";
 import { getReciter } from "~/constants/reciters";
@@ -50,6 +51,10 @@ export default function SettingsScreen() {
   );
   const reminderTimeId = usePreferences((state) => state.reminderTimeId);
   const reciterId = usePreferences((state) => state.reciterId);
+  const keepScreenAwake = usePreferences((state) => state.keepScreenAwake);
+  const setKeepScreenAwake = usePreferences(
+    (state) => state.setKeepScreenAwake
+  );
 
   const script = getArabicScript(scriptId);
   const reciter = getReciter(reciterId);
@@ -132,9 +137,16 @@ export default function SettingsScreen() {
           chevron
           icon="mic-outline"
           label="Recitation"
-          showDivider={false}
           value={reciter.name}
           onPress={() => router.push("/settings/recitation")}
+        />
+
+        <SettingsSwitchRow
+          icon="sunny-outline"
+          label="Keep screen awake"
+          showDivider={false}
+          value={keepScreenAwake}
+          onChange={setKeepScreenAwake}
         />
       </SettingsList>
 

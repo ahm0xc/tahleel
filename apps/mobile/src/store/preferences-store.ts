@@ -49,6 +49,7 @@ interface PreferencesStore {
   dailyDoseTranslationId: TranslationLanguageId;
   reciterId: ReciterId;
   recitationMode: RecitationMode;
+  keepScreenAwake: boolean;
   setScriptId: (scriptId: ArabicScriptId) => void;
   setTranslationLanguageId: (id: TranslationLanguageId) => void;
   setArabicFontSize: (fontSize: number) => void;
@@ -60,7 +61,10 @@ interface PreferencesStore {
   setDailyDoseTranslationId: (id: TranslationLanguageId) => void;
   setReciterId: (id: ReciterId) => void;
   setRecitationMode: (mode: RecitationMode) => void;
+  setKeepScreenAwake: (keepScreenAwake: boolean) => void;
 }
+
+export const DEFAULT_KEEP_SCREEN_AWAKE = true;
 
 export const usePreferences = create<PreferencesStore>()(
   persist(
@@ -76,6 +80,7 @@ export const usePreferences = create<PreferencesStore>()(
       dailyDoseTranslationId: DEFAULT_TRANSLATION_LANGUAGE,
       reciterId: DEFAULT_RECITER,
       recitationMode: DEFAULT_RECITATION_MODE,
+      keepScreenAwake: DEFAULT_KEEP_SCREEN_AWAKE,
       setScriptId(scriptId) {
         set({ scriptId });
       },
@@ -128,11 +133,23 @@ export const usePreferences = create<PreferencesStore>()(
             : DEFAULT_RECITATION_MODE,
         });
       },
+      setKeepScreenAwake(keepScreenAwake) {
+        set({ keepScreenAwake });
+      },
     }),
     {
       name: "preferences-store",
       storage: createJSONStorage(() => zustandStorage),
       version: 1,
+      merge: (persistedState, currentState) => {
+        const persisted = (persistedState ?? {}) as Partial<PreferencesStore>;
+        return {
+          ...currentState,
+          ...persisted,
+          keepScreenAwake:
+            persisted.keepScreenAwake ?? currentState.keepScreenAwake,
+        };
+      },
     }
   )
 );
