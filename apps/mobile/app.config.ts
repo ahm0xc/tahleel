@@ -117,6 +117,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           },
         },
       ],
+      "expo-status-bar",
       "@bacons/apple-targets",
     ],
     experiments: {
