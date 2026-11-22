@@ -134,13 +134,13 @@ export async function getDailyEngagementSummary(options?: {
     (r) => r.lastCompletedDay === targetDate && (r.currentStreak ?? 0) > 0
   ).length;
 
-  const yesterdayOfTarget = addDays(targetDate, -1);
+  const twoDaysBeforeTarget = addDays(targetDate, -2);
   const activeStreaksCount = streakRows.filter(
     (r) =>
       (r.currentStreak ?? 0) > 0 &&
       r.lastCompletedDay &&
-      (r.lastCompletedDay === targetDate ||
-        r.lastCompletedDay === yesterdayOfTarget)
+      r.lastCompletedDay >= twoDaysBeforeTarget &&
+      r.lastCompletedDay <= targetDate
   ).length;
 
   const longestActiveStreak = streakRows.reduce(

@@ -20,7 +20,7 @@ enum StreaksStore {
     let daysSinceCompletion =
       calendar.dateComponents([.day], from: completedDate, to: .now).day ?? Int.max
 
-    guard (0...1).contains(daysSinceCompletion) else {
+    guard (0...2).contains(daysSinceCompletion) else {
       return 0
     }
 
@@ -58,11 +58,12 @@ struct StreaksProvider: TimelineProvider {
     in context: Context,
     completion: @escaping (Timeline<StreaksEntry>) -> Void
   ) {
-    let nextUpdate =
-      Calendar.current.date(byAdding: .hour, value: 1, to: .now)
-      ?? Date().addingTimeInterval(3600)
-
-    completion(Timeline(entries: [loadEntry()], policy: .after(nextUpdate)))
+    var cal = Calendar(identifier: .gregorian)
+    cal.timeZone = TimeZone(identifier: "UTC")!
+    let nextUTCMidnight = cal.startOfDay(
+      for: cal.date(byAdding: .day, value: 1, to: .now)!
+    )
+    completion(Timeline(entries: [loadEntry()], policy: .after(nextUTCMidnight)))
   }
 
   private func loadEntry() -> StreaksEntry {

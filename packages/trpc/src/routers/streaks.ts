@@ -38,33 +38,46 @@ function toTodayProgress(row: typeof dailyProgress.$inferSelect) {
 }
 
 export const streaksRouter = createTRPCRouter({
-  get: protectedProcedure
-    .input(z.object({ today: daySchema.optional() }).optional())
-    .query(async ({ ctx, input }) => {
-      const today = input?.today ?? todayInUTC();
+  get: protectedProcedure.query(async ({ ctx }) => {
+    const today = todayInUTC();
 
-      const streakRow = await db.query.userStreaks.findFirst({
-        where: { userId: ctx.auth.userId },
-      });
+    const streakRow = await db.query.userStreaks.findFirst({
+      where: { userId: ctx.auth.userId },
+    });
 
-      const stored = streakRow ? toStreakState(streakRow) : EMPTY_STREAK;
+    const stored = streakRow ? toStreakState(streakRow) : EMPTY_STREAK;
 
-      const progressRow = await db.query.dailyProgress.findFirst({
-        where: { userId: ctx.auth.userId, day: today },
-      });
+    const progressRow = await db.query.dailyProgress.findFirst({
+      where: { userId: ctx.auth.userId, day: today },
+    });
 
-      const [firstProgress] = await db
-        .select({ day: min(dailyProgress.day) })
-        .from(dailyProgress)
-        .where(eq(dailyProgress.userId, ctx.auth.userId));
+    const [firstProgress] = await db
+      .select({ day: min(dailyProgress.day) })
+      .from(dailyProgress)
+      .where(eq(dailyProgress.userId, ctx.auth.userId));
 
-      return {
-        ...readStreak(stored, today),
-        isAlive: isStreakAlive(stored, today),
-        todayProgress: progressRow ? toTodayProgress(progressRow) : null,
-        firstProgressDay: firstProgress?.day ?? null,
-      };
-    }),
+    const live = readStreak(stored, today);
+
+    if (streakRow && live.currentStreak !== stored.currentStreak) {
+      await db
+        .update(userStreaks)
+        .set({ currentStreak: 0, updatedAt: new Date() })
+        .where(
+          and(
+            eq(userStreaks.userId, ctx.auth.userId),
+            eq(userStreaks.currentStreak, stored.currentStreak),
+            eq(userStreaks.lastCompletedDay, stored.lastCompletedDay!)
+          )
+        );
+    }
+
+    return {
+      ...live,
+      isAlive: isStreakAlive(stored, today),
+      todayProgress: progressRow ? toTodayProgress(progressRow) : null,
+      firstProgressDay: firstProgress?.day ?? null,
+    };
+  }),
 
   update: protectedProcedure
     .input(

@@ -14,7 +14,7 @@ export const EMPTY_STREAK: StreakState = {
 
 export function isStreakAlive(streak: StreakState, today: string): boolean {
   if (!streak.lastCompletedDay) return false;
-  return diffInDays(streak.lastCompletedDay, today) <= 1;
+  return diffInDays(streak.lastCompletedDay, today) <= 2;
 }
 
 export function readStreak(streak: StreakState, today: string): StreakState {
@@ -34,7 +34,7 @@ export function advanceStreak(streak: StreakState, day: string): StreakState {
     return streak;
   }
 
-  const currentStreak = gap === 1 ? streak.currentStreak + 1 : 1;
+  const currentStreak = gap <= 2 ? streak.currentStreak + 1 : 1;
 
   return {
     currentStreak,

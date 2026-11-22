@@ -71,7 +71,7 @@ const StreaksContext = createContext<StreaksContextType | undefined>(undefined);
 
 function isStreakAlive(lastCompletedDay: string | null): boolean {
   return (
-    lastCompletedDay !== null && diffInDays(lastCompletedDay, todayInUTC()) <= 1
+    lastCompletedDay !== null && diffInDays(lastCompletedDay, todayInUTC()) <= 2
   );
 }
 
@@ -295,11 +295,8 @@ export function StreaksProvider({ children }: StreaksProviderProps) {
   useEffect(() => {
     if (!userStreaks) return;
 
-    updateStreaksWidget(
-      userStreaks.currentStreak,
-      userStreaks.lastCompletedDay
-    );
-  }, [userStreaks]);
+    updateStreaksWidget(userStreaks.currentStreak, userStreaks.lastCompletedDay);
+  }, [appState, userStreaks]);
 
   const todayProgress = useMemo<TodayProgress | null>(() => {
     const base = userStreaks?.todayProgress;
