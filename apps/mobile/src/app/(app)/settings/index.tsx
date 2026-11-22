@@ -20,10 +20,9 @@ import { Image, Text, View } from "~/components/ui";
 import { getReciter } from "~/constants/reciters";
 import { getArabicScript } from "~/constants/scripts";
 import { TRANSLATION_LANGUAGES } from "~/constants/translations";
-import { openAccountDeletionRequest } from "~/lib/account-deletion";
 import { clearDeviceSession, readDeviceSession } from "~/lib/device-session";
 import { createFeedbackUrl } from "~/lib/feedback";
-import { cacheStorage } from "~/lib/storage";
+import { cacheStorage, localStorage } from "~/lib/storage";
 import { isDev } from "~/lib/utils";
 import { clearStreaksWidget } from "~/lib/widget/streaks-widget";
 import { useOnboarding } from "~/store/onboarding-store";
@@ -74,6 +73,38 @@ export default function SettingsScreen() {
     clearStreaksWidget();
     await signOut();
     await clearDeviceSession();
+  }
+
+  async function handleDeleteAccount() {
+    localStorage.clearAll();
+    await handleSignout();
+  }
+
+  function confirmAccountDeletion() {
+    Alert.alert(
+      "Delete your account?",
+      "This permanently removes your account, your reading history, your streaks, and your friends. This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Continue",
+          style: "destructive",
+          onPress: () =>
+            Alert.alert(
+              "Are you absolutely sure?",
+              "There is no way to recover your account or any of your data once it is deleted.",
+              [
+                { text: "Keep my account", style: "cancel" },
+                {
+                  text: "Delete account",
+                  style: "destructive",
+                  onPress: () => void handleDeleteAccount(),
+                },
+              ]
+            ),
+        },
+      ]
+    );
   }
 
   return (
@@ -181,29 +212,8 @@ export default function SettingsScreen() {
         <SettingsListItem
           destructive
           icon="trash-outline"
-          label="Account deletion request"
-          onPress={() => {
-            if (!user) return;
-
-            Alert.alert(
-              "Request account deletion?",
-              "This will open your mail app with a prefilled request. Your account will not be deleted until the request is reviewed.",
-              [
-                { text: "Cancel", style: "cancel" },
-                {
-                  text: "Request deletion",
-                  style: "destructive",
-                  onPress: () =>
-                    void openAccountDeletionRequest({
-                      id: user.id,
-                      firstName: user.firstName,
-                      lastName: user.lastName,
-                      email: user.primaryEmailAddress?.emailAddress ?? null,
-                    }),
-                },
-              ]
-            );
-          }}
+          label="Delete account"
+          onPress={confirmAccountDeletion}
         />
         <SettingsListItem
           destructive

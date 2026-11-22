@@ -1,11 +1,18 @@
 {
-  "version": 1,
+  "version": 2,
   "skills": {
+    "app-store-preflight-skills": {
+      "source": "truongduy2611/app-store-preflight-skills",
+      "commit": "cfd9c73577300f9310ca892fefd38fbe1abd73cb",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "48a3dcbca27ad7b340f28c5ed77c8880ef322b25e00af6c3b24a95e9fb3df44d"
+    },
     "apple-targets": {
       "source": "EvanBacon/expo-apple-targets",
       "sourceType": "github",
       "skillPath": "skills/apple-targets/SKILL.md",
-      "computedHash": "6e144cc599c0ad3cfab8db217682d87de535e829d386383962e3bbc1f8ce1cc7"
+      "computedHash": "597a4a0f59259869c2c9469dae6d1cce6f0bc05c0111d02f04e51399465304fe"
     }
   }
 }
